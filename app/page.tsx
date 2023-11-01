@@ -5,6 +5,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Teams from './teams';
+import { League } from './global';
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +17,14 @@ export default async function Home() {
     redirect('/login');
   }
 
-  const { data } = await supabase.from('teams').select('*, profiles(*), leagues(*)').eq('user_id', session.user.id);
+  const { data } = await supabase.from('teams')
+    .select('*, profiles(*), leagues(*)').eq('user_id', session.user.id);
 
   const teams = data?.map(team => ({
     ...team,
-    //league: team.leagues.find(league => league.id === team.league_id)
-  })) ?? [] 
+    author: team.profiles,
+    league: team.leagues
+})) ?? []
 
   return (
     <div className='w-full max-w-xl mx-auto'>
@@ -30,8 +33,7 @@ export default async function Home() {
           <AuthButtonServer />
       </div>
       <button>Create A League</button>
-      <h1>My Teams</h1>
-      <pre>{JSON.stringify(teams, null, 2)}</pre>
+      <Teams teams={teams}/>
     </div>
   )
 }
