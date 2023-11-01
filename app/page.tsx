@@ -5,11 +5,12 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Teams from './teams';
+import { Database } from '@/lib/database.types';
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const supabase = createServerComponentClient({ cookies }); // TODO: add database type in here
+  const supabase = createServerComponentClient<Database>({ cookies });
 
   const {data : { session }} = await supabase.auth.getSession();
   if (!session) {

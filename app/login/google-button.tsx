@@ -1,10 +1,11 @@
 "use client";
 
+import { Database } from "@/lib/database.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 
 export default function GitHubButton() {
-  const supabase = createClientComponentClient(); // TODO: add db type later
+  const supabase = createClientComponentClient<Database>();
 
   const handleSignIn = async () => {
     await supabase.auth.signInWithOAuth({
