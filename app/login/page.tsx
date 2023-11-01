@@ -2,7 +2,6 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import GoogleButton from "./google-button";
-import { Database } from "@/lib/database.types";
 
 export const dynamic = "force-dynamic";
 

@@ -4,7 +4,6 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 
 import type { Session } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@/lib/database.types";
 
 export default function AuthButtonClient({ session } : { session: Session | null}) {
     const supabase = createClientComponentClient<Database>();
