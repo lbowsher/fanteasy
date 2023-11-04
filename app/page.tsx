@@ -18,13 +18,17 @@ export default async function Home() {
   }
 
   const { data } = await supabase.from('teams')
-    .select('*, profiles(*), leagues(*)').eq('user_id', session.user.id);
+    .select('*, profiles(*), leagues(*)')
+    .eq('user_id', session.user.id);
 
   const teams = data?.map(team => ({
     ...team,
     author: team.profiles,
     league: team.leagues
-})) ?? []
+  })) ?? []
+
+  //<button onClick={redirect('/new-league')}>Create A League</button>
+
 
   return (
     <div className='w-full max-w-xl mx-auto'>
@@ -32,8 +36,9 @@ export default async function Home() {
           <h1 className='text-xl font-bold'>Home</h1>
           <AuthButtonServer />
       </div>
-      <button>Create A League</button>
-      <Teams teams={teams}/>
+      <div className='flex-1'>
+          <Teams teams={teams}/>
+      </div>
     </div>
   )
 }

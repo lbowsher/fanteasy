@@ -1,9 +1,6 @@
 'use client'
 
-import { Team } from "./global";
-
 export default function Teams({ teams }: { teams: TeamWithLeague[] }){
-    console.log(teams);
     return teams.map(team => ( 
         <div>
             <h1>My Teams</h1>
