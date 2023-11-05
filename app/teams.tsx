@@ -3,7 +3,6 @@
 export default function Teams({ teams }: { teams: TeamWithLeague[] }){
     return teams.map(team => ( 
         <div>
-            <h1>My Teams</h1>
             <div className="ml-4">
                 <p>
                     <span className="font-bold"> {team.name} </span>

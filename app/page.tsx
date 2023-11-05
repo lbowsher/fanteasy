@@ -41,6 +41,7 @@ export default async function Home() {
         <h1 className="">
           <Link href="/new-league">create a new league</Link>
         </h1>
+        <h1>My Teams</h1>
           <Teams teams={teams}/>
       </div>
     </div>
