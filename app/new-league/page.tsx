@@ -3,20 +3,27 @@ import { createServerActionClient, createServerComponentClient } from "@supabase
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import LeagueCreator from "./league-creator";
+import Link from 'next/link';
 
 
 export const dynamic = "force-dynamic";
 
-export default function NewLeague() {
-    //const supabase = createServerComponentClient<Database>({ cookies }); 
+export default async function NewLeague() {
+    const supabase = createServerComponentClient<Database>({ cookies }); 
 
-    //const {data : { session }} = await supabase.auth.getSession();
+    const {data : { session }} = await supabase.auth.getSession();
+    if (!session) {
+        redirect('/login');
+    }
     
 
 
     return ( 
-    <div className="flex-1 justify-center items-center">
-        <LeagueCreator/>
+    <div className="flex-wrap justify-center items-center">
+        <h1 className="">
+            <Link href="/">Home</Link>
+        </h1>
+        <LeagueCreator user={session.user}/>
     </div>);
 
 }

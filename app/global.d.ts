@@ -7,7 +7,7 @@ type Profile = DB['public']['Tables']['profiles']['Row']
 declare global {
     type Database = db;
     type TeamWithLeague = Team & {
-        author: Profiler;
+        author: Profile;
         league: League;
     }
 }

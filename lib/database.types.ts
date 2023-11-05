@@ -11,6 +11,7 @@ export interface Database {
     Tables: {
       leagues: {
         Row: {
+          commish: string | null
           id: string
           is_bestball: boolean
           league: string
@@ -18,6 +19,7 @@ export interface Database {
           num_teams: number
         }
         Insert: {
+          commish?: string | null
           id?: string
           is_bestball?: boolean
           league?: string
@@ -25,6 +27,7 @@ export interface Database {
           num_teams: number
         }
         Update: {
+          commish?: string | null
           id?: string
           is_bestball?: boolean
           league?: string
@@ -83,6 +86,7 @@ export interface Database {
           {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -90,25 +94,25 @@ export interface Database {
       }
       teams: {
         Row: {
-          id: number
+          id: string
           is_commish: boolean
-          league_id: string | null
+          league_id: string
           name: string
           players: string[] | null
           user_id: string | null
         }
         Insert: {
-          id?: number
+          id?: string
           is_commish?: boolean
-          league_id?: string | null
+          league_id: string
           name?: string
           players?: string[] | null
           user_id?: string | null
         }
         Update: {
-          id?: number
+          id?: string
           is_commish?: boolean
-          league_id?: string | null
+          league_id?: string
           name?: string
           players?: string[] | null
           user_id?: string | null
@@ -117,12 +121,14 @@ export interface Database {
           {
             foreignKeyName: "teams_league_id_fkey"
             columns: ["league_id"]
+            isOneToOne: false
             referencedRelation: "leagues"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "teams_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }

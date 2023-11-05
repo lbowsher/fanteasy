@@ -5,7 +5,8 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Teams from './teams';
-import { League } from './global';
+//import { League } from './global';
+import Link from 'next/link';
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,9 @@ export default async function Home() {
           <AuthButtonServer />
       </div>
       <div className='flex-1'>
+        <h1 className="">
+          <Link href="/new-league">create a new league</Link>
+        </h1>
           <Teams teams={teams}/>
       </div>
     </div>
