@@ -3,7 +3,7 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
 
-export default function GitHubButton() {
+export default function GoogleButton() {
   const supabase = createClientComponentClient<Database>();
 
   const handleSignIn = async () => {

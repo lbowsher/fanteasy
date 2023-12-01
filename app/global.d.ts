@@ -10,4 +10,8 @@ declare global {
         author: Profile;
         league: League;
     }
+    type TeamWithOwner = Team & {
+        owner: Profile.name
+    }
+    type LeagueID = League.id;
 }
