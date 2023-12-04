@@ -17,7 +17,7 @@ export default async function LeagueHome({ teams }: { teams: TeamWithOwner[] }){
         <div key={team.id} className="border border-gray-800 border-t-0 px-4 py-8 flex">
             <div className="ml-4">
                 <p>
-                    <Link href={`/team/${team.id}`} className="font-bold"> {team.name} </Link>
+                    <Link href={`team/${team.id}`} className="font-bold"> {team.name} </Link>
                 </p>
                 <p>
                     <span> {team.owner} </span>

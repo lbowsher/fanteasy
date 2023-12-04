@@ -14,4 +14,5 @@ declare global {
         owner: Profile.name
     }
     type LeagueID = League.id;
+    type TeamID = Team.id;
 }
