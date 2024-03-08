@@ -35,8 +35,8 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         owner: team.profiles?.name
         })) ?? [];
 
-    console.log(teams);
+    //console.log(teams);
     return <div className="flex-1 flex justify-center items-center">
-        <LeagueHome teams={teams}/>
+        <LeagueHome teams={teams} league_id={params.id}/>
         </div>;
 }

@@ -1,9 +1,11 @@
-"use client";
+
 
 import Link from 'next/link';
 
 
-export default async function LeagueHome({ teams }: { teams: TeamWithOwner[] }){
+
+
+export default async function LeagueHome({ teams, league_id }: { teams: TeamWithOwner[], league_id: LeagueID}){
 
     //TODO: add team image in
     //<div className="h-12 w-12">
@@ -17,7 +19,7 @@ export default async function LeagueHome({ teams }: { teams: TeamWithOwner[] }){
         <div key={team.id} className="border border-gray-800 border-t-0 px-4 py-8 flex">
             <div className="ml-4">
                 <p>
-                    <Link href={`team/${team.id}`} className="font-bold"> {team.name} </Link>
+                    <Link href={`${league_id}/team/${team.id}`} className="font-bold"> {team.name} </Link>
                 </p>
                 <p>
                     <span> {team.owner} </span>
