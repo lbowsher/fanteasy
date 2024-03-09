@@ -13,7 +13,7 @@ export default function Teams({ teams }: { teams: TeamWithLeague[] }){
             </div> 
             <div className="ml-4">
                 <p>
-                    <span className="font-bold"> {team.name} </span>
+                    <Link href={`/league/${team.league.id}/team/${team.id}`} className="font-bold"> {team.name} </Link>
                 </p>
                 <p>
                     <Link href={`/league/${team.league.id}`}>{team.league.name}</Link>
