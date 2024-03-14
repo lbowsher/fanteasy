@@ -3,7 +3,9 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-import MyTeam from './my-team';
+import OneTeam from './one-team';
+import AddPlayerSearch from './add-player';
+import SearchPage from './search-page';
 
 export const dynamic = "force-dynamic";
 
@@ -26,13 +28,29 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         );
     }
     const { data } = await supabase.from('teams')
-        .select('*')
+        .select('*, profiles(name), leagues(*)')
         .eq('id', teamId);
     
-    const team = data? data[0] : null
+    const teams = data?.map(team => ({
+        ...team,
+        owner: team.profiles?.name
+        })) ?? [];
+    const leagues = data?.map(team => ({
+        league: team.leagues
+        })) ?? [];
+    const league = leagues? leagues[0].league : null
 
-
-    return <div className="flex-1 flex justify-center items-center">
-        <MyTeam team={team}/>
-        </div>;
+    if (session.user.id != league?.commish) {
+        return <div className="flex-1 flex justify-center items-center">
+        <OneTeam team={teams[0]}/>
+        </div>
+    }
+    else {
+        return <div className="flex-1 flex justify-center items-center">
+            <OneTeam team={teams[0]}/>
+            <br></br>
+            <SearchPage team={teams[0]} sports_league={league?.league}></SearchPage>
+            </div>
+    }
+    // <AddPlayerSearch team={teams[0]} sports_league={league?.league}></AddPlayerSearch>
 }
