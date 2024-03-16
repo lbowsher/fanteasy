@@ -6,12 +6,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       leagues: {
         Row: {
-          commish: string | null
+          commish: string
           id: string
           is_bestball: boolean
           league: string
@@ -19,7 +19,7 @@ export interface Database {
           num_teams: number
         }
         Insert: {
-          commish?: string | null
+          commish: string
           id?: string
           is_bestball?: boolean
           league?: string
@@ -27,39 +27,68 @@ export interface Database {
           num_teams: number
         }
         Update: {
-          commish?: string | null
+          commish?: string
           id?: string
           is_bestball?: boolean
           league?: string
           name?: string
           num_teams?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leagues_commish_fkey"
+            columns: ["commish"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       players: {
         Row: {
-          id: string
+          "#": number | null
+          age: number | null
+          height: string | null
+          league: string | null
           name: string
+          nationality: string | null
           pic_url: string | null
+          player_id: string
           position: string
           scores: number[]
           team_name: string
+          weight: number | null
+          year: number | null
         }
         Insert: {
-          id?: string
+          "#"?: number | null
+          age?: number | null
+          height?: string | null
+          league?: string | null
           name: string
+          nationality?: string | null
           pic_url?: string | null
+          player_id?: string
           position: string
           scores?: number[]
           team_name?: string
+          weight?: number | null
+          year?: number | null
         }
         Update: {
-          id?: string
+          "#"?: number | null
+          age?: number | null
+          height?: string | null
+          league?: string | null
           name?: string
+          nationality?: string | null
           pic_url?: string | null
+          player_id?: string
           position?: string
           scores?: number[]
           team_name?: string
+          weight?: number | null
+          year?: number | null
         }
         Relationships: []
       }
@@ -98,7 +127,7 @@ export interface Database {
           is_commish: boolean
           league_id: string
           name: string
-          players: string[] | null
+          team_players: string[] | null
           user_id: string | null
         }
         Insert: {
@@ -106,7 +135,7 @@ export interface Database {
           is_commish?: boolean
           league_id: string
           name?: string
-          players?: string[] | null
+          team_players?: string[] | null
           user_id?: string | null
         }
         Update: {
@@ -114,7 +143,7 @@ export interface Database {
           is_commish?: boolean
           league_id?: string
           name?: string
-          players?: string[] | null
+          team_players?: string[] | null
           user_id?: string | null
         }
         Relationships: [
@@ -149,3 +178,83 @@ export interface Database {
     }
   }
 }
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
+      Database["public"]["Views"])
+  ? (Database["public"]["Tables"] &
+      Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof Database["public"]["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
+  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+  : never

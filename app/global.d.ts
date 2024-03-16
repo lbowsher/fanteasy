@@ -14,9 +14,13 @@ declare global {
     type TeamWithOwner = Team & {
         owner: Profile.name
     }
+    type TeamWithPlayers = Team & {
+        players: Player[]
+    }
     type LeagueID = League.id;
     type LeagueSportsLeague = League.league;
     type TeamID = Team.id;
     type PlayerID = Player.id;
     type UserID = Team.user_id;
+    type Player = Player;
 }

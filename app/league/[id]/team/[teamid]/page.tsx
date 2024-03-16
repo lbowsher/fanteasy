@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
 import OneTeam from './one-team';
-import AddPlayerSearch from './add-player';
 import SearchPage from './search-page';
 
 export const dynamic = "force-dynamic";
@@ -28,28 +27,44 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         );
     }
     const { data } = await supabase.from('teams')
-        .select('*, profiles(name), leagues(*)')
+        .select('*, owner: profiles(name), leagues(*)')
         .eq('id', teamId);
     
-    const teams = data?.map(team => ({
+    const this_team = data?.map(team => ({
         ...team,
-        owner: team.profiles?.name
-        })) ?? [];
-    const leagues = data?.map(team => ({
+        players: []
+        //players: team.players.filter(player => team.team_players?.includes(player.player_id))
+        }))?.[0] ?? null;
+    
+    const league = data?.map(team => ({
         league: team.leagues
-        })) ?? [];
-    const league = leagues? leagues[0].league : null
+        }))?.[0].league ?? null;
+    
+    const owner = data?.map(team => ({
+        name: Array.isArray(team.owner) ? team.owner[0]: team.owner
+        }))?.[0] ?? null;
+    
+    const { data: playerData } = await supabase.from('players')
+        .select('*')
+        .in('player_id', this_team?.team_players ?? []);
+    
+    const team_with_players = {
+        ...this_team,
+        players: playerData ?? []
+    };
 
     if (session.user.id != league?.commish) {
         return <div className="flex-1 flex justify-center items-center">
-        <OneTeam team={teams[0]}/>
+        <OneTeam team={this_team}/>
         </div>
     }
     else {
-        return <div className="flex-1 flex justify-center items-center">
-            <OneTeam team={teams[0]}/>
+        return <div className="flex-1 flex flex-col justify-center items-center">
+            <h1>{this_team?.name}</h1>
+            <h2>{owner?.name?.name}</h2>
+            <OneTeam team={team_with_players}/>
             <br></br>
-            <SearchPage team={teams[0]} sports_league={league?.league}></SearchPage>
+            <SearchPage team={team_with_players} sports_league={league?.league}></SearchPage>
             </div>
     }
     // <AddPlayerSearch team={teams[0]} sports_league={league?.league}></AddPlayerSearch>

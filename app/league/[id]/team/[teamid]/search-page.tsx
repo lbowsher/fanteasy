@@ -3,13 +3,12 @@ import React, { useState } from 'react';
 import SearchComponent from './search-component';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithOwner }> = ({ sports_league, team }) => {
+const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPlayers }> = ({ sports_league, team }) => {
     const supabase = createClientComponentClient<Database>();
     
     const UpdatePlayer =async (playerID: PlayerID) => {
-        const new_players = team.players ? [...team.players, playerID] : [playerID];
-        console.log(new_players)
-        await supabase.from('teams').update({players: new_players }).eq('id', team.id);
+        team.team_players = [...team.team_players, playerID]
+        await supabase.from('teams').update({team_players: team.team_players}).eq('id', team.id);
         console.log("Submitted new player to team");
     }
 
@@ -34,7 +33,7 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithOw
 
     return (
         <div>
-        <h1>Search Page</h1>
+        <h1>Add Players to Roster</h1>
         <SearchComponent onSearch={handleSearch} />
         <ul>
             {searchResults.map((player, index) => (
