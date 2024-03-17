@@ -1,6 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import AuthButtonServer from '../../auth-button-server'
 import Link from 'next/link';
 
 import LeagueHome from './league-home';
@@ -36,7 +37,16 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         })) ?? [];
 
     //console.log(teams);
-    return <div className="flex-1 flex justify-center items-center">
-        <LeagueHome teams={teams} league_id={params.id}/>
-        </div>;
+    return (
+    <div className='w-full max-w-xl mx-auto'>
+        <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
+            <Link className='text-xl font-bold' href={'/'}>Home</Link>
+            <h1 className='text-xl font-bold'>League</h1>
+            <AuthButtonServer />
+        </div>   
+        <div className="flex-1 flex justify-center items-center">
+            <LeagueHome teams={teams} league_id={params.id}/>
+        </div>
+    </div>);
+
 }

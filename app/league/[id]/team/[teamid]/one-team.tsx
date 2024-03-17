@@ -12,7 +12,6 @@ export default async function OneTeam({ team }: { team: TeamWithPlayers }){
     //  <Image className="rounded-full" src={team.author.avatar_url} 
     //  alt="tweet user avatar" width={48} height={48}/>
     //</div> 
-    console.log(team)
     const orderedPlayers = team.players.sort((a : Player, b: Player) => {
         const positionOrder: { [key: string]: number } = { "PG": 0, "G": 1, "SG": 2, "SF": 3, "F": 4, "PF": 5, "C": 6 };
         return positionOrder[a.position] - positionOrder[b.position];
