@@ -12,25 +12,28 @@ export default async function OneTeam({ team }: { team: TeamWithPlayers }){
     //  <Image className="rounded-full" src={team.author.avatar_url} 
     //  alt="tweet user avatar" width={48} height={48}/>
     //</div> 
-    const supabase = createClientComponentClient<Database>();
-    const {data : { session }} = await supabase.auth.getSession();
-    if (!session) {
-        redirect('/login');
-    }
+    console.log(team)
+    const orderedPlayers = team.players.sort((a : Player, b: Player) => {
+        const positionOrder: { [key: string]: number } = { "PG": 0, "G": 1, "SG": 2, "SF": 3, "F": 4, "PF": 5, "C": 6 };
+        return positionOrder[a.position] - positionOrder[b.position];
+    });
 
-    // TODO: add all players with scores
-    return team.players.map((player: Player) => (
-        <div key={player.id} className="border border-gray-800 border-t-0 px-4 py-8 flex">
+    return orderedPlayers.map((player: Player) => (
+        <div key={player.id} className="border border-gray-800 border-t-0 px-3 py-8 flex">
             <div className="h-12 w-12">
-                <img className="rounded-full" src={player.pic_url} alt="player pic" width={48} height={48}/>
+                <img className="rounded-full" src={player.pic_url} width={48} height={48}/>
             </div>
-            <div className="ml-4">
-                <p>
-                    <span className="font-bold"> {player.name} </span>
-                    <span className="text-sm ml-2 text-gray-400">{player.position}</span>
-                </p>
-                <p> {player.scores}</p>
+            <div className="flex flex-col ml-5">
+                <span className="font-bold"> {player.name} </span>
+                <span> {player.team_name} </span>
             </div>
+            <div className="flex flex-col ml-2">
+                <span className="text-sm ml-2 text-gray-400">{player.position}</span>
+                <span className="text-sm ml-2 text-gray-400">{player.height}</span>
+                <span className="text-sm ml-2 text-gray-400">#{player.number}</span>
+
+            </div>
+            <p> {player.scores}</p>
         </div>
         ))
     

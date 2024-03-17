@@ -32,8 +32,6 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     
     const this_team = data?.map(team => ({
         ...team,
-        players: []
-        //players: team.players.filter(player => team.team_players?.includes(player.player_id))
         }))?.[0] ?? null;
     
     const league = data?.map(team => ({
@@ -54,8 +52,8 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     };
 
     if (session.user.id != league?.commish) {
-        return <div className="flex-1 flex justify-center items-center">
-        <OneTeam team={this_team}/>
+        return <div className="flex-1 flex flex-col justify-center items-center">
+        <OneTeam team={team_with_players}/>
         </div>
     }
     else {
