@@ -19,7 +19,7 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     const teamId = params.teamid;
     //const leagueId = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
     if (!teamId) {
-        // Handle the case when leagueId is undefined
+        // Handle the case when teamId is undefined
         return (
             <>
                 <h1>Error, invalid team</h1>
@@ -57,16 +57,26 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     };
 
     if (session.user.id != league?.commish) {
-        return <div className="flex-1 flex flex-col justify-center items-center">
-        <OneTeam team={team_with_players}/>
-        </div>
+        return (
+        <div className='w-full max-w-xl mx-auto'>
+            <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
+                <Link className='text-xl font-bold' href={'/'}>Home</Link>
+                <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
+                <AuthButtonServer />
+            </div>
+            <div className="flex-1 flex flex-col justify-center items-center">
+                <h1>{this_team?.name}</h1>
+                <h2>{owner?.name?.name}</h2>
+                <OneTeam team={team_with_players}/>
+            </div>
+        </div>)
     }
     else {
         return (
             <div className='w-full max-w-xl mx-auto'>
                 <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
                     <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                    <Link className='text-xl font-bold' href={`/league/${league.id}`}>League Home</Link>
+                    <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
                     <AuthButtonServer />
                 </div>
                 <div className="flex-1 flex flex-col justify-center items-center">

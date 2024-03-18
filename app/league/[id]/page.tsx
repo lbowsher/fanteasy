@@ -44,7 +44,7 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
             <h1 className='text-xl font-bold'>League</h1>
             <AuthButtonServer />
         </div>   
-        <div className="flex-1 flex justify-center items-center">
+        <div className="flex-1 flex flex-col justify-center items-center">
             <LeagueHome teams={teams} league_id={params.id}/>
         </div>
     </div>);
