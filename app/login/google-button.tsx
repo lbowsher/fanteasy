@@ -20,7 +20,7 @@ export default function GoogleButton() {
       <Image
         src="/continue-with-google.png"
         alt="Continue with Google"
-        width={100}
+        width={500}
         height={100}
       />
     </button>

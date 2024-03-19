@@ -3,6 +3,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AuthButtonServer from '../../auth-button-server';
+import GoogleButton from '../../login/google-button';
 import Link from 'next/link';
 import AddToTeam from './add-to-team';
 
@@ -12,7 +13,10 @@ export default async function TeamInvite({ params }: { params: { newteamid: Team
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-        redirect('/login');
+        return (
+        <div className="flex-1 flex justify-center items-center text-4xl font-bold">
+        <GoogleButton/>
+        </div>);
     }
 
     const team_id = params.newteamid;
