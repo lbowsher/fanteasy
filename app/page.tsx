@@ -39,7 +39,7 @@ export default async function Home() {
       </div>
       <div className='flex-1'>
         <h1 className="">
-          <Link href="/new-league">create a new league</Link>
+          <Link href="/new-league">+ Create a New League</Link>
         </h1>
         <h1>My Teams</h1>
           <Teams teams={teams}/>

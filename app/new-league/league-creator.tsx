@@ -2,6 +2,8 @@
 import { User, createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+//import AuthButtonServer from '../../auth-button-server'
+import Link from 'next/link';
 
 
 
@@ -38,30 +40,37 @@ export default function LeagueCreator({user}: {user: User}) {//AddLeague: (formD
     //<button onClick={handleCancel} className="hover:bg-gray-800 p-8 rounded-xl">Cancel</button>
     
     return ( 
-    <form className="flex-wrap border border-gray-800 border-t-0" action={AddLeague}>
-        <fieldset className="flex flex-col">
-            <legend>Create a New League</legend>
-            <input name="LeagueName" 
-                    className="bg-inherit flex-1 ml-2 text-2xl placeholder-gray-500 px-2" 
-                    placeholder="League Name" required/>
-            <label htmlFor="NumTeams">Number of teams:</label>
-            <select name="NumTeams" className="bg-inherit">
-                {Array.from({length: 13}, (_, i) => i + 2).map((number) => (
-                    <option key={number} value={number}>{number}</option>
-                ))}
-            </select>
-            <label htmlFor="SportsLeague">Sports League:</label>
-            <select name="SportsLeague" className="bg-inherit">
-                <option value="NBA">NBA</option>
-                <option value="NCAAM">NCAAM</option>
-            </select>
-            <label htmlFor="ScoringType">Scoring Type:</label>
-            <select name="ScoringType" className="bg-inherit">
-                <option value="BestBall">BestBall</option>
-            </select>
-            <input type="submit" value="Submit"></input>
-        </fieldset>
-    </form>
+    <div className='w-full max-w-xl mx-auto'>
+        <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
+            <Link className='text-xl font-bold' href={'/'}>Home</Link>
+        </div>
+        <div>
+            <form className="flex-wrap border border-gray-800 border-t-0" action={AddLeague}>
+                <fieldset className="flex flex-col">
+                    <legend>Create a New League</legend>
+                    <input name="LeagueName" 
+                            className="bg-inherit flex-1 ml-2 text-2xl placeholder-gray-500 px-2" 
+                            placeholder="League Name" required/>
+                    <label htmlFor="NumTeams">Number of teams:</label>
+                    <select name="NumTeams" className="bg-inherit">
+                        {Array.from({length: 13}, (_, i) => i + 2).map((number) => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                    <label htmlFor="SportsLeague">Sports League:</label>
+                    <select name="SportsLeague" className="bg-inherit">
+                        <option value="NBA">NBA</option>
+                        <option value="NCAAM">NCAAM</option>
+                    </select>
+                    <label htmlFor="ScoringType">Scoring Type:</label>
+                    <select name="ScoringType" className="bg-inherit">
+                        <option value="BestBall">BestBall</option>
+                    </select>
+                    <input type="submit" value="Submit"></input>
+                </fieldset>
+            </form>
+        </div>
+    </div>
     )
 
 }

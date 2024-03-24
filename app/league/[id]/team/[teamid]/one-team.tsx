@@ -13,7 +13,7 @@ export default async function OneTeam({ team }: { team: TeamWithPlayers }){
     //  alt="tweet user avatar" width={48} height={48}/>
     //</div> 
     const orderedPlayers = team.players.sort((a : Player, b: Player) => {
-        const positionOrder: { [key: string]: number } = { "PG": 0, "G": 1, "SG": 2, "SF": 3, "F": 4, "PF": 5, "C": 6 };
+        const positionOrder: { [key: string]: number } = { "PG": 0, "G": 1, "SG": 2, "GF": 3, "SF": 4, "F": 5, "PF": 6, "C": 7};
         return positionOrder[a.position] - positionOrder[b.position];
     });
 
@@ -30,9 +30,10 @@ export default async function OneTeam({ team }: { team: TeamWithPlayers }){
                 <span className="text-sm ml-2 text-gray-400">{player.position}</span>
                 <span className="text-sm ml-2 text-gray-400">{player.height}</span>
                 <span className="text-sm ml-2 text-gray-400">#{player.number}</span>
-
             </div>
-            <p> {player.scores}</p>
+            <div className="flex flex-col ml-2">
+                <p> {player.scores.reduce((partialSum: number, a: number) => partialSum + a, 0)}</p>
+            </div>
         </div>
         ))
     

@@ -9,14 +9,21 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
     const router = useRouter()
     
     const UpdatePlayer =async (playerID: PlayerID) => {
-        if (!playerID || team.team_players.includes(playerID)) {
+        if (!playerID || (team.team_players && team.team_players.includes(playerID))) {
             console.log("Player already in team or invalid player ID");
         }
         else {
-            const new_squad = [...team.team_players, playerID]
-            await supabase.from('teams').update({team_players: new_squad}).eq('id', team.id);
-            console.log("Submitted new player to team");
-            router.refresh();
+            if (team.team_players) {
+                const new_squad = [...team.team_players, playerID]
+                await supabase.from('teams').update({team_players: new_squad}).eq('id', team.id);
+                console.log("Submitted new player to team");
+                router.refresh();
+            }
+            else {
+                await supabase.from('teams').update({team_players: [playerID]}).eq('id', team.id);
+                console.log("Submitted new player to team");
+                router.refresh();
+            }
         }
     }
 
