@@ -5,7 +5,7 @@ import time
 # Create a new instance of the Chrome driver
 driver = webdriver.Chrome()
 
-driver.get("https://www.sports-reference.com/cbb/boxscores/index.cgi?month=3&day=21&year=2024")
+driver.get("https://www.sports-reference.com/cbb/boxscores/index.cgi?month=3&day=24&year=2024")
 
 # body_element = driver.find_element(By.CLASS_NAME, 'cbb')
 # wrap_div = body_element.find_element(By.ID, 'wrap')
