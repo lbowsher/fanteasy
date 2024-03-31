@@ -30,10 +30,28 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         .select('*, profiles(*)')
         .eq('league_id', leagueId);
     
+    const teamTotalScores = await Promise.all((data || []).map(async (team) => {
+        const { data: playerData } = await supabase.from('players')
+            .select('*')
+            .in('player_id', team.team_players ?? []);
+        const totalScores = playerData?.reduce((total, player) => total + player.scores.reduce((sum, score) => sum + score, 0), 0);
+        return { teamId: team.id, totalScores };
+    }));
+
+    // const teamTotalScores = data?.map(async (team) => {
+    //     const { data: playerData } = await supabase.from('players')
+    //         .select('*')
+    //         .in('player_id', team.team_players ?? []);
+    //     const totalScores = playerData?.reduce((total, player) => total + player.scores.reduce((sum, score) => sum + score, 0), 0);
+        
+        
+    // });
+
     // Might need to change to TeamWithLeague type
     const teams = data?.map(team => ({
         ...team,
-        owner: team.profiles?.name
+        owner: team.profiles?.name,
+        totalScore: teamTotalScores.find(score => score.teamId === team.id)?.totalScores
         })) ?? [];
 
     //console.log(teams);

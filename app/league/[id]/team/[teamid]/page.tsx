@@ -56,6 +56,8 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         redirect('/');
     };
 
+    const totalTeamScore = team_with_players?.players?.reduce((totalScore: number, player: Player) => totalScore + player.scores.reduce((partialSum: number, score: number) => partialSum + score, 0), 0);
+
     if (session.user.id != league?.commish) {
         return (
         <div className='w-full max-w-xl mx-auto'>
@@ -82,6 +84,7 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
                 <div className="flex-1 flex flex-col justify-center items-center">
                     <h1>{this_team?.name}</h1>
                     <h2>{owner?.name?.name}</h2>
+                    <h1>{totalTeamScore} total points</h1>
                     <OneTeam team={team_with_players}/>
                     <br></br>
                     <SearchPage team={team_with_players} sports_league={league?.league}></SearchPage>

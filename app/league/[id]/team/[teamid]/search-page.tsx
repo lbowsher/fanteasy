@@ -50,7 +50,7 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
         <SearchComponent onSearch={handleSearch} />
         <ul>
             {searchResults.map((player, index) => (
-            <p>
+            <p key={player.player_id}>
                 <span className="font-bold"> {player.name} </span>
                 <span className="text-sm ml-2 text-gray-400">{player.team_name}</span>
                 <button onClick={() => UpdatePlayer(player.player_id)}>+</button>

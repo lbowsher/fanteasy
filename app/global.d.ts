@@ -13,6 +13,7 @@ declare global {
     }
     type TeamWithOwner = Team & {
         owner: Profile.name
+        totalScore: Number
     }
     type TeamWithPlayers = Team & {
         players: Player[]

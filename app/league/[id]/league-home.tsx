@@ -14,7 +14,6 @@ export default async function LeagueHome({ teams, league_id }: { teams: TeamWith
     //</div> 
     
 
-
     return teams.map(team => ( 
         <div key={team.id} className="border border-gray-800 border-t-0 px-4 py-8 flex">
             <div className="ml-4">
@@ -23,6 +22,9 @@ export default async function LeagueHome({ teams, league_id }: { teams: TeamWith
                 </p>
                 <p>
                     <span> {team.owner} </span>
+                </p>
+                <p>
+                    <span className="ml-4"> Total Score: {team.totalScore} </span>
                 </p>
             </div>
         </div>
