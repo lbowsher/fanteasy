@@ -76,16 +76,16 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     else {
         return (
             <div className='w-full max-w-xl mx-auto'>
-                <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
+                <div className='flex text-snow justify-between px-4 py-6 border border-gray-800 border-t-0'>
                     <Link className='text-xl font-bold' href={'/'}>Home</Link>
                     <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
                     <AuthButtonServer />
                 </div>
-                <div className="flex-1 flex flex-col justify-center items-center">
-                    <h1>{this_team?.name}</h1>
+                <div className="flex-1 text-snow flex flex-col px-4 bg-gluonGrey">
+                    <h1 className='font-bold text-xl text-center'>{this_team?.name}</h1>
                     <h2>{owner?.name?.name}</h2>
-                    <h1>{totalTeamScore} total points</h1>
                     <OneTeam team={team_with_players}/>
+                    <h1 className='text-bold text-xl text-lava text-right'>{totalTeamScore} points</h1>
                     <br></br>
                     <SearchPage team={team_with_players} sports_league={league?.league}></SearchPage>
                 </div>

@@ -55,13 +55,13 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         })) ?? [];
 
     return (
-        <div className='w-full max-w-xl mx-auto bg-gluonGrey text-snow border-dustyGrey'>
+        <div className='w-full max-w-xl mx-auto text-snow border-dustyGrey'>
             <div className='flex justify-between px-4 py-6 border-t-0'>
                 <Link className='text-xl font-bold' href={'/'}>Home</Link>
                 <h1 className='text-xl font-bold'>League</h1>
                 <AuthButtonServer />
             </div>   
-            <div className="flex-1 flex flex-col justify-center items-center">
+            <div className="flex-1 flex flex-col justify-center items-center  bg-gluonGrey">
                 <LeagueHome teams={teams} league_id={params.id}/>
             </div>
         </div>);
