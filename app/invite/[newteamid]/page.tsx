@@ -40,8 +40,8 @@ export default async function TeamInvite({ params }: { params: { newteamid: Team
         else {
 
             return (
-                <div className='w-full max-w-xl mx-auto'>
-                    <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
+                <div className='w-full text-snow max-w-xl mx-auto'>
+                    <div className='flex justify-between px-4 py-6 border border-slateGrey border-t-0'>
                         <Link className='text-xl font-bold' href={'/'}>Home</Link>
                         <h1 className='text-xl font-bold'>Team Invite</h1>
                         <AuthButtonServer />
