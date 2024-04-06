@@ -32,17 +32,19 @@ export default async function Home() {
 
 
   return (
-    <div className='w-full max-w-xl mx-auto'>
+    <div className='w-full max-w-xl mx-auto bg-dark text-snow'>
       <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
-          <h1 className='text-xl font-bold'>Home</h1>
+          <h1 className='text-xl font-bold'>My Teams</h1>
+
           <AuthButtonServer />
       </div>
       <div className='flex-1'>
-        <h1 className="">
-          <Link href="/new-league">+ Create a New League</Link>
-        </h1>
-        <h1>My Teams</h1>
-          <Teams teams={teams}/>
+        <div className="relative">
+            <a className="rounded-full bg-lava text-snow py-2 px-4 absolute top-4 right-4">
+              <Link href="/new-league">+ Create a New League</Link>
+            </a>
+        </div>
+        <Teams teams={teams}/>
       </div>
     </div>
   )

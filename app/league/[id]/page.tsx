@@ -54,17 +54,16 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         totalScore: teamTotalScores.find(score => score.teamId === team.id)?.totalScores
         })) ?? [];
 
-    //console.log(teams);
     return (
-    <div className='w-full max-w-xl mx-auto'>
-        <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
-            <Link className='text-xl font-bold' href={'/'}>Home</Link>
-            <h1 className='text-xl font-bold'>League</h1>
-            <AuthButtonServer />
-        </div>   
-        <div className="flex-1 flex flex-col justify-center items-center">
-            <LeagueHome teams={teams} league_id={params.id}/>
-        </div>
-    </div>);
+        <div className='w-full max-w-xl mx-auto bg-gluonGrey text-snow border-dustyGrey'>
+            <div className='flex justify-between px-4 py-6 border-t-0'>
+                <Link className='text-xl font-bold' href={'/'}>Home</Link>
+                <h1 className='text-xl font-bold'>League</h1>
+                <AuthButtonServer />
+            </div>   
+            <div className="flex-1 flex flex-col justify-center items-center">
+                <LeagueHome teams={teams} league_id={params.id}/>
+            </div>
+        </div>);
 
 }
