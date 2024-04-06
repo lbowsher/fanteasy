@@ -60,7 +60,7 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
 
     if (session.user.id != league?.commish) {
         return (
-        <div className='w-full max-w-xl mx-auto'>
+        <div className='w-full max-w-xl mx-auto text-snow'>
             <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
                 <Link className='text-xl font-bold' href={'/'}>Home</Link>
                 <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
