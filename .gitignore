@@ -33,6 +33,10 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# python virtual environments
+**/.venv/
+
+
 # vercel
 .vercel
 

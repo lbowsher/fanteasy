@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 
 
-export default function AddToTeam({user, team_name, team_id}: { user: User, team_name: string, team_id: TeamID}) {//AddLeague: (formData: FormData) => Promise<void>) {  
+export default function AddToTeam({user, team_name, team_id}: { user: User, team_name: string, team_id: TeamID}) {
 
     const AddUser = async (formData: FormData) => {
         "use server";
