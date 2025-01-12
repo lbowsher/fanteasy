@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import OneTeam from './one-team';
 import SearchPage from './search-page';
+import WeeklyPicks from './weekly-picks';
 
 export const dynamic = "force-dynamic";
 
@@ -32,33 +33,51 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     }
     const { data } = await supabase.from('teams')
         .select('*, owner: profiles(full_name), leagues(*)')
-        .eq('id', teamId);
+        .eq('id', teamId)
+        .single();
     
-    console.log(data)
+    if (!data) {
+        return <div>Team not found</div>;
+    }
     
-    const this_team = data?.map(team => ({
-        ...team,
-        }))?.[0] ?? null;
+    // const this_team = data?.map(team => ({
+    //     ...team,
+    //     }))?.[0] ?? null;
     
-    const league = data?.map(team => ({
-        league: team.leagues
-        }))?.[0].league ?? null;
+    // const league = data?.map(team => ({
+    //     league: team.leagues
+    //     }))?.[0].league ?? null;
     
-    const owner = data?.map(team => ({
-        name: Array.isArray(team.owner) ? team.owner[0]: team.owner
-        }))?.[0] ?? null;
+    // const owner = data?.map(team => ({
+    //     name: Array.isArray(team.owner) ? team.owner[0]: team.owner
+    //     }))?.[0] ?? null;
     
-    const { data: playerData } = await supabase.from('players')
-        .select('*')
-        .in('player_id', this_team?.team_players ?? []);
-    
-    const team_with_players = {
-        ...this_team,
-        players: playerData ?? []
-    };
+    // const { data: playerData } = await supabase.from('players')
+    //     .select('*')
+    //     .in('player_id', this_team?.team_players ?? []);
 
-    const totalTeamScore = team_with_players?.players?.reduce((totalScore: number, player: Player) => totalScore + player.scores.reduce((partialSum: number, score: number) => partialSum + score, 0), 0);
+    // const team_with_players = {
+        //     ...this_team,
+        //     players: playerData ?? []
+        // };
+    
+        // const totalTeamScore = team_with_players?.players?.reduce((totalScore: number, player: Player) => totalScore + player.scores.reduce((partialSum: number, score: number) => partialSum + score, 0), 0);
+    
 
+    const team = data;
+    const league = data.leagues;
+    const owner_name = data?.owner?.full_name ?? "";
+    const isNFLPlayoffPickem = league?.scoring_type === 'NFL Playoff Pickem';
+
+    // For NBA Tournament, fetch players as before
+    let playerData = null;
+    if (!isNFLPlayoffPickem) {
+        const { data: players } = await supabase
+            .from('players')
+            .select('*')
+            .in('player_id', team?.team_players ?? []);
+        playerData = players;
+    }
 
     const baseLayout = (content: React.ReactNode) => (
         <div className="min-h-screen bg-background">
@@ -80,35 +99,47 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         </div>
     );
 
-    if (session.user.id != league?.commish) {
+    // Non-commissioner view
+    if (session.user.id !== league?.commish) {
         return baseLayout(
             <div className="p-6">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-primary-text mb-2">{this_team?.name}</h1>
-                    <h2 className="text-secondary-text">{owner?.name?.name}</h2>
+                    <h1 className="text-2xl font-bold text-primary-text mb-2">{team?.name}</h1>
+                    <h2 className="text-secondary-text">{owner_name}</h2>
                 </div>
-                <OneTeam team={team_with_players}/>
+                {isNFLPlayoffPickem ? (
+                    <WeeklyPicks team={team} currentWeek={1} /> // You'll need to determine the current week
+                ) : (
+                    <OneTeam team={team_with_players} />
+                )}
             </div>
         );
     }
 
+    // Commissioner view
     return baseLayout(
         <div className="p-6 bg-surface rounded-lg mt-4">
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-primary-text text-center mb-2">
-                    {this_team?.name}
+                    {team?.name}
                 </h1>
-                <h2 className="text-secondary-text text-center">{owner?.name?.name}</h2>
+                <h2 className="text-secondary-text text-center">{owner_name}</h2>
             </div>
-            <OneTeam team={team_with_players}/>
-            <div className="mt-4 text-right">
-                <span className="text-xl font-bold text-accent">
-                    {totalTeamScore} points
-                </span>
-            </div>
-            <div className="mt-8">
-                <SearchPage team={team_with_players} sports_league={league?.league} />
-            </div>
+            {isNFLPlayoffPickem ? (
+                <>
+                    <WeeklyPicks team={team} currentWeek={1} />
+                    <div className="mt-4 text-secondary-text text-center">
+                        Commissioner View: You can monitor picks here
+                    </div>
+                </>
+            ) : (
+                <>
+                    <OneTeam team={team_with_players} />
+                    <div className="mt-8">
+                        <SearchPage team={team_with_players} sports_league={league?.league} />
+                    </div>
+                </>
+            )}
         </div>
     );
     // if (session.user.id != league?.commish) {

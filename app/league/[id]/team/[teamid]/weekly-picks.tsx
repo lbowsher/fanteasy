@@ -1,13 +1,29 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type WeeklyPicksProps = {
     team: TeamWithPlayers;
     currentWeek: number;
 };
+
+type LineupSlot = {
+    id: string;
+    label: string;
+    validPositions: string[];
+};
+
+const LINEUP_SLOTS: LineupSlot[] = [
+    { id: 'QB', label: 'QB', validPositions: ['QB'] },
+    { id: 'RB1', label: 'RB 1', validPositions: ['RB'] },
+    { id: 'RB2', label: 'RB 2', validPositions: ['RB'] },
+    { id: 'WR1', label: 'WR 1', validPositions: ['WR'] },
+    { id: 'WR2', label: 'WR 2', validPositions: ['WR'] },
+    { id: 'TE', label: 'TE', validPositions: ['TE'] },
+    { id: 'FLEX', label: 'FLEX', validPositions: ['RB', 'WR', 'TE'] },
+    { id: 'DST', label: 'D/ST', validPositions: ['D/ST'] },
+    { id: 'K', label: 'K', validPositions: ['K'] }
+];
 
 export default function WeeklyPicks({ team, currentWeek }: WeeklyPicksProps) {
     const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
@@ -16,16 +32,12 @@ export default function WeeklyPicks({ team, currentWeek }: WeeklyPicksProps) {
     const [error, setError] = useState<string | null>(null);
     const supabase = createClientComponentClient<Database>();
 
-    // Required positions for NFL
-    const REQUIRED_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K'];
-
     useEffect(() => {
-        // Fetch available players and previous picks
         const fetchData = async () => {
             // Get all previous picks for this team
             const { data: picks, error: picksError } = await supabase
                 .from('weekly_picks')
-                .select('player_id, week_number')
+                .select('player_id, week_number, slot_position')
                 .eq('team_id', team.id);
 
             if (picksError) {
@@ -63,27 +75,35 @@ export default function WeeklyPicks({ team, currentWeek }: WeeklyPicksProps) {
         fetchData();
     }, [team.id]);
 
-    const handlePlayerSelect = async (position: string, player: Player) => {
+    const handlePlayerSelect = async (slotId: string, player: Player) => {
+        // Validate position for slot
+        const slot = LINEUP_SLOTS.find(s => s.id === slotId);
+        if (!slot?.validPositions.includes(player.position)) {
+            setError(`Invalid position ${player.position} for slot ${slot?.label}`);
+            return;
+        }
+
         // Update selected picks
         setSelectedPicks(prev => ({
             ...prev,
-            [position]: player
+            [slotId]: player
         }));
     };
 
     const submitPicks = async () => {
         // Verify all positions are filled
-        const missingPositions = REQUIRED_POSITIONS.filter(pos => !selectedPicks[pos]);
-        if (missingPositions.length > 0) {
-            setError(`Missing picks for: ${missingPositions.join(', ')}`);
+        const missingSlots = LINEUP_SLOTS.filter(slot => !selectedPicks[slot.id]);
+        if (missingSlots.length > 0) {
+            setError(`Missing picks for: ${missingSlots.map(s => s.label).join(', ')}`);
             return;
         }
 
         // Submit picks to database
-        const picksToInsert = Object.values(selectedPicks).map(player => ({
+        const picksToInsert = LINEUP_SLOTS.map(slot => ({
             team_id: team.id,
-            player_id: player?.id,
-            week_number: currentWeek
+            player_id: selectedPicks[slot.id]?.id,
+            week_number: currentWeek,
+            slot_position: slot.id
         }));
 
         const { error: insertError } = await supabase
@@ -100,54 +120,75 @@ export default function WeeklyPicks({ team, currentWeek }: WeeklyPicksProps) {
         setError(null);
     };
 
+    const getAvailablePlayersForSlot = (slot: LineupSlot) => {
+        return availablePlayers.filter(player => 
+            slot.validPositions.includes(player.position) &&
+            // For FLEX, ensure player isn't already picked in their primary position
+            !(slot.id === 'FLEX' && 
+              Object.entries(selectedPicks).some(([slotId, pick]) => 
+                pick?.id === player.id && slotId !== 'FLEX'
+              ))
+        );
+    };
+
     return (
-        <Card className="w-full bg-surface border-border">
-            <CardHeader>
-                <CardTitle className="text-primary-text">
+        <div className="w-full bg-surface rounded-lg border border-border">
+            {/* Header */}
+            <div className="p-6 border-b border-border">
+                <h2 className="text-2xl font-bold text-primary-text">
                     Week {currentWeek} Picks
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
+                </h2>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+                {/* Error Message */}
                 {error && (
-                    <Alert className="mb-4 border-red-500">
-                        <AlertDescription className="text-red-500">
-                            {error}
-                        </AlertDescription>
-                    </Alert>
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-500">
+                        {error}
+                    </div>
                 )}
 
-                <div className="space-y-4">
-                    {REQUIRED_POSITIONS.map(position => (
-                        <div key={position} className="p-4 border border-border rounded-lg">
-                            <h3 className="text-primary-text font-bold mb-2">{position}</h3>
+                {/* Lineup Slots */}
+                <div className="space-y-6">
+                    {LINEUP_SLOTS.map(slot => (
+                        <div key={slot.id} className="p-4 bg-background rounded-lg border border-border">
+                            <h3 className="text-lg font-semibold text-primary-text mb-3">
+                                {slot.label}
+                                {selectedPicks[slot.id] && (
+                                    <span className="text-accent ml-2">
+                                        - {selectedPicks[slot.id]?.name}
+                                    </span>
+                                )}
+                            </h3>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                {availablePlayers
-                                    .filter(p => p.position === position)
-                                    .map(player => (
-                                        <Button
-                                            key={player.id}
-                                            onClick={() => handlePlayerSelect(position, player)}
-                                            className={`p-2 text-sm ${
-                                                selectedPicks[position]?.id === player.id
-                                                    ? 'bg-accent text-snow'
-                                                    : 'bg-background text-primary-text hover:bg-accent/20'
-                                            }`}
-                                        >
-                                            {player.name}
-                                        </Button>
-                                    ))}
+                                {getAvailablePlayersForSlot(slot).map(player => (
+                                    <button
+                                        key={player.id}
+                                        onClick={() => handlePlayerSelect(slot.id, player)}
+                                        className={`p-3 rounded-lg text-sm transition-colors
+                                            ${selectedPicks[slot.id]?.id === player.id
+                                                ? 'bg-accent text-snow'
+                                                : 'bg-background text-primary-text hover:bg-accent/20'
+                                            } border border-border`}
+                                    >
+                                        {player.name} - {player.team_name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <Button
+                {/* Submit Button */}
+                <button
                     onClick={submitPicks}
-                    className="w-full mt-6 bg-accent text-snow hover:bg-accent/80"
+                    className="w-full mt-6 p-4 bg-accent text-snow rounded-lg font-semibold
+                             hover:bg-accent/80 transition-colors"
                 >
                     Submit Week {currentWeek} Picks
-                </Button>
-            </CardContent>
-        </Card>
+                </button>
+            </div>
+        </div>
     );
 }
