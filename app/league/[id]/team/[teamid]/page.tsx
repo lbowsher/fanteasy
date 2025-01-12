@@ -19,17 +19,22 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     const teamId = params.teamid;
     //const leagueId = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
     if (!teamId) {
-        // Handle the case when teamId is undefined
         return (
-            <>
-                <h1>Error, invalid team</h1>
-                <Link href="/">Go Back to Home</Link>
-            </>
+            <div className="min-h-screen bg-background">
+                <div className="max-w-xl mx-auto p-6">
+                    <h1 className="text-primary-text text-2xl font-bold mb-4">Error, invalid team</h1>
+                    <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
+                        Go Back to Home
+                    </Link>
+                </div>
+            </div>
         );
     }
     const { data } = await supabase.from('teams')
-        .select('*, owner: profiles(name), leagues(*)')
+        .select('*, owner: profiles(full_name), leagues(*)')
         .eq('id', teamId);
+    
+    console.log(data)
     
     const this_team = data?.map(team => ({
         ...team,
@@ -52,44 +57,92 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         players: playerData ?? []
     };
 
-    const backToHome = () => {
-        redirect('/');
-    };
-
     const totalTeamScore = team_with_players?.players?.reduce((totalScore: number, player: Player) => totalScore + player.scores.reduce((partialSum: number, score: number) => partialSum + score, 0), 0);
 
-    if (session.user.id != league?.commish) {
-        return (
-        <div className='w-full max-w-xl mx-auto text-snow'>
-            <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
-                <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
-                <AuthButtonServer />
+
+    const baseLayout = (content: React.ReactNode) => (
+        <div className="min-h-screen bg-background">
+            <div className="max-w-xl mx-auto">
+                <nav className="flex justify-between items-center px-6 py-4 border-b border-border">
+                    <Link href="/" className="text-lg font-bold text-primary-text hover:text-accent transition-colors">
+                        Home
+                    </Link>
+                    <Link 
+                        href={`/league/${league?.id}`} 
+                        className="text-lg font-bold text-primary-text hover:text-accent transition-colors"
+                    >
+                        League Home
+                    </Link>
+                    <AuthButtonServer />
+                </nav>
+                {content}
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center">
-                <h1>{this_team?.name}</h1>
-                <h2>{owner?.name?.name}</h2>
+        </div>
+    );
+
+    if (session.user.id != league?.commish) {
+        return baseLayout(
+            <div className="p-6">
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-primary-text mb-2">{this_team?.name}</h1>
+                    <h2 className="text-secondary-text">{owner?.name?.name}</h2>
+                </div>
                 <OneTeam team={team_with_players}/>
             </div>
-        </div>)
+        );
     }
-    else {
-        return (
-            <div className='w-full max-w-xl mx-auto'>
-                <div className='flex text-snow justify-between px-4 py-6 border border-gray-800 border-t-0'>
-                    <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                    <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
-                    <AuthButtonServer />
-                </div>
-                <div className="flex-1 text-snow flex flex-col px-4 bg-gluonGrey">
-                    <h1 className='font-bold text-xl text-center'>{this_team?.name}</h1>
-                    <h2>{owner?.name?.name}</h2>
-                    <OneTeam team={team_with_players}/>
-                    <h1 className='text-bold text-xl text-lava text-right'>{totalTeamScore} points</h1>
-                    <br></br>
-                    <SearchPage team={team_with_players} sports_league={league?.league}></SearchPage>
-                </div>
+
+    return baseLayout(
+        <div className="p-6 bg-surface rounded-lg mt-4">
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-primary-text text-center mb-2">
+                    {this_team?.name}
+                </h1>
+                <h2 className="text-secondary-text text-center">{owner?.name?.name}</h2>
             </div>
-    )}
+            <OneTeam team={team_with_players}/>
+            <div className="mt-4 text-right">
+                <span className="text-xl font-bold text-accent">
+                    {totalTeamScore} points
+                </span>
+            </div>
+            <div className="mt-8">
+                <SearchPage team={team_with_players} sports_league={league?.league} />
+            </div>
+        </div>
+    );
+    // if (session.user.id != league?.commish) {
+    //     return (
+    //     <div className='w-full max-w-xl mx-auto text-snow'>
+    //         <div className='flex justify-between px-4 py-6 border border-gray-800 border-t-0'>
+    //             <Link className='text-xl font-bold' href={'/'}>Home</Link>
+    //             <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
+    //             <AuthButtonServer />
+    //         </div>
+    //         <div className="flex-1 flex flex-col justify-center items-center">
+    //             <h1>{this_team?.name}</h1>
+    //             <h2>{owner?.name?.name}</h2>
+    //             <OneTeam team={team_with_players}/>
+    //         </div>
+    //     </div>)
+    // }
+    // else {
+    //     return (
+    //         <div className='w-full max-w-xl mx-auto'>
+    //             <div className='flex text-snow justify-between px-4 py-6 border border-gray-800 border-t-0'>
+    //                 <Link className='text-xl font-bold' href={'/'}>Home</Link>
+    //                 <Link className='text-xl font-bold' href={`/league/${league?.id}`}>League Home</Link>
+    //                 <AuthButtonServer />
+    //             </div>
+    //             <div className="flex-1 text-snow flex flex-col px-4 bg-gluonGrey">
+    //                 <h1 className='font-bold text-xl text-center'>{this_team?.name}</h1>
+    //                 <h2>{owner?.name?.name}</h2>
+    //                 <OneTeam team={team_with_players}/>
+    //                 <h1 className='text-bold text-xl text-lava text-right'>{totalTeamScore} points</h1>
+    //                 <br></br>
+    //                 <SearchPage team={team_with_players} sports_league={league?.league}></SearchPage>
+    //             </div>
+    //         </div>
+    // )}
     // <AddPlayerSearch team={teams[0]} sports_league={league?.league}></AddPlayerSearch>
 }
