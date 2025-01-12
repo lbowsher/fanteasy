@@ -16,14 +16,19 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         redirect('/login');
     }
     const leagueId = params.id;
-    //const leagueId = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
     if (!leagueId) {
-        // Handle the case when leagueId is undefined
         return (
-            <>
-                <h1>Error, invalid league</h1>
-                <Link href="/">Go Back to Home</Link>
-            </>
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+                <h1 className="text-2xl font-bold text-primary-text mb-4">
+                    Error: Invalid League
+                </h1>
+                <Link 
+                    href="/" 
+                    className="text-liquid-lava hover:opacity-80 transition-opacity font-medium"
+                >
+                    Go Back to Home
+                </Link>
+            </div>
         );
     }
     const { data } = await supabase.from('teams')
@@ -55,15 +60,26 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         })) ?? [];
 
     return (
-        <div className='w-full max-w-xl mx-auto text-snow border-dustyGrey'>
-            <div className='flex justify-between px-4 py-6 border-t-0'>
-                <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                <h1 className='text-xl font-bold'>League</h1>
-                <AuthButtonServer />
-            </div>   
-            <div className="flex-1 flex flex-col justify-center items-center  bg-gluonGrey">
-                <LeagueHome teams={teams} league_id={params.id}/>
+        <div className="min-h-screen bg-background">
+            <div className="w-full max-w-4xl mx-auto px-4">
+                <header className="flex justify-between items-center py-6 border-b border-slate-grey">
+                    <Link 
+                        href="/" 
+                        className="text-xl font-bold text-primary-text hover:text-liquid-lava transition-colors"
+                    >
+                        Home
+                    </Link>
+                    <h1 className="text-xl font-bold text-primary-text">League</h1>
+                    <AuthButtonServer />
+                </header>
+                
+                <main className="py-8">
+                    <div className="bg-surface rounded-xl p-6 shadow-lg">
+                        <LeagueHome teams={teams} league_id={params.id} />
+                    </div>
+                </main>
             </div>
-        </div>);
+        </div>
+    );
 
 }
