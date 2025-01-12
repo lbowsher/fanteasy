@@ -27,7 +27,7 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         );
     }
     const { data } = await supabase.from('teams')
-        .select('*, profiles(*)')
+        .select('*, profiles(id, avatar_url, full_name)')
         .eq('league_id', leagueId);
     
     const teamTotalScores = await Promise.all((data || []).map(async (team) => {
@@ -50,7 +50,7 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
     // Might need to change to TeamWithLeague type
     const teams = data?.map(team => ({
         ...team,
-        owner: team.profiles?.name,
+        owner: team.profiles?.full_name,
         totalScore: teamTotalScores.find(score => score.teamId === team.id)?.totalScores
         })) ?? [];
 

@@ -3,25 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 21, 20, 25;
-  --background-end-rgb: 21, 20, 25;
+  /* Base colors */
+  --liquid-lava: #F56E0F;
+  --dark-void: #151419;
+  --snow: #FBFBFB;
+  --dusty-grey: #878787;
+  --gluon-grey: #1B1B1E;
+  --slate-grey: #262626;
+
+  /* Semantic colors - defaults to dark mode */
+  --background: var(--dark-void);
+  --surface: var(--gluon-grey);
+  --primary-text: var(--snow);
+  --secondary-text: var(--dusty-grey);
+  --accent: var(--liquid-lava);
+  --border: var(--slate-grey);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Light mode overrides */
+@media (prefers-color-scheme: light) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 21, 20, 25;
-    --background-end-rgb: 21, 20, 25;
+    --background: var(--snow);
+    --surface: var(--snow);
+    --primary-text: var(--dark-void);
+    --secondary-text: var(--dusty-grey);
+    --accent: var(--liquid-lava);
+    --border: var(--slate-grey);
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--primary-text);
+  background: var(--background);
 }

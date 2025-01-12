@@ -18,9 +18,36 @@ export default async function Home() {
     redirect('/login');
   }
 
-  const { data } = await supabase.from('teams')
-    .select('*, profiles(*), leagues(*)')
+  // First, let's check if we can get just the teams
+  // const teamsOnly = await supabase.from('teams')
+  //   .select('*')
+  //   .eq('user_id', session.user.id);
+  // console.log("Teams only query:", teamsOnly.data, teamsOnly.error);
+
+  // // Then check leagues separately
+  // const leagues = await supabase.from('leagues')
+  //   .select('*');
+  // console.log("All leagues:", leagues.data, leagues.error);
+
+  // // Check profiles separately
+  // const profiles = await supabase.from('profiles')
+  //   .select('*')
+  //   .eq('id', session.user.id);
+  // console.log("Profile:", profiles.data, profiles.error);
+
+  // Now try the full join with error logging
+  const { data, error } = await supabase.from('teams')
+    .select(`
+      *,
+      profiles(id, avatar_url),
+      leagues(id, name)
+    `)
     .eq('user_id', session.user.id);
+
+  console.log("Full join error:", error);
+  console.log("Full join data:", data);
+  console.log("Session user id:", session.user.id);
+  console.log("Raw data from query:", data);
 
   const teams = data?.map(team => ({
     ...team,

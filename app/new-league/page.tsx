@@ -20,9 +20,6 @@ export default async function NewLeague() {
 
     return ( 
     <div className="flex-wrap justify-center items-center">
-        <h1 className="">
-            <Link href="/">Home</Link>
-        </h1>
         <LeagueCreator user={session.user}/>
     </div>);
 

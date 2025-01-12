@@ -9,12 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        dark: '#151419',
-        snow: '#FBFBFB',
-        lava: '#F56E0F',
-        dustyGrey: '#878787',
-        gluonGrey: '#1B1B1E',
-        slateGrey: '#262626'
+        'liquid-lava': '#F56E0F',
+        'dark-void': '#151419',
+        'snow': '#FBFBFB',
+        'dusty-grey': '#878787',
+        'gluon-grey': '#1B1B1E',
+        'slate-grey': '#262626',
+        // Semantic color mappings
+        'background': 'var(--background)',
+        'surface': 'var(--surface)',
+        'primary-text': 'var(--primary-text)',
+        'secondary-text': 'var(--secondary-text)',
+        'accent': 'var(--accent)',
+        'border': 'var(--border)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
