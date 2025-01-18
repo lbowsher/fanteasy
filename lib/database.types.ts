@@ -174,6 +174,7 @@ export type Database = {
           league: string
           name: string
           num_teams: number
+          num_weeks: number
           scoring_rules: Json
           scoring_type: string
         }
@@ -186,6 +187,7 @@ export type Database = {
           league: string
           name: string
           num_teams: number
+          num_weeks?: number
           scoring_rules?: Json
           scoring_type: string
         }
@@ -198,6 +200,7 @@ export type Database = {
           league?: string
           name?: string
           num_teams?: number
+          num_weeks?: number
           scoring_rules?: Json
           scoring_type?: string
         }
@@ -216,6 +219,7 @@ export type Database = {
           height: string | null
           id: string
           interceptions: number | null
+          league: string | null
           name: string
           number: number | null
           passing_tds: number | null
@@ -245,6 +249,7 @@ export type Database = {
           height?: string | null
           id?: string
           interceptions?: number | null
+          league?: string | null
           name: string
           number?: number | null
           passing_tds?: number | null
@@ -274,6 +279,7 @@ export type Database = {
           height?: string | null
           id?: string
           interceptions?: number | null
+          league?: string | null
           name?: string
           number?: number | null
           passing_tds?: number | null
