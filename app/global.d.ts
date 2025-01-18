@@ -4,6 +4,7 @@ type League = DB['public']['Tables']['leagues']['Row']
 type Team = DB['public']['Tables']['teams']['Row']
 type Profile = DB['public']['Tables']['profiles']['Row']
 type Player = DB['public']['Tables']['players']['Row']
+type GameStats = Database['public']['Tables']['game_stats']['Row'];
 
 declare global {
     type Database = db;
@@ -24,4 +25,6 @@ declare global {
     type PlayerID = Player.id;
     type UserID = Team.user_id;
     type Player = Player;
+    type GameStats = GameStats;
+    type League = League;
 }
