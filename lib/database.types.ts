@@ -12,24 +12,47 @@ export type Database = {
       game_stats: {
         Row: {
           assists: number | null
+          blocked_kicks: number | null
           blocks: number | null
           created_at: string
+          defensive_touchdowns: number | null
+          extra_points_attempted: number | null
+          extra_points_made: number | null
+          field_goals_attempted: number | null
+          field_goals_made_0_39: number | null
+          field_goals_made_40_49: number | null
+          field_goals_made_50_plus: number | null
           fumbles: number | null
+          fumbles_lost: number | null
+          fumbles_recovered: number | null
           game_date: string | null
+          game_id: string | null
+          home_team: boolean | null
           id: string
           interceptions: number | null
           minutes_played: number | null
+          opponent: string | null
+          passing_2pt_conversions: number | null
+          passing_attempts: number | null
+          passing_completions: number | null
           passing_tds: number | null
           passing_yards: number | null
           player_id: string
           points: number | null
+          points_allowed: number | null
           rebounds: number | null
+          receiving_2pt_conversions: number | null
           receiving_tds: number | null
           receiving_yards: number | null
           receptions: number | null
+          rushing_2pt_conversions: number | null
           rushing_tds: number | null
           rushing_yards: number | null
+          sacks: number | null
+          safeties: number | null
           season_year: number | null
+          special_teams_touchdowns: number | null
+          started: boolean | null
           steals: number | null
           turnovers: number | null
           two_point_conversions: number | null
@@ -37,24 +60,47 @@ export type Database = {
         }
         Insert: {
           assists?: number | null
+          blocked_kicks?: number | null
           blocks?: number | null
           created_at?: string
+          defensive_touchdowns?: number | null
+          extra_points_attempted?: number | null
+          extra_points_made?: number | null
+          field_goals_attempted?: number | null
+          field_goals_made_0_39?: number | null
+          field_goals_made_40_49?: number | null
+          field_goals_made_50_plus?: number | null
           fumbles?: number | null
+          fumbles_lost?: number | null
+          fumbles_recovered?: number | null
           game_date?: string | null
+          game_id?: string | null
+          home_team?: boolean | null
           id?: string
           interceptions?: number | null
           minutes_played?: number | null
+          opponent?: string | null
+          passing_2pt_conversions?: number | null
+          passing_attempts?: number | null
+          passing_completions?: number | null
           passing_tds?: number | null
           passing_yards?: number | null
           player_id: string
           points?: number | null
+          points_allowed?: number | null
           rebounds?: number | null
+          receiving_2pt_conversions?: number | null
           receiving_tds?: number | null
           receiving_yards?: number | null
           receptions?: number | null
+          rushing_2pt_conversions?: number | null
           rushing_tds?: number | null
           rushing_yards?: number | null
+          sacks?: number | null
+          safeties?: number | null
           season_year?: number | null
+          special_teams_touchdowns?: number | null
+          started?: boolean | null
           steals?: number | null
           turnovers?: number | null
           two_point_conversions?: number | null
@@ -62,24 +108,47 @@ export type Database = {
         }
         Update: {
           assists?: number | null
+          blocked_kicks?: number | null
           blocks?: number | null
           created_at?: string
+          defensive_touchdowns?: number | null
+          extra_points_attempted?: number | null
+          extra_points_made?: number | null
+          field_goals_attempted?: number | null
+          field_goals_made_0_39?: number | null
+          field_goals_made_40_49?: number | null
+          field_goals_made_50_plus?: number | null
           fumbles?: number | null
+          fumbles_lost?: number | null
+          fumbles_recovered?: number | null
           game_date?: string | null
+          game_id?: string | null
+          home_team?: boolean | null
           id?: string
           interceptions?: number | null
           minutes_played?: number | null
+          opponent?: string | null
+          passing_2pt_conversions?: number | null
+          passing_attempts?: number | null
+          passing_completions?: number | null
           passing_tds?: number | null
           passing_yards?: number | null
           player_id?: string
           points?: number | null
+          points_allowed?: number | null
           rebounds?: number | null
+          receiving_2pt_conversions?: number | null
           receiving_tds?: number | null
           receiving_yards?: number | null
           receptions?: number | null
+          rushing_2pt_conversions?: number | null
           rushing_tds?: number | null
           rushing_yards?: number | null
+          sacks?: number | null
+          safeties?: number | null
           season_year?: number | null
+          special_teams_touchdowns?: number | null
+          started?: boolean | null
           steals?: number | null
           turnovers?: number | null
           two_point_conversions?: number | null
@@ -99,6 +168,8 @@ export type Database = {
         Row: {
           commish: string
           created_at: string
+          custom_scoring_enabled: boolean | null
+          default_scoring_rules: Json | null
           id: string
           league: string
           name: string
@@ -109,6 +180,8 @@ export type Database = {
         Insert: {
           commish: string
           created_at?: string
+          custom_scoring_enabled?: boolean | null
+          default_scoring_rules?: Json | null
           id?: string
           league: string
           name: string
@@ -119,6 +192,8 @@ export type Database = {
         Update: {
           commish?: string
           created_at?: string
+          custom_scoring_enabled?: boolean | null
+          default_scoring_rules?: Json | null
           id?: string
           league?: string
           name?: string
@@ -252,6 +327,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      scoring_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          league_id: string | null
+          name: string
+          rules: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          league_id?: string | null
+          name: string
+          rules: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          league_id?: string | null
+          name?: string
+          rules?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scoring_rules_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       teams: {
         Row: {

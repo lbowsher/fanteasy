@@ -62,6 +62,7 @@ export default function WeeklyPicks({ team, currentWeek }: WeeklyPicksProps) {
                 .eq('league', 'NFL');
 
             if (playersError) {
+                console.error('Error loading players:', playersError);
                 setError('Error loading players');
                 return;
             }
