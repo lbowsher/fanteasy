@@ -6,7 +6,7 @@ import { Search, Edit2, Check, X } from "lucide-react";
 import { debounce } from 'lodash';
 
 type WeeklyPicksProps = {
-    team: TeamWithPlayers;
+    teamData: TeamData;
     currentWeek: number;
     numWeeks: number;
 };
@@ -138,7 +138,8 @@ function PlayerSearch({
     );
 }
 
-export default function WeeklyPicks({ team, currentWeek, numWeeks }: WeeklyPicksProps) {
+export default function WeeklyPicks({ teamData, currentWeek, numWeeks }: WeeklyPicksProps) {
+    const team = teamData.team;
     const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
     const [selectedPicks, setSelectedPicks] = useState<{[key: string]: Player | null}>({});
     const [submittedPicks, setSubmittedPicks] = useState<WeeklyPick[]>([]);

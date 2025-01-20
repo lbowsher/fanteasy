@@ -25,7 +25,6 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
             const bPos = b.position as keyof typeof positionOrder;
             return (positionOrder[aPos] ?? 99) - (positionOrder[bPos] ?? 99);
         });
-// ... existing code ...
     }, [team.players, team.leagues?.scoring_type]);
 
     return (

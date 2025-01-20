@@ -38,34 +38,50 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     // Fetch team data with related profiles and league info
     const { data: team } = await supabase
         .from('teams')
-        .select(`
-            *,
-            owner: profiles(full_name),
-            leagues(*),
-            players(*)
-        `)
+        .select('*, owner: profiles(full_name), leagues(*)')
         .eq('id', teamId)
-        .single();
+        .single() as { data: TeamWithRelations };
 
     if (!team) {
+        console.log('Team data:', team);
         return <div>Team not found</div>;
     }
+    // First fetch weekly picks for this team
+    const { data: weeklyPicks } = await supabase
+        .from('weekly_picks')
+        .select(`
+            *,
+            players(*)
+        `)
+        .eq('team_id', teamId);
 
-    // Get all game stats for the team's players
+    if (!weeklyPicks) {
+        console.log('No weekly picks found for team');
+    }
+
+    // Get all game stats for the weekly picked players
     const { data: gameStats } = await supabase
         .from('game_stats')
         .select('*')
-        .in('player_id', team.players?.map(p => p.id) || []);
-
+        .in('player_id', weeklyPicks?.map(pick => pick.player_id) || []);
+    
     // Calculate total team score based on league scoring rules
     const totalScore = gameStats ? calculateTeamTotalScore(gameStats, team.leagues) : 0;
 
+    const teamData = {
+        team: team,
+        owner: team.owner,
+        league: team.leagues,
+        weeklyPicks: weeklyPicks?.map(pick => ({
+            ...pick,
+            player: pick.players
+        })) || [],
+        totalScore: totalScore
+    };
+
     const teamWithScores = {
         ...team,
-        players: team.players?.map(player => ({
-            ...player,
-            gameStats: gameStats?.filter(stat => stat.player_id === player.id) || []
-        })),
+        weeklyPicks,
         totalScore
     };
 
@@ -92,22 +108,23 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
     const mainContent = (
         <div className="p-6">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-primary-text mb-2">{team.name}</h1>
-                <h2 className="text-secondary-text">{team.owner?.full_name || 'Unclaimed'}</h2>
+                <h1 className="text-2xl font-bold text-primary-text mb-2">{teamData.team.name}</h1>
+                <h2 className="text-secondary-text">{teamData.owner?.full_name || 'Unclaimed'}</h2>
                 <div className="mt-4 text-accent font-bold text-xl">
-                    Total Score: {totalScore.toFixed(1)}
+                    Total Score: {teamData.totalScore.toFixed(1)}
                 </div>
             </div>
-            {team.leagues?.scoring_type === 'NFL Playoff Pickem' ? (
+
+            {teamData.league?.scoring_type === 'NFL Playoff Pickem' ? (
                 <WeeklyPicks 
-                    team={teamWithScores} 
+                    teamData={teamData}
                     currentWeek={1} 
-                    numWeeks={team.leagues.num_weeks} 
+                    numWeeks={teamData.league.num_weeks} 
                 />
             ) : (
                 <>
-                    <OneTeam team={teamWithScores} />
-                    {session.user.id === team.leagues?.commish && (
+                     <OneTeam team={teamWithScores} />
+                     {session.user.id === team.leagues?.commish && (
                         <div className="mt-8">
                             <SearchPage 
                                 team={teamWithScores} 
