@@ -70,63 +70,87 @@ export type NFLScoringRules = {
     scoring_type: string;
     rules: NFLScoringRules | NBAScoringRules;
   };
-  
-  export const calculateNFLPoints = (stats: GameStats, rules: NFLScoringRules): number => {
+
+  export const calculateNFLPoints = (stats: GameStats | GameStats[], rules: NFLScoringRules): number => {
+      // Convert single stat object to array for consistent handling
+      const statsArray = Array.isArray(stats) ? stats : [stats];
+      
+      // Aggregate stats across all entries
+      const aggregatedStats = statsArray.reduce((acc, stat) => ({
+          passing_yards: (acc.passing_yards || 0) + (stat.passing_yards || 0),
+          passing_tds: (acc.passing_tds || 0) + (stat.passing_tds || 0),
+          interceptions: (acc.interceptions || 0) + (stat.interceptions || 0),
+          rushing_yards: (acc.rushing_yards || 0) + (stat.rushing_yards || 0),
+          rushing_tds: (acc.rushing_tds || 0) + (stat.rushing_tds || 0),
+          receptions: (acc.receptions || 0) + (stat.receptions || 0),
+          receiving_yards: (acc.receiving_yards || 0) + (stat.receiving_yards || 0),
+          receiving_tds: (acc.receiving_tds || 0) + (stat.receiving_tds || 0),
+          field_goals_0_39: (acc.field_goals_0_39 || 0) + (stat.field_goals_0_39 || 0),
+          field_goals_40_49: (acc.field_goals_40_49 || 0) + (stat.field_goals_40_49 || 0),
+          field_goals_50_59: (acc.field_goals_50_59 || 0) + (stat.field_goals_50_59 || 0),
+          field_goals_60_plus: (acc.field_goals_60_plus || 0) + (stat.field_goals_60_plus || 0),
+          extra_points: (acc.extra_points || 0) + (stat.extra_points || 0),
+          missed_field_goals: (acc.missed_field_goals || 0) + (stat.missed_field_goals || 0),
+          missed_extra_points: (acc.missed_extra_points || 0) + (stat.missed_extra_points || 0),
+          fumbles: (acc.fumbles || 0) + (stat.fumbles || 0),
+          two_point_conversions: (acc.two_point_conversions || 0) + (stat.two_point_conversions || 0),
+      }), {} as GameStats);
+
       let points = 0;
       
       // Passing
       if (rules.passing) {
-        points += (stats.passing_yards || 0) * (rules.passing.yards || 0);
-        points += (stats.passing_tds || 0) * (rules.passing.touchdown || 0);
-        points += (stats.interceptions || 0) * (rules.passing.interception || 0);
+        points += (aggregatedStats.passing_yards || 0) * (rules.passing.yards || 0);
+        points += (aggregatedStats.passing_tds || 0) * (rules.passing.touchdown || 0);
+        points += (aggregatedStats.interceptions || 0) * (rules.passing.interception || 0);
         
         // Passing yardage bonuses
-        if (rules.passing.bonus_300_yards && (stats.passing_yards || 0) >= 300) {
+        if (rules.passing.bonus_300_yards && (aggregatedStats.passing_yards || 0) >= 300) {
           points += rules.passing.bonus_300_yards;
         }
-        if (rules.passing.bonus_400_yards && (stats.passing_yards || 0) >= 400) {
+        if (rules.passing.bonus_400_yards && (aggregatedStats.passing_yards || 0) >= 400) {
           points += rules.passing.bonus_400_yards;
         }
       }
       
       // Rushing
       if (rules.rushing) {
-        points += (stats.rushing_yards || 0) * (rules.rushing.yards || 0);
-        points += (stats.rushing_tds || 0) * (rules.rushing.touchdown || 0);
+        points += (aggregatedStats.rushing_yards || 0) * (rules.rushing.yards || 0);
+        points += (aggregatedStats.rushing_tds || 0) * (rules.rushing.touchdown || 0);
         
         // Rushing yardage bonuses
-        if (rules.rushing.bonus_100_yards && (stats.rushing_yards || 0) >= 100) {
+        if (rules.rushing.bonus_100_yards && (aggregatedStats.rushing_yards || 0) >= 100) {
           points += rules.rushing.bonus_100_yards;
         }
-        if (rules.rushing.bonus_200_yards && (stats.rushing_yards || 0) >= 200) {
+        if (rules.rushing.bonus_200_yards && (aggregatedStats.rushing_yards || 0) >= 200) {
           points += rules.rushing.bonus_200_yards;
         }
       }
       
       // Receiving
       if (rules.receiving) {
-        points += (stats.receptions || 0) * (rules.receiving.reception || 0);
-        points += (stats.receiving_yards || 0) * (rules.receiving.yards || 0);
-        points += (stats.receiving_tds || 0) * (rules.receiving.touchdown || 0);
+        points += (aggregatedStats.receptions || 0) * (rules.receiving.reception || 0);
+        points += (aggregatedStats.receiving_yards || 0) * (rules.receiving.yards || 0);
+        points += (aggregatedStats.receiving_tds || 0) * (rules.receiving.touchdown || 0);
         
         // Receiving yardage bonuses
-        if (rules.receiving.bonus_100_yards && (stats.receiving_yards || 0) >= 100) {
+        if (rules.receiving.bonus_100_yards && (aggregatedStats.receiving_yards || 0) >= 100) {
           points += rules.receiving.bonus_100_yards;
         }
-        if (rules.receiving.bonus_200_yards && (stats.receiving_yards || 0) >= 200) {
+        if (rules.receiving.bonus_200_yards && (aggregatedStats.receiving_yards || 0) >= 200) {
           points += rules.receiving.bonus_200_yards;
         }
       }
     
     // Kicking
-    if (rules.kicking && stats.field_goals) {
-      points += (stats.field_goals_0_39 || 0) * (rules.kicking.field_goal_0_39 || 0);
-      points += (stats.field_goals_40_49 || 0) * (rules.kicking.field_goal_40_49 || 0);
-      points += (stats.field_goals_50_59 || 0) * (rules.kicking.field_goal_50_59 || 0);
-      points += (stats.field_goals_60_plus || 0) * (rules.kicking.field_goal_60_plus || 0);
-      points += (stats.extra_points || 0) * (rules.kicking.extra_point || 0);
-      points += (stats.missed_field_goals || 0) * (rules.kicking.missed_field_goal || 0);
-      points += (stats.missed_extra_points || 0) * (rules.kicking.missed_extra_point || 0);
+    if (rules.kicking && aggregatedStats.field_goals) {
+      points += (aggregatedStats.field_goals_0_39 || 0) * (rules.kicking.field_goal_0_39 || 0);
+      points += (aggregatedStats.field_goals_40_49 || 0) * (rules.kicking.field_goal_40_49 || 0);
+      points += (aggregatedStats.field_goals_50_59 || 0) * (rules.kicking.field_goal_50_59 || 0);
+      points += (aggregatedStats.field_goals_60_plus || 0) * (rules.kicking.field_goal_60_plus || 0);
+      points += (aggregatedStats.extra_points || 0) * (rules.kicking.extra_point || 0);
+      points += (aggregatedStats.missed_field_goals || 0) * (rules.kicking.missed_field_goal || 0);
+      points += (aggregatedStats.missed_extra_points || 0) * (rules.kicking.missed_extra_point || 0);
     }
     
     // Defense/Special Teams
@@ -137,8 +161,8 @@ export type NFLScoringRules = {
     
     // Misc
     if (rules.misc) {
-      points += (stats.fumbles || 0) * (rules.misc.fumble_lost || 0);
-      points += (stats.two_point_conversions || 0) * (rules.misc.two_point_conversion || 0);
+      points += (aggregatedStats.fumbles || 0) * (rules.misc.fumble_lost || 0);
+      points += (aggregatedStats.two_point_conversions || 0) * (rules.misc.two_point_conversion || 0);
     }
     
     return points;
