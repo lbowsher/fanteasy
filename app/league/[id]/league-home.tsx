@@ -25,14 +25,11 @@ export default function LeagueHome({ teams, league_id, league }: LeagueHomeProps
         const calculateTeamScores = async () => {
             if (league.scoring_type === 'NFL Playoff Pickem') {
                 // Process each team
-                const teamsWithUpdatedScores = await Promise.all(teams.map(async (team) => {
-                    // Add debugging
-                    console.log('Processing team:', team.name);
-                    
+                const teamsWithUpdatedScores = await Promise.all(teams.map(async (team) => {                    
                     // Get weekly picks for this team
                     const { data: weeklyPicks, error: picksError } = await supabase
                         .from('weekly_picks')
-                        .select('*, player(*)')
+                        .select('*, players(*)')
                         .eq('team_id', team.id);
 
                     // Add error handling
@@ -45,9 +42,6 @@ export default function LeagueHome({ teams, league_id, league }: LeagueHomeProps
                         console.log('No weekly picks found for team:', team.name);
                         return { ...team, totalScore: 0 };
                     }
-
-                    console.log('Weekly picks found:', weeklyPicks);
-
                     // Get all player IDs from picks
                     const playerIds = weeklyPicks.map(pick => pick.player_id).filter(Boolean);
                     
@@ -71,15 +65,6 @@ export default function LeagueHome({ teams, league_id, league }: LeagueHomeProps
                         console.log('No stats found for players:', playerIds);
                         return { ...team, totalScore: 0 };
                     }
-
-                    console.log('Stats found:', stats);
-                    // Get game stats for these players
-                    // const { data: stats } = await supabase
-                    //     .from('game_stats')
-                    //     .select('*')
-                    //     .in('player_id', playerIds);
-
-                    // if (!stats) return { ...team, totalScore: 0 };
 
                     // Group stats by week and player ID
                     const statsByWeek = groupBy(stats, 'week_number');
