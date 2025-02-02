@@ -86,9 +86,16 @@ function PlayerSearch({
 
             {selectedPlayer && !isSearching && (
                 <div className="p-3 bg-accent/10 rounded-lg border border-accent">
-                    <span className="text-accent font-semibold">
-                        {selectedPlayer.name} - {selectedPlayer.team_name} ({selectedPlayer.position})
-                    </span>
+                    <div className="flex items-center space-x-3">
+                        <img 
+                            src={selectedPlayer.pic_url || '../../../../../public/default-player.png'} 
+                            alt={selectedPlayer.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <span className="text-accent font-semibold">
+                            {selectedPlayer.name} - {selectedPlayer.team_name} ({selectedPlayer.position})
+                        </span>
+                    </div>
                 </div>
             )}
 
@@ -104,9 +111,16 @@ function PlayerSearch({
                                 setSearchResults([]);
                             }}
                             className="w-full p-2 text-left hover:bg-accent/20 
-                                     transition-colors text-primary-text"
+                                     transition-colors text-primary-text flex items-center space-x-3"
                         >
-                            {player.name} - {player.team_name} ({player.position})
+                            <img 
+                                src={player.pic_url || '../../../../../public/default-player.png'} 
+                                alt={player.name}
+                                className="w-8 h-8 rounded-full object-cover"
+                            />
+                            <span>
+                                {player.name} - {player.team_name} ({player.position})
+                            </span>
                         </button>
                     ))}
                 </div>
@@ -224,10 +238,10 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks }: 
         // Insert new picks
         const picksToInsert = LINEUP_SLOTS.map(slot => ({
             team_id: teamData.team.id,
-            player_id: selectedPicks[slot.id]?.id,
-            week_number: editingWeek,
+            player_id: selectedPicks[slot.id]?.id ?? '',
+            week_number: editingWeek as number, // we know it's not null here
             slot_position: slot.id
-        }));
+        })).filter(pick => pick.player_id !== ''); // remove empty picks
 
         await supabase
             .from('weekly_picks')
@@ -363,13 +377,24 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks }: 
                                                     {playerScore.toFixed(1)} pts
                                                 </span>
                                             </div>
-                                            <div className="text-secondary-text mb-1">
-                                                {pick?.player 
-                                                    ? `${pick.player.name} (${pick.player.team_name})`
-                                                    : 'Not selected'}
-                                            </div>
-                                            <div className="text-sm text-secondary-text">
-                                                {getPlayerStatline(stats)}
+                                            <div className="flex items-center space-x-3 mb-2">
+                                                {pick?.player && (
+                                                    <img 
+                                                        src={pick.player.pic_url || '../../../../../public/default-player.png'} 
+                                                        alt={pick.player.name}
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+                                                )}
+                                                <div>
+                                                    <div className="text-secondary-text">
+                                                        {pick?.player 
+                                                            ? `${pick.player.name} (${pick.player.team_name})`
+                                                            : 'Not selected'}
+                                                    </div>
+                                                    <div className="text-sm text-secondary-text">
+                                                        {getPlayerStatline(stats)}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </>
                                     )}

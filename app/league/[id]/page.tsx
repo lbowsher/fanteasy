@@ -83,6 +83,10 @@ export default async function League({ params }: { params: { id: LeagueID } }) {
         owner: team.profiles?.full_name,
         totalScore: teamTotalScores.find(score => score.teamId === team.id)?.totalScore || 0
     }));
+    console.log("=================");
+    console.log("League Page Render:", leagueId);
+    console.log("Teams:", teams.length);
+    console.log("=================");
 
     return (
         <div className="min-h-screen bg-background">
