@@ -85,13 +85,14 @@ export type NFLScoringRules = {
           receptions: (acc.receptions || 0) + (stat.receptions || 0),
           receiving_yards: (acc.receiving_yards || 0) + (stat.receiving_yards || 0),
           receiving_tds: (acc.receiving_tds || 0) + (stat.receiving_tds || 0),
-          field_goals_0_39: (acc.field_goals_0_39 || 0) + (stat.field_goals_0_39 || 0),
-          field_goals_40_49: (acc.field_goals_40_49 || 0) + (stat.field_goals_40_49 || 0),
-          field_goals_50_59: (acc.field_goals_50_59 || 0) + (stat.field_goals_50_59 || 0),
-          field_goals_60_plus: (acc.field_goals_60_plus || 0) + (stat.field_goals_60_plus || 0),
-          extra_points: (acc.extra_points || 0) + (stat.extra_points || 0),
-          missed_field_goals: (acc.missed_field_goals || 0) + (stat.missed_field_goals || 0),
-          missed_extra_points: (acc.missed_extra_points || 0) + (stat.missed_extra_points || 0),
+          kicking_points: (acc.kicking_points || 0) + (stat.kicking_points || 0),
+          // field_goals_0_39: (acc.field_goals_0_39 || 0) + (stat.field_goals_0_39 || 0),
+          // field_goals_40_49: (acc.field_goals_40_49 || 0) + (stat.field_goals_40_49 || 0),
+          // field_goals_50_59: (acc.field_goals_50_59 || 0) + (stat.field_goals_50_59 || 0),
+          // field_goals_60_plus: (acc.field_goals_60_plus || 0) + (stat.field_goals_60_plus || 0),
+          // extra_points: (acc.extra_points || 0) + (stat.extra_points || 0),
+          // missed_field_goals: (acc.missed_field_goals || 0) + (stat.missed_field_goals || 0),
+          // missed_extra_points: (acc.missed_extra_points || 0) + (stat.missed_extra_points || 0),
           fumbles: (acc.fumbles || 0) + (stat.fumbles || 0),
           two_point_conversions: (acc.two_point_conversions || 0) + (stat.two_point_conversions || 0),
       }), {} as GameStats);
@@ -143,7 +144,11 @@ export type NFLScoringRules = {
       }
     
     // Kicking
-    if (rules.kicking && aggregatedStats.field_goals) {
+    if (rules.kicking) {
+      // Simple kicking points for now
+      points += (aggregatedStats.kicking_points || 0);
+
+      /* Detailed kicking stats for future use
       points += (aggregatedStats.field_goals_0_39 || 0) * (rules.kicking.field_goal_0_39 || 0);
       points += (aggregatedStats.field_goals_40_49 || 0) * (rules.kicking.field_goal_40_49 || 0);
       points += (aggregatedStats.field_goals_50_59 || 0) * (rules.kicking.field_goal_50_59 || 0);
@@ -151,6 +156,7 @@ export type NFLScoringRules = {
       points += (aggregatedStats.extra_points || 0) * (rules.kicking.extra_point || 0);
       points += (aggregatedStats.missed_field_goals || 0) * (rules.kicking.missed_field_goal || 0);
       points += (aggregatedStats.missed_extra_points || 0) * (rules.kicking.missed_extra_point || 0);
+      */
     }
     
     // Defense/Special Teams
