@@ -10,6 +10,7 @@ type WeeklyPicksProps = {
     teamData: TeamData;
     currentWeek: number;
     numWeeks: number;
+    isAuthorized: boolean;
 };
 
 const LINEUP_SLOTS = [
@@ -129,7 +130,7 @@ function PlayerSearch({
     );
 }
 
-export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks }: WeeklyPicksProps) {
+export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, isAuthorized }: WeeklyPicksProps) {
     const [selectedWeek, setSelectedWeek] = useState(currentWeek);
     const [weeklyStats, setWeeklyStats] = useState<{[key: string]: GameStats[]}>({});
     const [weeklyScores, setWeeklyScores] = useState<{[key: number]: number}>({});
@@ -313,34 +314,36 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks }: 
                                 <span className="text-accent font-semibold">
                                     Week Score: {weeklyScores[selectedWeek]?.toFixed(1) || 0}
                                 </span>
-                                {editingWeek === selectedWeek ? (
-                                    <div className="flex space-x-2">
+                                {isAuthorized && (  // Only show edit button if authorized
+                                    editingWeek === selectedWeek ? (
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={submitPicks}
+                                                className="flex items-center text-green-500 hover:opacity-80"
+                                            >
+                                                <Check size={16} className="mr-1" />
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setEditingWeek(null);
+                                                    setSelectedPicks({});
+                                                }}
+                                                className="flex items-center text-red-500 hover:opacity-80"
+                                            >
+                                                <X size={16} className="mr-1" />
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
                                         <button
-                                            onClick={submitPicks}
-                                            className="flex items-center text-green-500 hover:opacity-80"
+                                            onClick={() => handleEditWeek(selectedWeek)}
+                                            className="flex items-center text-accent hover:opacity-80"
                                         >
-                                            <Check size={16} className="mr-1" />
-                                            Save
+                                            <Edit2 size={16} className="mr-1" />
+                                            Edit
                                         </button>
-                                        <button
-                                            onClick={() => {
-                                                setEditingWeek(null);
-                                                setSelectedPicks({});
-                                            }}
-                                            className="flex items-center text-red-500 hover:opacity-80"
-                                        >
-                                            <X size={16} className="mr-1" />
-                                            Cancel
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={() => handleEditWeek(selectedWeek)}
-                                        className="flex items-center text-accent hover:opacity-80"
-                                    >
-                                        <Edit2 size={16} className="mr-1" />
-                                        Edit
-                                    </button>
+                                    )
                                 )}
                             </div>
                         </div>

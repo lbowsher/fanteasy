@@ -8,9 +8,9 @@ import AuthButtonServer from '../../../../auth-button-server';
 import Link from 'next/link';
 import OneTeam from './one-team';
 import SearchPage from './search-page';
-import WeeklyPicks from './weekly-picks';
 import PlayoffWeeklyPicks from './playoff-weekly-picks';
 import { calculateTeamTotalScore } from '../../../../utils/scoring';
+import TeamHeader from './team-header';
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +86,8 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         totalScore
     };
 
+    const isAuthorized = session.user.id === team.owner_id || session.user.id === team.leagues?.commish;
+
     const baseLayout = (content: React.ReactNode) => (
         <div className="min-h-screen bg-background">
             <div className="max-w-xl mx-auto">
@@ -106,43 +108,10 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         </div>
     );
 
-    // const mainContent = (
-    //     <div className="p-6">
-    //         <div className="mb-6">
-    //             <h1 className="text-2xl font-bold text-primary-text mb-2">{teamData.team.name}</h1>
-    //             <h2 className="text-secondary-text">{teamData.owner?.full_name || 'Unclaimed'}</h2>
-    //             <div className="mt-4 text-accent font-bold text-xl">
-    //                 Total Score: {teamData.totalScore.toFixed(1)}
-    //             </div>
-    //         </div>
-
-    //         {teamData.league?.scoring_type === 'NFL Playoff Pickem' ? (
-    //             <WeeklyPicks 
-    //                 teamData={teamData}
-    //                 currentWeek={1} 
-    //                 numWeeks={teamData.league.num_weeks} 
-    //             />
-    //         ) : (
-    //             <>
-    //                  <OneTeam team={teamWithScores} />
-    //                  {session.user.id === team.leagues?.commish && (
-    //                     <div className="mt-8">
-    //                         <SearchPage 
-    //                             team={teamWithScores} 
-    //                             sports_league={team.leagues?.league} 
-    //                         />
-    //                     </div>
-    //                 )}
-    //             </>
-    //         )}
-    //     </div>
-    // );
-
-    // return baseLayout(mainContent);
     const mainContent = (
         <div className="p-6">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-primary-text mb-2">{teamData.team.name}</h1>
+                <TeamHeader team={team} isAuthorized={isAuthorized} />
                 <h2 className="text-secondary-text">{teamData.owner?.full_name || 'Unclaimed'}</h2>
             </div>
 
@@ -150,7 +119,8 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
                 <PlayoffWeeklyPicks 
                     teamData={teamData}
                     currentWeek={1} 
-                    numWeeks={teamData.league.num_weeks} 
+                    numWeeks={teamData.league.num_weeks}
+                    isAuthorized={isAuthorized}
                 />
             ) : (
                 <>
