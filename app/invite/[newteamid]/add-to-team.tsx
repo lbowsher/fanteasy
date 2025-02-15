@@ -1,6 +1,6 @@
 
-import { User, createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "../../utils/supabase/client";
 import { redirect } from "next/navigation";
 
 
@@ -10,7 +10,7 @@ export default function AddToTeam({user, team_name, team_id}: { user: User, team
     const AddUser = async (formData: FormData) => {
         "use server";
         const new_team_name = String(formData.get('TeamName'));
-        const supabase = createServerActionClient<Database>({ cookies });
+        const supabase = createClient();
         await supabase.from('teams').update({ user_id: user.id, name: new_team_name }).eq('id', team_id);
         console.log("added user to team")
         redirect('/');

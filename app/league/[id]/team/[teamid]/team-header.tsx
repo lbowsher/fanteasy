@@ -1,6 +1,6 @@
 "use client";
-import { useState, useOptimistic } from 'react';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useState, useOptimistic, startTransition } from 'react';
+import { createClient } from "../../../../utils/supabase/client";
 import { Edit2, Check, X } from "lucide-react";
 
 type TeamHeaderProps = {
@@ -18,18 +18,22 @@ export default function TeamHeader({ team, isAuthorized }: TeamHeaderProps) {
         (state, newName) => ({ ...state, ...newName })
     );
     const [editingName, setEditingName] = useState(team.name);
-    const supabase = createClientComponentClient<Database>();
+    const supabase = createClient();
 
     const handleSave = async () => {
-        updateOptimisticTeam({ name: editingName });
-        
+        startTransition(() => {
+            updateOptimisticTeam({ name: editingName });
+        });
+
         const { error } = await supabase
             .from('teams')
             .update({ name: editingName })
             .eq('id', team.id);
 
         if (error) {
-            updateOptimisticTeam({ name: team.name });
+            startTransition(() => {
+                updateOptimisticTeam({ name: team.name });
+            });
         } else {
             setIsEditing(false);
         }

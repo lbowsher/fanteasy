@@ -1,10 +1,11 @@
 // league/[id]/team/[teamid]/playoff-weekly-picks.tsx
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "../../../../utils/supabase/client";
 import { Edit2, Check, X, Search } from "lucide-react";
 import { calculateNFLPoints } from '../../../../utils/scoring';
 import { debounce, groupBy } from 'lodash';
+import Image from 'next/image';
 
 type WeeklyPicksProps = {
     teamData: TeamData;
@@ -88,10 +89,12 @@ function PlayerSearch({
             {selectedPlayer && !isSearching && (
                 <div className="p-3 bg-accent/10 rounded-lg border border-accent">
                     <div className="flex items-center space-x-3">
-                        <img 
-                            src={selectedPlayer.pic_url || '../../../../../public/default-player.png'} 
+                        <Image 
+                            src={selectedPlayer.pic_url || '../../../../../public/default-player.png'}
                             alt={selectedPlayer.name}
-                            className="w-10 h-10 rounded-full object-cover"
+                            width={40}
+                            height={40}
+                            className="rounded-full object-cover"
                         />
                         <span className="text-accent font-semibold">
                             {selectedPlayer.name} - {selectedPlayer.team_name} ({selectedPlayer.position})
@@ -114,10 +117,12 @@ function PlayerSearch({
                             className="w-full p-2 text-left hover:bg-accent/20 
                                      transition-colors text-primary-text flex items-center space-x-3"
                         >
-                            <img 
-                                src={player.pic_url || '../../../../../public/default-player.png'} 
+                            <Image 
+                                src={player.pic_url || '../../../../../public/default-player.png'}
                                 alt={player.name}
-                                className="w-8 h-8 rounded-full object-cover"
+                                width={32}
+                                height={32}
+                                className="rounded-full object-cover"
                             />
                             <span>
                                 {player.name} - {player.team_name} ({player.position})
@@ -138,7 +143,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
     const [editingWeek, setEditingWeek] = useState<number | null>(null);
     const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
     const [selectedPicks, setSelectedPicks] = useState<{[key: string]: Player | null}>({});
-    const supabase = createClientComponentClient<Database>();
+    const supabase = createClient();
 
     useEffect(() => {
         const fetchPlayers = async () => {
@@ -153,7 +158,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         };
 
         fetchPlayers();
-    }, []);
+    }, [supabase]);
 
     useEffect(() => {
         const fetchWeeklyData = async () => {
@@ -198,7 +203,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         };
 
         fetchWeeklyData();
-    }, [teamData, numWeeks]);
+    }, [teamData, numWeeks, supabase]);
 
     const handleEditWeek = (week: number) => {
         setEditingWeek(week);
@@ -280,14 +285,13 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
     };
 
     return (
-        <div className="w-full bg-surface rounded-lg border border-border">
+        (<div className="w-full bg-surface rounded-lg border border-border">
             <div className="p-6 border-b border-border">
                 <h2 className="text-2xl font-bold text-primary-text">Weekly Picks</h2>
                 <div className="mt-4 text-xl font-semibold text-accent">
                     Total Season Score: {totalScore.toFixed(1)}
                 </div>
             </div>
-
             <div className="p-6">
                 <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
                     {Array.from({ length: numWeeks }, (_, i) => i + 1).map(week => (
@@ -315,35 +319,30 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                                     Week Score: {weeklyScores[selectedWeek]?.toFixed(1) || 0}
                                 </span>
                                 {isAuthorized && (  // Only show edit button if authorized
-                                    editingWeek === selectedWeek ? (
-                                        <div className="flex space-x-2">
-                                            <button
-                                                onClick={submitPicks}
-                                                className="flex items-center text-green-500 hover:opacity-80"
-                                            >
-                                                <Check size={16} className="mr-1" />
-                                                Save
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setEditingWeek(null);
-                                                    setSelectedPicks({});
-                                                }}
-                                                className="flex items-center text-red-500 hover:opacity-80"
-                                            >
-                                                <X size={16} className="mr-1" />
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    ) : (
+                                    (editingWeek === selectedWeek ? (<div className="flex space-x-2">
                                         <button
-                                            onClick={() => handleEditWeek(selectedWeek)}
-                                            className="flex items-center text-accent hover:opacity-80"
+                                            onClick={submitPicks}
+                                            className="flex items-center text-green-500 hover:opacity-80"
                                         >
-                                            <Edit2 size={16} className="mr-1" />
-                                            Edit
+                                            <Check size={16} className="mr-1" />
+                                            Save
                                         </button>
-                                    )
+                                        <button
+                                            onClick={() => {
+                                                setEditingWeek(null);
+                                                setSelectedPicks({});
+                                            }}
+                                            className="flex items-center text-red-500 hover:opacity-80"
+                                        >
+                                            <X size={16} className="mr-1" />
+                                            Cancel
+                                        </button>
+                                    </div>) : (<button
+                                        onClick={() => handleEditWeek(selectedWeek)}
+                                        className="flex items-center text-accent hover:opacity-80"
+                                    >
+                                        <Edit2 size={16} className="mr-1" />Edit
+                                                                                </button>))
                                 )}
                             </div>
                         </div>
@@ -382,9 +381,11 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                                             </div>
                                             <div className="flex items-center space-x-3 mb-2">
                                                 {pick?.player && (
-                                                    <img 
+                                                    <Image 
                                                         src={pick.player.pic_url || '../../../../../public/default-player.png'} 
                                                         alt={pick.player.name}
+                                                        width={40}
+                                                        height={40}
                                                         className="w-10 h-10 rounded-full object-cover"
                                                     />
                                                 )}
@@ -407,6 +408,6 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                     </div>
                 </div>
             </div>
-        </div>
+        </div>)
     );
 }

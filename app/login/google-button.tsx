@@ -1,10 +1,10 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "../utils/supabase/client";
 import Image from "next/image";
 
 export default function GoogleButton() {
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClient();
 
   const handleSignIn = async () => {
     await supabase.auth.signInWithOAuth({

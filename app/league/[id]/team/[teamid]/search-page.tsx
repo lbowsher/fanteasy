@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import SearchComponent from './search-component';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from "../../../../utils/supabase/client";
 
 const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPlayers }> = ({ sports_league, team }) => {
-    const supabase = createClientComponentClient<Database>();
+    const supabase = createClient();
     const router = useRouter()
     
     const UpdatePlayer =async (playerID: PlayerID) => {

@@ -15,14 +15,18 @@ export type Database = {
           blocked_kicks: number | null
           blocks: number | null
           created_at: string
+          def_interceptions: number | null
           defensive_touchdowns: number | null
           extra_points_attempted: number | null
           extra_points_made: number | null
           field_goals_attempted: number | null
+          field_goals_longest: number | null
+          field_goals_made: number | null
           field_goals_made_0_39: number | null
           field_goals_made_40_49: number | null
           field_goals_made_50_plus: number | null
           fumbles: number | null
+          fumbles_forced: number | null
           fumbles_lost: number | null
           fumbles_recovered: number | null
           game_date: string | null
@@ -30,6 +34,7 @@ export type Database = {
           home_team: boolean | null
           id: string
           interceptions: number | null
+          kicking_points: number | null
           minutes_played: number | null
           opponent: string | null
           passing_2pt_conversions: number | null
@@ -54,6 +59,7 @@ export type Database = {
           special_teams_touchdowns: number | null
           started: boolean | null
           steals: number | null
+          tackles_total: number | null
           turnovers: number | null
           two_point_conversions: number | null
           week_number: number | null
@@ -63,14 +69,18 @@ export type Database = {
           blocked_kicks?: number | null
           blocks?: number | null
           created_at?: string
+          def_interceptions?: number | null
           defensive_touchdowns?: number | null
           extra_points_attempted?: number | null
           extra_points_made?: number | null
           field_goals_attempted?: number | null
+          field_goals_longest?: number | null
+          field_goals_made?: number | null
           field_goals_made_0_39?: number | null
           field_goals_made_40_49?: number | null
           field_goals_made_50_plus?: number | null
           fumbles?: number | null
+          fumbles_forced?: number | null
           fumbles_lost?: number | null
           fumbles_recovered?: number | null
           game_date?: string | null
@@ -78,6 +88,7 @@ export type Database = {
           home_team?: boolean | null
           id?: string
           interceptions?: number | null
+          kicking_points?: number | null
           minutes_played?: number | null
           opponent?: string | null
           passing_2pt_conversions?: number | null
@@ -102,6 +113,7 @@ export type Database = {
           special_teams_touchdowns?: number | null
           started?: boolean | null
           steals?: number | null
+          tackles_total?: number | null
           turnovers?: number | null
           two_point_conversions?: number | null
           week_number?: number | null
@@ -111,14 +123,18 @@ export type Database = {
           blocked_kicks?: number | null
           blocks?: number | null
           created_at?: string
+          def_interceptions?: number | null
           defensive_touchdowns?: number | null
           extra_points_attempted?: number | null
           extra_points_made?: number | null
           field_goals_attempted?: number | null
+          field_goals_longest?: number | null
+          field_goals_made?: number | null
           field_goals_made_0_39?: number | null
           field_goals_made_40_49?: number | null
           field_goals_made_50_plus?: number | null
           fumbles?: number | null
+          fumbles_forced?: number | null
           fumbles_lost?: number | null
           fumbles_recovered?: number | null
           game_date?: string | null
@@ -126,6 +142,7 @@ export type Database = {
           home_team?: boolean | null
           id?: string
           interceptions?: number | null
+          kicking_points?: number | null
           minutes_played?: number | null
           opponent?: string | null
           passing_2pt_conversions?: number | null
@@ -150,6 +167,7 @@ export type Database = {
           special_teams_touchdowns?: number | null
           started?: boolean | null
           steals?: number | null
+          tackles_total?: number | null
           turnovers?: number | null
           two_point_conversions?: number | null
           week_number?: number | null

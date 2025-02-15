@@ -1,5 +1,5 @@
 // league/[id]/page.tsx
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../utils/supabase/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AuthButtonServer from '../../auth-button-server';
@@ -9,10 +9,11 @@ import { calculateTeamTotalScore } from '../../utils/scoring';
 
 export const dynamic = "force-dynamic";
 
-export default async function League({ params }: { params: { id: LeagueID } }) {
-    const supabase = createServerComponentClient<Database>({ cookies });
+export default async function League(props: { params: Promise<{ id: LeagueID }> }) {
+    const params = await props.params;
+    const supabase = await createClient();
 
-    const {data : { session }} = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         redirect('/login');
     }

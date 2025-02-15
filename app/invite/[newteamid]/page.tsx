@@ -1,15 +1,16 @@
 "use server";
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from "../../utils/supabase/client";
 import AuthButtonServer from '../../auth-button-server';
 import GoogleButton from '../../login/google-button';
 import Link from 'next/link';
 import AddToTeam from './add-to-team';
 
 
-export default async function TeamInvite({ params }: { params: { newteamid: TeamID } }) {
-    const supabase = createServerComponentClient<Database>({ cookies });
-
+export default async function TeamInvite(props: { params: Promise<{ newteamid: TeamID }> }) {
+    const params = await props.params;
+    
+    const supabase = await createClient();
+    
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         return (

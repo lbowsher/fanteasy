@@ -1,5 +1,6 @@
 
-import { User, createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { User } from '@supabase/supabase-js'
+import { createClient } from '../utils/supabase/server'
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 //import AuthButtonServer from '../../auth-button-server'
@@ -15,7 +16,7 @@ export default function LeagueCreator({user}: {user: User}) {//AddLeague: (formD
         const num_teams = parseInt(String(formData.get('NumTeams')));
         const scoring_type = String(formData.get('ScoringType'));
         const sports_league = String(formData.get('SportsLeague'));
-        const supabase = createServerActionClient<Database>({ cookies });
+        const supabase = await createClient();
         const {data, error} = await supabase.from('leagues').insert({
             name: league_name, 
             num_teams: num_teams, 

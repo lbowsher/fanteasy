@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { calculateNFLPoints } from '../../utils/scoring';
 import { useEffect, useState } from 'react';
 import { groupBy } from 'lodash';
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "../../utils/supabase/client";
 
 interface LeagueHomeProps {
     teams: TeamWithOwner[];
@@ -17,7 +17,7 @@ interface LeagueHomeProps {
 export default function LeagueHome({ teams, league_id, league }: LeagueHomeProps) {
     const [sortedTeams, setSortedTeams] = useState<TeamWithOwner[]>([]);
     const [weeklyStats, setWeeklyStats] = useState<{[key: string]: GameStats[]}>({});
-    const supabase = createClientComponentClient<Database>();
+    const supabase = createClient();
 
     console.log(teams);
 

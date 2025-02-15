@@ -1,6 +1,5 @@
 import AuthButtonServer from './auth-button-server'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from './utils/supabase/server'
 import { redirect } from 'next/navigation';
 import Teams from './teams';
 import Link from 'next/link';
@@ -8,8 +7,7 @@ import Link from 'next/link';
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const supabase = createServerComponentClient<Database>({ cookies });
-
+  const supabase = await createClient();
   const {data : { session }} = await supabase.auth.getSession();
   if (!session) {
     redirect('/login');

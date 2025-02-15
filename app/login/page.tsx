@@ -1,13 +1,13 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from '../utils/supabase/server';
 import { redirect } from "next/navigation";
 import GoogleButton from "./google-button";
+import { create } from 'lodash';
 
 export const dynamic = "force-dynamic";
 
 
 export default async function Login() {
-    const supabase = createServerComponentClient<Database>({ cookies }); 
+    const supabase = await createClient();
 
     const {data : { session }} = await supabase.auth.getSession();
     

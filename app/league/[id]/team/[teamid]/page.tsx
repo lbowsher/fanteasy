@@ -1,8 +1,7 @@
 // V2 lets go
 
 // league/[id]/team/[teamid]/page.tsx
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from "../../../../utils/supabase/client";
 import { redirect } from 'next/navigation';
 import AuthButtonServer from '../../../../auth-button-server';
 import Link from 'next/link';
@@ -14,8 +13,9 @@ import TeamHeader from './team-header';
 
 export const dynamic = "force-dynamic";
 
-export default async function Team({ params }: { params: { teamid: TeamID } }) {
-    const supabase = createServerComponentClient<Database>({ cookies });
+export default async function Team(props: { params: Promise<{ teamid: TeamID }> }) {
+    const params = await props.params;
+    const supabase = await createClient();
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -65,7 +65,7 @@ export default async function Team({ params }: { params: { teamid: TeamID } }) {
         .from('game_stats')
         .select('*')
         .in('player_id', weeklyPicks?.map(pick => pick.player_id) || []);
-    
+
     // Calculate total team score based on league scoring rules
     const totalScore = gameStats ? calculateTeamTotalScore(gameStats, team.leagues) : 0;
 
