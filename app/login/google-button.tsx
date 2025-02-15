@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { createClient } from "../utils/supabase/client";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function GoogleButton() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
 
   const handleGoogleSignIn = async () => {
@@ -32,13 +30,13 @@ export default function GoogleButton() {
       disabled={loading}
       className="btn btn-primary"
     >
-      {loading ? "Signing in..." : "Sign in with Google"}
+      <Image
+        src="/continue-with-google.png"
+        alt="Continue with Google"
+        width={500}
+        height={100}
+      />
+      {loading ? "Signing in..." : ""}
     </button>
   );
 }
-// <Image
-// src="/continue-with-google.png"
-// alt="Continue with Google"
-// width={500}
-// height={100}
-// />
