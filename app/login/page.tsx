@@ -1,7 +1,6 @@
 import { createClient } from '../utils/supabase/server';
 import { redirect } from "next/navigation";
 import GoogleButton from "./google-button";
-import { create } from 'lodash';
 
 export const dynamic = "force-dynamic";
 

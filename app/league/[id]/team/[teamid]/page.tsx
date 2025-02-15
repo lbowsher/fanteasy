@@ -1,7 +1,7 @@
 // V2 lets go
 
 // league/[id]/team/[teamid]/page.tsx
-import { createClient } from "../../../../utils/supabase/client";
+import { createClient } from "../../../../utils/supabase/server";
 import { redirect } from 'next/navigation';
 import AuthButtonServer from '../../../../auth-button-server';
 import Link from 'next/link';
