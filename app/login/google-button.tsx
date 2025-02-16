@@ -27,9 +27,9 @@ export default function GoogleButton() {
     <button
       onClick={handleGoogleSignIn}
       disabled={loading}
-      className="w-full flex items-center justify-center px-4 py-2 rounded-lg border border-border bg-surface hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      className="w-full flex items-center justify-center px-4 py-3 rounded-lg border border-border hover:bg-surface/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
     >
-      <div className="relative w-full max-w-[220px] h-[46px]">
+      <div className="relative w-full max-w-[280px] h-[52px]">
         <Image
           src="/continue-with-google.png"
           alt="Continue with Google"
