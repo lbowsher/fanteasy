@@ -23,58 +23,64 @@ const OneTapComponent = () => {
   }
 
   useEffect(() => {
-    const initializeGoogleOneTap = () => {
+    const initializeGoogleOneTap = async () => {
       console.log('Initializing Google One Tap')
-      window.addEventListener('load', async () => {
-        const [nonce, hashedNonce] = await generateNonce()
-        console.log('Nonce: ', nonce, hashedNonce)
+      const [nonce, hashedNonce] = await generateNonce()
+      console.log('Nonce: ', nonce, hashedNonce)
 
-        // check if there's already an existing session before initializing the one-tap UI
-        const { data, error } = await supabase.auth.getSession()
-        if (error) {
-          console.error('Error getting session', error)
-        }
-        if (data.session) {
-          router.push('/')
-          return
-        }
+      // check if there's already an existing session before initializing the one-tap UI
+      const { data, error } = await supabase.auth.getSession()
+      if (error) {
+        console.error('Error getting session', error)
+      }
+      if (data.session) {
+        router.push('/')
+        return
+      }
 
-        /* global google */
-        google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          callback: async (response: CredentialResponse) => {
-            try {
-              // send id token returned in response.credential to supabase
-              const { data, error } = await supabase.auth.signInWithIdToken({
-                provider: 'google',
-                token: response.credential,
-                nonce,
-              })
+      window.google.accounts.id.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+        callback: async (response: CredentialResponse) => {
+          try {
+            const { data, error } = await supabase.auth.signInWithIdToken({
+              provider: 'google',
+              token: response.credential,
+              nonce,
+            })
 
-              if (error) throw error
-              console.log('Session data: ', data)
-              console.log('Successfully logged in with Google One Tap')
+            if (error) throw error
+            console.log('Session data: ', data)
+            console.log('Successfully logged in with Google One Tap')
 
-              // redirect to protected page
-              router.push('/')
-            } catch (error) {
-              console.error('Error logging in with Google One Tap', error)
-            }
-          },
-          nonce: hashedNonce,
-          // with chrome's removal of third-party cookiesm, we need to use FedCM instead (https://developers.google.com/identity/gsi/web/guides/fedcm-migration)
-          use_fedcm_for_prompt: true,
-        })
-        google.accounts.id.prompt() // Display the One Tap UI
+            router.push('/')
+          } catch (error) {
+            console.error('Error logging in with Google One Tap', error)
+          }
+        },
+        nonce: hashedNonce,
+        use_fedcm_for_prompt: true,
       })
+      window.google.accounts.id.prompt()
     }
-    initializeGoogleOneTap()
-    return () => window.removeEventListener('load', initializeGoogleOneTap)
-  }, [])
+
+    // We'll check if the google script is loaded before initializing
+    const checkAndInitialize = () => {
+      if (window.google?.accounts?.id) {
+        initializeGoogleOneTap()
+      } else {
+        // If not loaded yet, check again in a short moment
+        setTimeout(checkAndInitialize, 100)
+      }
+    }
+
+    checkAndInitialize()
+    
+    // No need for cleanup as we're not adding event listeners anymore
+  }, [router, supabase.auth])
 
   return (
     <>
-      <Script src="https://accounts.google.com/gsi/client" />
+      <Script strategy="beforeInteractive" src="https://accounts.google.com/gsi/client" />
       <div id="oneTap" className="fixed top-0 right-0 z-[100]" />
     </>
   )
