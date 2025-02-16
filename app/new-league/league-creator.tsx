@@ -1,74 +1,8 @@
-
-import { User } from '@supabase/supabase-js'
-import { createClient } from '../utils/supabase/server'
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-//import AuthButtonServer from '../../auth-button-server'
+"use client";
 import Link from 'next/link';
+import { addLeague } from './league-action';
 
-
-
-export default function LeagueCreator({user}: {user: User}) {//AddLeague: (formData: FormData) => Promise<void>) {  
-
-    const AddLeague = async (formData: FormData) => {
-        "use server";
-        const league_name = String(formData.get('LeagueName'));
-        const num_teams = parseInt(String(formData.get('NumTeams')));
-        const scoring_type = String(formData.get('ScoringType'));
-        const sports_league = String(formData.get('SportsLeague'));
-        const supabase = await createClient();
-        const {data, error} = await supabase.from('leagues').insert({
-            name: league_name, 
-            num_teams: num_teams, 
-            scoring_type: scoring_type, 
-            league: sports_league,
-            commish: user.id, //todo update
-        }).select('id');
-
-        if (error) {
-            console.error("League creation error:", error);
-            throw error;
-        }
-
-        if (!data || data.length === 0) {
-            console.error("No data returned after league creation");
-            throw new Error("League creation failed");
-        }
-
-        const new_league_id = data[0].id;
-        console.log("League created with ID:", new_league_id);
-
-        // Create all teams in a single insert operation
-        const teamsToCreate = [
-            // Commissioner's team
-            {
-                name: 'Team 1',
-                league_id: new_league_id,
-                is_commish: true,
-                user_id: user.id
-            },
-            // Other teams
-            ...Array.from({length: num_teams - 1}, (_, i) => ({
-                name: `Team ${i+2}`,
-                league_id: new_league_id,
-                is_commish: false
-            }))
-        ];
-
-        const { error: teamsError } = await supabase
-            .from('teams')
-            .insert(teamsToCreate);
-
-        if (teamsError) {
-            console.error("Error creating teams:", teamsError);
-            throw teamsError;
-            }
-
-        const { revalidatePath } = await import('next/cache');
-        revalidatePath('/');
-        return redirect('/');
-
-        }
+export default function LeagueCreator() {
     return ( 
         <div className="w-full max-w-xl mx-auto">
             <div className="flex justify-between px-4 py-6 border-slate-grey border border-t-0">
@@ -77,7 +11,7 @@ export default function LeagueCreator({user}: {user: User}) {//AddLeague: (formD
                 </Link>
             </div>
             <div>
-                <form className="flex-wrap border-slate-grey border border-t-0 p-6" action={AddLeague}>
+                <form className="flex-wrap border-slate-grey border border-t-0 p-6" action={addLeague}>
                     <fieldset className="flex flex-col space-y-4">
                         <legend className="text-2xl font-bold mb-6">Create a New League</legend>
                         
