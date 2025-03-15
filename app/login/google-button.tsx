@@ -4,14 +4,14 @@ import { useState } from "react";
 import { createClient } from "../utils/supabase/client";
 import Image from "next/image";
 
-export default function GoogleButton() {
+export default function GoogleButton({ redirectPath }: { redirectPath?: string }) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     // Construct the redirect URL for the OAuth callback
-    const redirectTo = window.location.origin + "/auth/callback";
+    const redirectTo = window.location.origin + "/auth/callback" + (redirectPath ? `?next=${redirectPath}` : '');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo }

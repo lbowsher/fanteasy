@@ -17,8 +17,9 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
     const params = await props.params;
     const supabase = await createClient();
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
         redirect('/login');
     }
 
@@ -86,7 +87,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         totalScore
     };
 
-    const isAuthorized = session.user.id === team.owner_id || session.user.id === team.leagues?.commish;
+    const isAuthorized = user.id === team.owner_id || user.id === team.leagues?.commish;
 
     const baseLayout = (content: React.ReactNode) => (
         <div className="min-h-screen bg-background">
@@ -125,7 +126,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
             ) : (
                 <>
                     <OneTeam team={teamWithScores} />
-                    {session.user.id === team.leagues?.commish && (
+                    {user.id === team.leagues?.commish && (
                         <div className="mt-8">
                             <SearchPage 
                                 team={teamWithScores} 

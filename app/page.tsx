@@ -8,9 +8,10 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const supabase = await createClient();
-  const {data : { session }} = await supabase.auth.getSession();
-  if (!session) {
-    redirect('/login');
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+  if (authError || !user) {
+      redirect('/login');
   }
 
   const { data, error } = await supabase.from('teams')
@@ -19,7 +20,7 @@ export default async function Home() {
       profiles(id, avatar_url),
       leagues(id, name)
     `)
-    .eq('user_id', session.user.id);
+    .eq('user_id', user.id);
 
   const teams = data?.map(team => ({
     ...team,

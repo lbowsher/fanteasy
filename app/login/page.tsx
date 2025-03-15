@@ -6,18 +6,22 @@ import OneTapComponent from "./one-tap-component";
 
 export const dynamic = "force-dynamic";
 
-export default async function Login() {
+interface LoginProps {
+    invitePath?: string;
+}
+
+export default async function Login({ invitePath }: LoginProps) {
     const supabase = await createClient();
 
     const {data : { session }} = await supabase.auth.getSession();
     
     if (session) {
-        redirect('/');
+        redirect(invitePath || '/');
     }
     
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-surface/50">
-        <OneTapComponent />
+        <OneTapComponent redirectPath={invitePath} />
         <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-6">
           <div className="w-full max-w-md space-y-8">
             <div className="text-center animate-fadeIn">
@@ -27,7 +31,7 @@ export default async function Login() {
             
             <div className="space-y-8 bg-surface/80 backdrop-blur-sm p-8 rounded-2xl border border-border/50 shadow-xl">
               <div className="w-full">
-                <GoogleButton />
+                <GoogleButton redirectPath={invitePath} />
               </div>
               
               <div className="relative">
@@ -40,7 +44,7 @@ export default async function Login() {
               </div>
 
               <div className="w-full">
-                <MagicLink />
+                <MagicLink redirectPath={invitePath} />
               </div>
             </div>
           </div>

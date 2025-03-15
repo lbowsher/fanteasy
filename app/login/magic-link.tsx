@@ -6,7 +6,7 @@ import { createClient } from "../utils/supabase/client";
 // Email validation regex
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-export default function MagicLink() {
+export default function MagicLink({ redirectPath }: { redirectPath?: string }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -47,7 +47,7 @@ export default function MagicLink() {
     setLoading(true);
     setMessage("");
     // Construct the redirect URL (adjust if needed)
-    const redirectTo = window.location.origin + "/auth/callback";
+    const redirectTo = window.location.origin + "/auth/callback" + (redirectPath ? `?next=${redirectPath}` : '');
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {

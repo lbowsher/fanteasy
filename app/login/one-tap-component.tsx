@@ -6,7 +6,7 @@ import { CredentialResponse } from 'google-one-tap'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-const OneTapComponent = () => {
+const OneTapComponent = ({ redirectPath }: { redirectPath?: string }) => {
   const supabase = createClient()
   const router = useRouter()
 
@@ -34,7 +34,7 @@ const OneTapComponent = () => {
         console.error('Error getting session', error)
       }
       if (data.session) {
-        router.push('/')
+        router.push(redirectPath || '/')
         return
       }
 
@@ -52,7 +52,7 @@ const OneTapComponent = () => {
             console.log('Session data: ', data)
             console.log('Successfully logged in with Google One Tap')
 
-            router.push('/')
+            router.push(redirectPath || '/')
           } catch (error) {
             console.error('Error logging in with Google One Tap', error)
           }
@@ -76,7 +76,7 @@ const OneTapComponent = () => {
     checkAndInitialize()
     
     // No need for cleanup as we're not adding event listeners anymore
-  }, [router, supabase.auth])
+  }, [router, supabase.auth, redirectPath])
 
   return (
     <>

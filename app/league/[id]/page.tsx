@@ -13,8 +13,9 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
     const params = await props.params;
     const supabase = await createClient();
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
         redirect('/login');
     }
 
@@ -85,6 +86,8 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
         totalScore: teamTotalScores.find(score => score.teamId === team.id)?.totalScore || 0
     }));
 
+    const isCommissioner = user.id === leagueData.commish;
+
     return (
         <div className="min-h-screen bg-background">
             <div className="w-full max-w-4xl mx-auto px-4">
@@ -107,6 +110,7 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
                             teams={teams} 
                             league_id={params.id} 
                             league={leagueData}
+                            isCommissioner={isCommissioner}
                         />
                     </div>
                 </main>
