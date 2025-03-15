@@ -9,6 +9,159 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      draft_picks: {
+        Row: {
+          created_at: string | null
+          draft_id: string
+          id: string
+          is_auto_pick: boolean | null
+          pick_number: number
+          pick_time: string | null
+          player_id: string
+          round_number: number
+          team_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          draft_id: string
+          id?: string
+          is_auto_pick?: boolean | null
+          pick_number: number
+          pick_time?: string | null
+          player_id: string
+          round_number: number
+          team_id: string
+        }
+        Update: {
+          created_at?: string | null
+          draft_id?: string
+          id?: string
+          is_auto_pick?: boolean | null
+          pick_number?: number
+          pick_time?: string | null
+          player_id?: string
+          round_number?: number
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "draft_picks_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "draft_settings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "draft_picks_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "draft_picks_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      draft_queue: {
+        Row: {
+          created_at: string | null
+          id: string
+          player_id: string
+          priority: number
+          team_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          player_id: string
+          priority: number
+          team_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          player_id?: string
+          priority?: number
+          team_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "draft_queue_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "draft_queue_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      draft_settings: {
+        Row: {
+          auto_pick_enabled: boolean
+          created_at: string | null
+          current_pick: number | null
+          current_round: number | null
+          draft_date: string | null
+          draft_status: string
+          draft_type: string
+          id: string
+          league_id: string
+          pick_order: Json | null
+          time_per_pick: number
+          updated_at: string | null
+        }
+        Insert: {
+          auto_pick_enabled?: boolean
+          created_at?: string | null
+          current_pick?: number | null
+          current_round?: number | null
+          draft_date?: string | null
+          draft_status?: string
+          draft_type: string
+          id?: string
+          league_id: string
+          pick_order?: Json | null
+          time_per_pick?: number
+          updated_at?: string | null
+        }
+        Update: {
+          auto_pick_enabled?: boolean
+          created_at?: string | null
+          current_pick?: number | null
+          current_round?: number | null
+          draft_date?: string | null
+          draft_status?: string
+          draft_type?: string
+          id?: string
+          league_id?: string
+          pick_order?: Json | null
+          time_per_pick?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "draft_settings_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: true
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_stats: {
         Row: {
           assists: number | null
