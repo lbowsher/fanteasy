@@ -85,7 +85,7 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
             <div className="flex-1 flex flex-col justify-center items-center">
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold mb-2">Join {league.name}</h2>
-                    <p className="text-secondary-text">You've been invited to join as {team.name}</p>
+                    <p className="text-secondary-text">You&apos;ve been invited to join as {team.name}</p>
                 </div>
                 <AddToTeam user={user} team_name={team.name} team_id={team.id}></AddToTeam>
             </div>

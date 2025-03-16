@@ -377,6 +377,47 @@ export type Database = {
         }
         Relationships: []
       }
+      player_rankings: {
+        Row: {
+          created_at: string | null
+          id: string
+          league_type: string
+          overall_rank: number
+          player_id: string
+          position_rank: number
+          season_year: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          league_type: string
+          overall_rank: number
+          player_id: string
+          position_rank: number
+          season_year?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          league_type?: string
+          overall_rank?: number
+          player_id?: string
+          position_rank?: number
+          season_year?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_rankings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       players: {
         Row: {
           attempts: number | null
@@ -545,6 +586,7 @@ export type Database = {
       }
       teams: {
         Row: {
+          auto_pick_preference: boolean | null
           created_at: string
           id: string
           is_commish: boolean
@@ -554,6 +596,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          auto_pick_preference?: boolean | null
           created_at?: string
           id?: string
           is_commish?: boolean
@@ -563,6 +606,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          auto_pick_preference?: boolean | null
           created_at?: string
           id?: string
           is_commish?: boolean
@@ -635,6 +679,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_pick_player: {
+        Args: {
+          draft_id: string
+          team_id: string
+        }
+        Returns: string
+      }
       insert_default_scoring_rules: {
         Args: Record<PropertyKey, never>
         Returns: undefined

@@ -1,8 +1,11 @@
 "use client";
 import Link from 'next/link';
+import { useState } from 'react';
 import { addLeague } from './league-action';
 
 export default function LeagueCreator() {
+    const [draftEnabled, setDraftEnabled] = useState(true);
+    
     return ( 
         <div className="w-full max-w-xl mx-auto">
             <div className="flex justify-between px-4 py-6 border-slate-grey border border-t-0">
@@ -63,6 +66,85 @@ export default function LeagueCreator() {
                                 <option value="NFL Playoff Pickem">NFL Playoff Pickem</option>
                                 <option value="Best Ball Tournament">BestBall</option>
                             </select>
+                        </div>
+
+                        {/* Draft Settings */}
+                        <div className="mt-8 border-t border-slate-grey pt-6">
+                            <div className="flex items-center space-x-2 mb-4">
+                                <input 
+                                    type="checkbox" 
+                                    id="EnableDraft" 
+                                    checked={draftEnabled}
+                                    onChange={(e) => setDraftEnabled(e.target.checked)}
+                                    className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
+                                />
+                                <label htmlFor="EnableDraft" className="text-lg font-semibold text-primary-text">
+                                    Enable Draft
+                                </label>
+                            </div>
+                            
+                            {/* Always send the current draft enabled state */}
+                            <input 
+                                type="hidden" 
+                                name="EnableDraft" 
+                                value={draftEnabled ? "true" : "false"} 
+                            />
+
+                            {draftEnabled && (
+                                <div className="space-y-4">
+                                    
+                                    <div className="space-y-2">
+                                        <label htmlFor="DraftType" className="block text-secondary-text">
+                                            Draft Type
+                                        </label>
+                                        <select 
+                                            name="DraftType" 
+                                            className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
+                                        >
+                                            <option value="snake">Snake Draft</option>
+                                            <option value="linear">Linear Draft</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <label htmlFor="DraftDate" className="block text-secondary-text">
+                                            Draft Date (optional)
+                                        </label>
+                                        <input 
+                                            type="datetime-local" 
+                                            name="DraftDate" 
+                                            className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
+                                        />
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <label htmlFor="TimePerPick" className="block text-secondary-text">
+                                            Time Per Pick (seconds)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="TimePerPick" 
+                                            defaultValue="60"
+                                            min="10" 
+                                            max="600" 
+                                            className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
+                                        />
+                                    </div>
+                                    
+                                    <div className="flex items-center space-x-2 mt-2">
+                                        <input 
+                                            type="checkbox" 
+                                            id="AutoPickEnabled" 
+                                            name="AutoPickEnabled" 
+                                            defaultChecked={true}
+                                            className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
+                                        />
+                                        <label htmlFor="AutoPickEnabled" className="text-secondary-text">
+                                            Enable Auto-Pick when time expires
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
                         </div>
     
                         <button 

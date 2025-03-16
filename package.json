@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.48.1",
     "@types/lodash": "^4.17.14",
@@ -21,10 +22,10 @@
     "supabase": "^2.9.6"
   },
   "devDependencies": {
+    "@types/google-one-tap": "1.2.6",
     "@types/node": "^20",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
-    "@types/google-one-tap": "1.2.6",
     "autoprefixer": "^10",
     "eslint": "^9.19.0",
     "eslint-config-next": "15.1.7",
