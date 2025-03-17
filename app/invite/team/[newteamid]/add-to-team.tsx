@@ -1,4 +1,3 @@
-
 'use client';
 
 import { User } from "@supabase/supabase-js";
@@ -44,7 +43,7 @@ export default function AddToTeam({user, team_name, team_id}: { user: User, team
         <div className="w-full max-w-md p-6">
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold mb-2">Join Team</h2>
-                <p className="text-secondary-text">You're about to join as: {team_name}</p>
+                <p className="text-secondary-text">You&apos;re about to join as: {team_name}</p>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">

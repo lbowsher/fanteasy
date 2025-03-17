@@ -19,6 +19,25 @@ interface DraftRoomProps {
 export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, leagueTeams = [] }: DraftRoomProps) {
     const supabase = createClient();
     
+    // Helper function to ensure player data has proper IDs
+    const sanitizePlayerData = (player: any) => {
+        if (!player) return player;
+        
+        // Create a new object to avoid mutating the original
+        const sanitized = { ...player };
+        
+        // Ensure ID is a string
+        if (sanitized.id) {
+            if (typeof sanitized.id === 'object') {
+                sanitized.id = String((sanitized.id as any).id || JSON.stringify(sanitized.id));
+            } else {
+                sanitized.id = String(sanitized.id);
+            }
+        }
+        
+        return sanitized;
+    };
+    
     // Draft state
     const [draftState, setDraftState] = useState(draftSettings);
     const [draftPicks, setDraftPicks] = useState<any[]>([]);
@@ -135,8 +154,11 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                 
                 if (playersError) throw playersError;
                 
-                setAvailablePlayers(players || []);
-                setSearchResults(players || []);
+                // Sanitize player data to ensure proper ID formatting
+                const sanitizedPlayers = players ? players.map(player => sanitizePlayerData(player)) : [];
+                
+                setAvailablePlayers(sanitizedPlayers);
+                setSearchResults(sanitizedPlayers);
             } catch (error) {
                 console.error('Error fetching available players:', error);
             } finally {
@@ -196,35 +218,139 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
     
     // Function to make a draft pick
     const makeDraftPick = async (playerId: string) => {
-        if (!currentPickTeam) return;
+        console.log('Starting makeDraftPick function');
+        console.log('Parameters:', { playerId });
+        console.log('State:', { 
+            currentPickTeam: currentPickTeam ? { id: currentPickTeam.id, name: currentPickTeam.name } : null,
+            currentTeam: currentTeam ? { id: currentTeam.id, name: currentTeam.name } : null,
+            draftState: { status: draftState.draft_status, current_pick: draftState.current_pick, current_round: draftState.current_round },
+            draftSettings: { id: draftSettings.id }
+        });
+        
+        if (!currentPickTeam) {
+            console.error('currentPickTeam is null or undefined');
+            alert("Cannot make draft pick: system cannot determine whose turn it is.");
+            return;
+        }
         
         const isMyTurn = currentPickTeam.id === currentTeam.id;
         const canMakePick = isMyTurn || (isCommissioner && draftState.draft_status === 'in_progress');
         
         if (!canMakePick) {
+            console.log("Not user's turn to draft", { isMyTurn, isCommissioner, draftStatus: draftState.draft_status });
             alert("It's not your turn to draft.");
             return;
         }
         
         try {
-            const { error } = await supabase
+            if (!playerId) {
+                console.error('Invalid player ID:', playerId);
+                alert('Invalid player ID. Please select a player and try again.');
+                return;
+            }
+            
+            // Force playerId to be a simple string - this handles both object cases and string cases
+            let playerIdString: string;
+            
+            if (typeof playerId === 'string') {
+                // Handle string case - ensure it's a clean string with no JSON
+                try {
+                    // Check if it's a JSON string
+                    if (playerId.includes('{') || playerId.includes('[')) {
+                        const parsed = JSON.parse(playerId);
+                        playerIdString = typeof parsed === 'object' && parsed.id ? String(parsed.id) : String(playerId);
+                    } else {
+                        playerIdString = playerId; 
+                    }
+                } catch (e) {
+                    // If JSON parsing fails, use the string as is
+                    playerIdString = playerId;
+                }
+            } else if (typeof playerId === 'object' && playerId !== null) {
+                // Handle object case
+                playerIdString = (playerId as any).id ? String((playerId as any).id) : String(playerId);
+            } else {
+                // Fallback for other cases
+                playerIdString = String(playerId);
+            }
+            
+            // Additional safety check
+            if (playerIdString === '[object Object]' || playerIdString.includes('{')) {
+                console.error('Failed to extract proper player ID string from:', playerId);
+                alert('Invalid player ID format. Please try selecting a different player.');
+                return;
+            }
+            
+            const draft_id = draftSettings.id;
+            const team_id = currentPickTeam.id;
+            const pick_number = draftState.current_pick;
+            const round_number = draftState.current_round;
+            
+            console.log('Making draft pick with:', {
+                draft_id,
+                team_id,
+                player_id: playerIdString,
+                pick_number,
+                round_number
+            });
+            
+            // Verify data types before insert
+            console.log('Data types:', {
+                draft_id_type: typeof draft_id,
+                team_id_type: typeof team_id,
+                player_id_type: typeof playerIdString,
+                player_id_value: playerIdString,
+                pick_number_type: typeof pick_number,
+                round_number_type: typeof round_number
+            });
+            
+            const { data, error, status, statusText } = await supabase
                 .from('draft_picks')
                 .insert({
-                    draft_id: draftSettings.id,
-                    team_id: currentPickTeam.id,
-                    player_id: playerId,
-                    pick_number: draftState.current_pick,
-                    round_number: draftState.current_round,
+                    draft_id: String(draft_id),
+                    team_id: String(team_id),
+                    player_id: playerIdString,
+                    pick_number: pick_number,
+                    round_number: round_number,
                     is_auto_pick: false
-                });
+                })
+                .select();
                 
-            if (error) throw error;
+            if (error) {
+                console.error('Supabase error making draft pick:', error);
+                console.error('Error details:', { 
+                    error, 
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code,
+                    status, 
+                    statusText,
+                    // Log the actual values we tried to insert
+                    insertValues: {
+                        draft_id: String(draft_id),
+                        team_id: String(team_id),
+                        player_id: playerIdString,
+                        pick_number,
+                        round_number
+                    }
+                });
+                throw error;
+            }
+            
+            console.log('Draft pick successful:', data);
             
             // Clear selected player
             setSelectedPlayer(null);
-        } catch (error) {
-            console.error('Error making draft pick:', error);
-            alert('Failed to make draft pick. Please try again.');
+        } catch (error: any) {
+            console.error('Error making draft pick:', {
+                error,
+                message: error?.message,
+                name: error?.name,
+                stack: error?.stack,
+                details: error?.details
+            });
+            alert(`Failed to make draft pick: ${error?.message || 'Unknown error'}. Please try again.`);
         }
     };
     
@@ -459,7 +585,42 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                                                     Cancel
                                                 </button>
                                                 <button
-                                                    onClick={() => makeDraftPick(selectedPlayer.id)}
+                                                    onClick={() => {
+                                                        console.log('Confirm Pick clicked', { 
+                                                            selectedPlayerId: selectedPlayer?.id,
+                                                            selectedPlayerType: typeof selectedPlayer?.id,
+                                                            selectedPlayer
+                                                        });
+                                                        if (!selectedPlayer) {
+                                                            alert('No player selected');
+                                                            return;
+                                                        }
+                                                        
+                                                        // Extract player ID in a safe way
+                                                        let playerId: string;
+                                                        if (typeof selectedPlayer === 'string') {
+                                                            playerId = selectedPlayer;
+                                                        } else if (typeof selectedPlayer.id === 'string') {
+                                                            playerId = selectedPlayer.id;
+                                                        } else if (typeof selectedPlayer.id === 'object' && selectedPlayer.id !== null) {
+                                                            // Try to extract ID from nested object
+                                                            const nestedId = (selectedPlayer.id as any).id;
+                                                            if (nestedId) {
+                                                                playerId = String(nestedId);
+                                                            } else {
+                                                                console.error('Cannot extract valid ID from player:', selectedPlayer);
+                                                                alert('Invalid player data. Please try selecting a different player.');
+                                                                return;
+                                                            }
+                                                        } else {
+                                                            console.error('Cannot extract valid ID from player:', selectedPlayer);
+                                                            alert('Invalid player data. Please try selecting a different player.');
+                                                            return;
+                                                        }
+                                                        
+                                                        console.log('Extracted player ID:', playerId);
+                                                        makeDraftPick(playerId);
+                                                    }}
                                                     className="px-3 py-1 bg-liquid-lava text-snow rounded"
                                                 >
                                                     Confirm Pick
@@ -506,7 +667,71 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                             searchResults={searchResults}
                             isLoading={isLoading}
                             onSearch={handleSearch}
-                            onSelectPlayer={setSelectedPlayer}
+                            onSelectPlayer={(player) => {
+                                console.log('Player selected:', player);
+                                if (player && typeof player === 'object' && player.id) {
+                                    console.log('Setting selected player with ID:', player.id, 'type:', typeof player.id);
+                                    // If player.id is an object, extract the string id from it
+                                    if (typeof player.id === 'object') {
+                                        const playerCopy = {...player};
+                                        playerCopy.id = String((player.id as any).id || player.id);
+                                        setSelectedPlayer(playerCopy);
+                                    } else {
+                                        setSelectedPlayer(player);
+                                    }
+                                } else {
+                                    console.error('Invalid player object received:', player);
+                                }
+                            }}
+                            onAddToQueue={async (player) => {
+                                try {
+                                    // Check if player is already in queue
+                                    const { data: currentQueue, error: queueError } = await supabase
+                                        .from('draft_queue')
+                                        .select('id, player_id, priority')
+                                        .eq('team_id', currentTeam.id)
+                                        .order('priority', { ascending: true });
+                                        
+                                    if (queueError) throw queueError;
+                                    
+                                    // Check if player is already in queue
+                                    if (currentQueue?.some(item => item.player_id === player.id)) {
+                                        alert('This player is already in your queue.');
+                                        return;
+                                    }
+                                    
+                                    // Calculate next priority
+                                    const nextPriority = currentQueue?.length 
+                                        ? Math.max(...currentQueue.map(item => item.priority)) + 1 
+                                        : 1;
+                                    
+                                    // Use .select() to get the result and help with debugging
+                                    const { data, error, status } = await supabase
+                                        .from('draft_queue')
+                                        .insert({
+                                            team_id: currentTeam.id,
+                                            player_id: player.id,
+                                            priority: nextPriority
+                                        })
+                                        .select();
+                                        
+                                    if (error) {
+                                        console.error('Supabase error adding to queue:', { 
+                                            error, 
+                                            message: error.message,
+                                            details: error.details,
+                                            code: error.code
+                                        });
+                                        throw error;
+                                    }
+                                    
+                                    console.log('Player added to queue successfully:', data);
+                                    alert('Player added to your queue!');
+                                } catch (error: any) {
+                                    console.error('Error adding player to queue:', error);
+                                    alert(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
+                                }
+                            }}
                             isMyTurn={isMyTurn}
                             selectedPlayer={selectedPlayer}
                             leagueType={draftSettings.leagues.league}

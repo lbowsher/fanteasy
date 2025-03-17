@@ -119,6 +119,7 @@ export type Database = {
           draft_status: string
           draft_type: string
           id: string
+          is_paused: boolean
           league_id: string
           pick_order: Json | null
           time_per_pick: number
@@ -133,6 +134,7 @@ export type Database = {
           draft_status?: string
           draft_type: string
           id?: string
+          is_paused?: boolean
           league_id: string
           pick_order?: Json | null
           time_per_pick?: number
@@ -147,6 +149,7 @@ export type Database = {
           draft_status?: string
           draft_type?: string
           id?: string
+          is_paused?: boolean
           league_id?: string
           pick_order?: Json | null
           time_per_pick?: number

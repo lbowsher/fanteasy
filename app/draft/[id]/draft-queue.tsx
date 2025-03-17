@@ -84,18 +84,44 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
                 ? Math.max(...queuedPlayers.map(p => p.priority))
                 : 0;
             
-            const { error } = await supabase
+            console.log('Adding player to queue with:', {
+                team_id: teamId,
+                player_id: playerId,
+                priority: maxPriority + 1
+            });
+            
+            const { data, error, status, statusText } = await supabase
                 .from('draft_queue')
                 .insert({
                     team_id: teamId,
                     player_id: playerId,
                     priority: maxPriority + 1
-                });
+                })
+                .select();
                 
-            if (error) throw error;
-        } catch (error) {
-            console.error('Error adding player to queue:', error);
-            alert('Failed to add player to queue.');
+            if (error) {
+                console.error('Supabase error adding player to queue:', { 
+                    error, 
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code,
+                    status, 
+                    statusText 
+                });
+                throw error;
+            }
+            
+            console.log('Player added to queue successfully:', data);
+        } catch (error: any) {
+            console.error('Error adding player to queue:', {
+                error,
+                message: error?.message,
+                name: error?.name,
+                stack: error?.stack,
+                details: error?.details
+            });
+            alert(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
         }
     };
     

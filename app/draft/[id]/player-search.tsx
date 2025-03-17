@@ -10,6 +10,7 @@ interface PlayerSearchProps {
     isLoading: boolean;
     onSearch: (searchTerm: string) => void;
     onSelectPlayer: (player: any) => void;
+    onAddToQueue: (player: any) => Promise<void>; // Function to add player to queue
     isMyTurn: boolean;
     selectedPlayer: any | null;
     leagueType?: string; // 'NFL', 'NBA', 'NCAAM', etc.
@@ -21,6 +22,7 @@ export default function PlayerSearch({
     isLoading,
     onSearch,
     onSelectPlayer,
+    onAddToQueue,
     isMyTurn,
     selectedPlayer,
     leagueType = 'NFL' // Default to NFL if not provided
@@ -62,47 +64,6 @@ export default function PlayerSearch({
         onSearch(searchTerm);
     };
     
-    // Handle adding player to queue - we'll implement this in the parent component
-    const addToQueue = async (player: any) => {
-        try {
-            // We need to get the current team ID from props
-            const teamIdParam = new URLSearchParams(window.location.search).get('team');
-            const teamId = teamIdParam || 'unknown-team';
-            
-            // Get current queue for this team
-            const { data: currentQueue, error: queueError } = await supabase
-                .from('draft_queue')
-                .select('id, player_id, priority')
-                .eq('team_id', teamId)
-                .order('priority', { ascending: true });
-                
-            if (queueError) throw queueError;
-            
-            // Check if player is already in queue
-            if (currentQueue?.some(item => item.player_id === player.id)) {
-                alert('This player is already in your queue.');
-                return;
-            }
-            
-            // Calculate next priority
-            const nextPriority = currentQueue?.length ? Math.max(...currentQueue.map(item => item.priority)) + 1 : 1;
-            
-            const { error } = await supabase
-                .from('draft_queue')
-                .insert({
-                    team_id: teamId,
-                    player_id: player.id,
-                    priority: nextPriority
-                });
-                
-            if (error) throw error;
-            
-            alert('Player added to your queue!');
-        } catch (error) {
-            console.error('Error adding player to queue:', error);
-            alert('Failed to add player to queue.');
-        }
-    };
     
     // Define position tabs for filtering based on league type
     const getPositionsForLeague = () => {
@@ -205,7 +166,7 @@ export default function PlayerSearch({
                                             <div className="flex justify-end space-x-2">
                                                 <button
                                                     className="px-2 py-1 bg-slate-grey text-primary-text text-xs rounded"
-                                                    onClick={() => addToQueue(player)}
+                                                    onClick={() => onAddToQueue && onAddToQueue(player)}
                                                 >
                                                     Queue
                                                 </button>
@@ -213,7 +174,15 @@ export default function PlayerSearch({
                                                 {isMyTurn && (
                                                     <button
                                                         className="px-2 py-1 bg-liquid-lava text-snow text-xs rounded"
-                                                        onClick={() => onSelectPlayer(player)}
+                                                        onClick={() => {
+                                                            console.log('Draft button clicked for player:', player);
+                                                            if (player && player.id) {
+                                                                console.log('Player ID type:', typeof player.id);
+                                                                onSelectPlayer(player);
+                                                            } else {
+                                                                console.error('Invalid player or player ID:', player);
+                                                            }
+                                                        }}
                                                     >
                                                         Draft
                                                     </button>

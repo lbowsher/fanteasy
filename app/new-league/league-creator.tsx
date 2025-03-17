@@ -31,41 +31,65 @@ export default function LeagueCreator() {
                             <label htmlFor="NumTeams" className="block text-secondary-text">
                                 Number of teams
                             </label>
-                            <select 
-                                name="NumTeams" 
-                                className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
-                            >
-                                {Array.from({length: 24}, (_, i) => i + 2).map((number) => (
-                                    <option key={number} value={number}>{number}</option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <select 
+                                    id="NumTeams"
+                                    name="NumTeams" 
+                                    className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                >
+                                    {Array.from({length: 24}, (_, i) => i + 2).map((number) => (
+                                        <option key={number} value={number}>{number}</option>
+                                    ))}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                    <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
     
                         <div className="space-y-2">
                             <label htmlFor="SportsLeague" className="block text-secondary-text">
                                 Sports League
                             </label>
-                            <select 
-                                name="SportsLeague" 
-                                className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
-                            >
-                                <option value="NFL">NFL</option>
-                                <option value="NBA">NBA</option>
-                                <option value="NCAAM">NCAAM</option>
-                            </select>
+                            <div className="relative">
+                                <select 
+                                    id="SportsLeague"
+                                    name="SportsLeague" 
+                                    className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                >
+                                    <option value="NFL">NFL</option>
+                                    <option value="NBA">NBA</option>
+                                    <option value="NCAAM">NCAAM</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                    <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
     
                         <div className="space-y-2">
                             <label htmlFor="ScoringType" className="block text-secondary-text">
                                 Scoring Type
                             </label>
-                            <select 
-                                name="ScoringType" 
-                                className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
-                            >
-                                <option value="NFL Playoff Pickem">NFL Playoff Pickem</option>
-                                <option value="Best Ball Tournament">BestBall</option>
-                            </select>
+                            <div className="relative">
+                                <select 
+                                    id="ScoringType"
+                                    name="ScoringType" 
+                                    className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                >
+                                    <option value="NFL Playoff Pickem">NFL Playoff Pickem</option>
+                                    <option value="Best Ball Tournament">BestBall</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                    <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Draft Settings */}
@@ -97,13 +121,21 @@ export default function LeagueCreator() {
                                         <label htmlFor="DraftType" className="block text-secondary-text">
                                             Draft Type
                                         </label>
-                                        <select 
-                                            name="DraftType" 
-                                            className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
-                                        >
-                                            <option value="snake">Snake Draft</option>
-                                            <option value="linear">Linear Draft</option>
-                                        </select>
+                                        <div className="relative">
+                                            <select 
+                                                id="DraftType"
+                                                name="DraftType" 
+                                                className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                            >
+                                                <option value="snake">Snake Draft</option>
+                                                <option value="linear">Linear Draft</option>
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div className="space-y-2">
@@ -113,6 +145,7 @@ export default function LeagueCreator() {
                                         <input 
                                             type="datetime-local" 
                                             name="DraftDate" 
+                                            id="DraftDate"
                                             className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
                                         />
                                     </div>
@@ -124,6 +157,7 @@ export default function LeagueCreator() {
                                         <input 
                                             type="number" 
                                             name="TimePerPick" 
+                                            id="TimePerPick"
                                             defaultValue="60"
                                             min="10" 
                                             max="600" 

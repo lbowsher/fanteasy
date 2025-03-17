@@ -43,7 +43,7 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                     <h2 className="text-2xl font-bold mb-4">This Team Has Already Been Claimed</h2>
                     <p className="mb-4">
-                        The team "{team.name}" has already been claimed by another user.
+                        The team &quot;{team.name}&quot; has already been claimed by another user.
                     </p>
                     <Link href="/" className="text-liquid-lava hover:opacity-80 transition-opacity">
                         Return to Home
