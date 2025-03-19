@@ -304,17 +304,22 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                 round_number_type: typeof round_number
             });
             
-            const { data, error, status, statusText } = await supabase
+            // Create a properly typed object for the insert
+            const insertData = {
+                draft_id: draft_id.toString(),
+                team_id: team_id.toString(),
+                player_id: playerIdString,
+                pick_number: Number(pick_number),
+                round_number: Number(round_number),
+                is_auto_pick: false
+            };
+            
+            console.log('Final insert data:', insertData);
+            
+            // Remove the .select() call to simplify the operation
+            const { error } = await supabase
                 .from('draft_picks')
-                .insert({
-                    draft_id: String(draft_id),
-                    team_id: String(team_id),
-                    player_id: playerIdString,
-                    pick_number: pick_number,
-                    round_number: round_number,
-                    is_auto_pick: false
-                })
-                .select();
+                .insert(insertData);
                 
             if (error) {
                 console.error('Supabase error making draft pick:', error);
@@ -324,21 +329,13 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                     details: error.details,
                     hint: error.hint,
                     code: error.code,
-                    status, 
-                    statusText,
                     // Log the actual values we tried to insert
-                    insertValues: {
-                        draft_id: String(draft_id),
-                        team_id: String(team_id),
-                        player_id: playerIdString,
-                        pick_number,
-                        round_number
-                    }
+                    insertValues: insertData  // Use insertData directly here
                 });
                 throw error;
             }
             
-            console.log('Draft pick successful:', data);
+            console.log('Draft pick successful!');
             
             // Clear selected player
             setSelectedPlayer(null);
@@ -596,29 +593,17 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                                                             return;
                                                         }
                                                         
-                                                        // Extract player ID in a safe way
-                                                        let playerId: string;
-                                                        if (typeof selectedPlayer === 'string') {
-                                                            playerId = selectedPlayer;
-                                                        } else if (typeof selectedPlayer.id === 'string') {
-                                                            playerId = selectedPlayer.id;
-                                                        } else if (typeof selectedPlayer.id === 'object' && selectedPlayer.id !== null) {
-                                                            // Try to extract ID from nested object
-                                                            const nestedId = (selectedPlayer.id as any).id;
-                                                            if (nestedId) {
-                                                                playerId = String(nestedId);
-                                                            } else {
-                                                                console.error('Cannot extract valid ID from player:', selectedPlayer);
-                                                                alert('Invalid player data. Please try selecting a different player.');
-                                                                return;
-                                                            }
-                                                        } else {
-                                                            console.error('Cannot extract valid ID from player:', selectedPlayer);
+                                                        // Extract player ID in a safe way - ensure it's a simple string
+                                                        const playerId = String(selectedPlayer.id);
+                                                        
+                                                        // Final validation check
+                                                        if (!playerId || playerId === 'undefined' || playerId === '[object Object]') {
+                                                            console.error('Invalid player ID:', playerId);
                                                             alert('Invalid player data. Please try selecting a different player.');
                                                             return;
                                                         }
                                                         
-                                                        console.log('Extracted player ID:', playerId);
+                                                        console.log('Using player ID:', playerId, 'type:', typeof playerId);
                                                         makeDraftPick(playerId);
                                                     }}
                                                     className="px-3 py-1 bg-liquid-lava text-snow rounded"
@@ -669,16 +654,16 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                             onSearch={handleSearch}
                             onSelectPlayer={(player) => {
                                 console.log('Player selected:', player);
-                                if (player && typeof player === 'object' && player.id) {
-                                    console.log('Setting selected player with ID:', player.id, 'type:', typeof player.id);
-                                    // If player.id is an object, extract the string id from it
-                                    if (typeof player.id === 'object') {
-                                        const playerCopy = {...player};
-                                        playerCopy.id = String((player.id as any).id || player.id);
-                                        setSelectedPlayer(playerCopy);
-                                    } else {
-                                        setSelectedPlayer(player);
-                                    }
+                                if (player && typeof player === 'object') {
+                                    // Ensure we only store a clean player object with a string ID
+                                    const cleanPlayer = {
+                                        ...player,
+                                        id: typeof player.id === 'object' 
+                                            ? String((player.id as any).id || JSON.stringify(player.id)) 
+                                            : String(player.id)
+                                    };
+                                    console.log('Setting clean player with ID:', cleanPlayer.id, 'type:', typeof cleanPlayer.id);
+                                    setSelectedPlayer(cleanPlayer);
                                 } else {
                                     console.error('Invalid player object received:', player);
                                 }
