@@ -48,6 +48,16 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         console.log('Team data:', team);
         return <div>Team not found</div>;
     }
+
+    // Get the player IDs from the team.team_players
+    const playerIds = team.team_players || [];
+    
+    // Fetch the actual player data using the player IDs
+    const { data: players } = await supabase
+        .from('players')
+        .select('*')
+        .in('id', playerIds);
+
     // First fetch weekly picks for this team
     const { data: weeklyPicks } = await supabase
         .from('weekly_picks')
@@ -85,6 +95,11 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         ...team,
         weeklyPicks,
         totalScore
+    };
+    
+    const teamWithPlayers = {
+        ...team,
+        players: players || []
     };
 
     const isAuthorized = user.id === team.owner_id || user.id === team.leagues?.commish;
@@ -125,7 +140,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
                 />
             ) : (
                 <>
-                    <OneTeam team={teamWithScores} />
+                    <OneTeam team={teamWithPlayers} />
                     {user.id === team.leagues?.commish && (
                         <div className="mt-8">
                             <SearchPage 
