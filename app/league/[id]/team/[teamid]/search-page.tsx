@@ -4,13 +4,15 @@ import SearchComponent from './search-component';
 import { useRouter } from 'next/navigation';
 import { createClient } from "../../../../utils/supabase/client";
 
-const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPlayers }> = ({ sports_league, team }) => {
+const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPlayers, year?: string }> = ({ sports_league, team, year = '2025' }) => {
     const supabase = createClient();
     const router = useRouter()
     
-    const UpdatePlayer =async (playerID: PlayerID) => {
-        if (!playerID || (team.team_players && team.team_players.includes(playerID))) {
-            console.log("Player already in team or invalid player ID");
+    const UpdatePlayer = async (playerID: PlayerID) => {
+        if (!playerID) {
+            console.log("Invalid player ID:", playerID);
+        } else if (team.team_players && team.team_players.includes(playerID)) {
+            console.log("Player already in team");
         }
         else {
             if (team.team_players) {
@@ -34,6 +36,7 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
         .from('players')
         .select()
         .eq('league', sports_league)
+        .eq('season', year)
         .textSearch('name', searchTerm, {
             type: 'websearch',
             config: 'english'
@@ -49,11 +52,11 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
         <h1>Add Players to Roster</h1>
         <SearchComponent onSearch={handleSearch} />
         <ul>
-            {searchResults.map((player, index) => (
-            <p key={player.player_id}>
+            {searchResults.map((player) => (
+            <p key={`${player.id}`}>
                 <span className="font-bold"> {player.name} </span>
                 <span className="text-sm ml-2 text-gray-400">{player.team_name}</span>
-                <button onClick={() => UpdatePlayer(player.player_id)}>+</button>
+                <button onClick={() => UpdatePlayer(player.id)}>+</button>
             </p>
             ))}
         </ul>

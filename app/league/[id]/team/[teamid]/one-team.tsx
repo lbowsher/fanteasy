@@ -28,6 +28,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
         });
     }, [team.players, team.leagues?.scoring_type]);
 
+
     return (
         <div className="space-y-4">
             {orderedPlayers().map((player: Player) => {
@@ -44,7 +45,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                             <Image 
                                 className="h-12 w-12 rounded-full object-cover bg-surface" 
                                 alt={`${player.name}'s photo`}
-                                src={player.pic_url || '/placeholder-avatar.png'} 
+                                src={player.pic_url || '/default-player.png'} 
                                 width={48}
                                 height={48}
                             />
