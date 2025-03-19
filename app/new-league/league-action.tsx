@@ -23,6 +23,7 @@ export async function addLeague(formData: FormData) {
         scoring_type: scoring_type, 
         league: sports_league,
         commish: user.id,
+        num_weeks: 17, // Default NFL season weeks
     }).select('id');
 
     if (leagueError) {
@@ -54,13 +55,60 @@ export async function addLeague(formData: FormData) {
         }))
     ];
 
-    const { error: teamsError } = await supabase
+    const { data: teamsData, error: teamsError } = await supabase
         .from('teams')
-        .insert(teamsToCreate);
+        .insert(teamsToCreate)
+        .select('id');
 
     if (teamsError) {
         console.error("Error creating teams:", teamsError);
         throw teamsError;
+    }
+
+    // Handle draft settings if enabled
+    const enableDraft = formData.get('EnableDraft') === 'true';
+    
+    if (enableDraft) {
+        const draft_type = String(formData.get('DraftType'));
+        
+        // Convert draft date to UTC before storing
+        let draft_date_utc = null;
+        if (formData.get('DraftDate')) {
+            const localDate = new Date(String(formData.get('DraftDate')));
+            draft_date_utc = localDate.toISOString(); // Converts to UTC ISO format
+        }
+        
+        const time_per_pick = parseInt(String(formData.get('TimePerPick')));
+        const auto_pick_enabled = formData.get('AutoPickEnabled') === 'on';
+        
+        // Create the pick order based on team IDs (randomized)
+        const teamIds = teamsData.map(team => team.id);
+        const shuffledTeamIds = [...teamIds].sort(() => Math.random() - 0.5);
+        
+        const pick_order = {
+            order: shuffledTeamIds,
+            total_rounds: 15 // Default to 15 rounds for roster size
+        };
+        
+        // Create draft settings
+        const { error: draftError } = await supabase
+            .from('draft_settings')
+            .insert({
+                league_id: new_league_id,
+                draft_type: draft_type,
+                draft_status: 'scheduled',
+                draft_date: draft_date_utc,
+                time_per_pick: time_per_pick,
+                auto_pick_enabled: auto_pick_enabled,
+                pick_order: pick_order,
+                current_pick: 1,
+                current_round: 1
+            });
+            
+        if (draftError) {
+            console.error("Error creating draft settings:", draftError);
+            throw draftError;
+        }
     }
 
     revalidatePath('/');

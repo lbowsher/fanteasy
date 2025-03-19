@@ -6,6 +6,9 @@ type Profile = DB['public']['Tables']['profiles']['Row']
 type Player = DB['public']['Tables']['players']['Row']
 type GameStats = Database['public']['Tables']['game_stats']['Row']
 type WeeklyPick = Database['public']['Tables']['weekly_picks']['Row']
+type DraftSettings = Database['public']['Tables']['draft_settings']['Row']
+type DraftPick = Database['public']['Tables']['draft_picks']['Row']
+type DraftQueue = Database['public']['Tables']['draft_queue']['Row']
 
 declare global {
     type Database = db;
@@ -56,6 +59,28 @@ declare global {
     interface SearchPageProps {
         teamData: TeamData;
         sports_league: string;
+    }
+
+    // Draft types
+    type DraftSettingsWithLeague = DraftSettings & {
+        league: League;
+    }
+
+    type DraftPickWithDetails = DraftPick & {
+        team: Team;
+        player: Player;
+    }
+
+    // Enhanced draft types 
+    interface DraftRoomProps {
+        draftSettings: DraftSettingsWithLeague;
+        currentTeam: Team;
+        isCommissioner: boolean;
+    }
+
+    interface DraftQueueProps {
+        teamId: TeamID;
+        draftId: string;
     }
 
     // Base types (keep these if still needed)

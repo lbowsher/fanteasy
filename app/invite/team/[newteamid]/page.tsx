@@ -30,6 +30,28 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
             </>
         );
     }
+    
+    // Check if team is already claimed
+    if (team.user_id) {
+        return (
+            <div className='w-full max-w-xl mx-auto p-6'>
+                <div className='flex justify-between px-4 py-6 border border-slate-grey'>
+                    <Link className='text-xl font-bold' href={'/'}>Home</Link>
+                    <h1 className='text-xl font-bold'>Team Already Claimed</h1>
+                    <AuthButtonServer />
+                </div>
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                    <h2 className="text-2xl font-bold mb-4">This Team Has Already Been Claimed</h2>
+                    <p className="mb-4">
+                        The team &quot;{team.name}&quot; has already been claimed by another user.
+                    </p>
+                    <Link href="/" className="text-liquid-lava hover:opacity-80 transition-opacity">
+                        Return to Home
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -38,14 +60,14 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
     }
 
     return (
-        <div className='w-full text-snow max-w-xl mx-auto'>
-            <div className='flex justify-between px-4 py-6 border border-slateGrey border-t-0'>
-                <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                <h1 className='text-xl font-bold'>Team Invite</h1>
+        <div className='w-full max-w-xl mx-auto'>
+            <div className='flex justify-between px-4 py-6 border border-slate-grey'>
+                <Link className='text-xl font-bold text-primary-text hover:text-liquid-lava transition-colors' href={'/'}>Home</Link>
+                <h1 className='text-xl font-bold text-primary-text'>Team Invite</h1>
                 <AuthButtonServer />
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center">
-                <AddToTeam user={user} team_name={team.name} team_id={team_id}></AddToTeam>
+            <div className="flex-1 flex flex-col justify-center items-center bg-surface p-6 rounded-lg border border-slate-grey">
+                <AddToTeam user={user} team_name={team.name} team_id={team_id} />
             </div>
         </div>
     );

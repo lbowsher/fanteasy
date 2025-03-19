@@ -7,6 +7,7 @@ import { calculateNFLPoints } from '../../utils/scoring';
 import { useEffect, useState } from 'react';
 import { groupBy } from 'lodash';
 import { createClient } from "../../utils/supabase/client";
+import DraftStatusPanel from './draft-status-panel';
 
 interface LeagueHomeProps {
     teams: TeamWithOwner[];
@@ -137,6 +138,8 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                     </div>
                 </div>
             )}
+            
+            <DraftStatusPanel league_id={league_id} />
             
             <div className="space-y-1">
                 {sortedTeams.map(team => (

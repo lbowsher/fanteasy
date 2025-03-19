@@ -3,6 +3,7 @@
 // league/[id]/team/[teamid]/one-team.tsx
 "use client";
 import { useCallback } from 'react';
+import Image from 'next/image';
 import { calculatePlayerScore } from '../../../../utils/scoring';
 
 export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: League } }) {
@@ -40,11 +41,11 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                         className="flex items-center p-4 bg-background rounded-lg border border-border hover:border-accent transition-colors"
                     >
                         <div className="flex-shrink-0">
-                            <img 
+                            <Image 
                                 className="h-12 w-12 rounded-full object-cover bg-surface" 
                                 alt={`${player.name}'s photo`}
                                 src={player.pic_url || '/placeholder-avatar.png'} 
-                                width={48} 
+                                width={48}
                                 height={48}
                             />
                         </div>
