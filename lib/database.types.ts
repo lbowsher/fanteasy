@@ -447,10 +447,12 @@ export type Database = {
           rushing_tds: number | null
           rushing_yards: number | null
           season: string | null
+          summary: string | null
           targets: number | null
           team_id: string | null
           team_name: string
           weight: number | null
+          year: string | null
         }
         Insert: {
           attempts?: number | null
@@ -477,10 +479,12 @@ export type Database = {
           rushing_tds?: number | null
           rushing_yards?: number | null
           season?: string | null
+          summary?: string | null
           targets?: number | null
           team_id?: string | null
           team_name: string
           weight?: number | null
+          year?: string | null
         }
         Update: {
           attempts?: number | null
@@ -507,10 +511,12 @@ export type Database = {
           rushing_tds?: number | null
           rushing_yards?: number | null
           season?: string | null
+          summary?: string | null
           targets?: number | null
           team_id?: string | null
           team_name?: string
           weight?: number | null
+          year?: string | null
         }
         Relationships: [
           {

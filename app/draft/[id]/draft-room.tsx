@@ -83,7 +83,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
             try {
                 const { data, error } = await supabase
                     .from('draft_picks')
-                    .select('*, team:teams(name, id), player:players(name, position, team_name, pic_url)')
+                    .select('*, team:teams(name, id), player:players(name, position, team_name, pic_url, summary)')
                     .eq('draft_id', draftSettings.id)
                     .order('pick_number', { ascending: true });
                 
@@ -176,7 +176,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
             try {
                 const { data, error } = await supabase
                     .from('draft_picks')
-                    .select('*, team:teams(name, id), player:players(name, position, team_name, pic_url)')
+                    .select('*, team:teams(name, id), player:players(name, position, team_name, pic_url, summary)')
                     .eq('draft_id', draftSettings.id)
                     .order('pick_number', { ascending: true });
                 
