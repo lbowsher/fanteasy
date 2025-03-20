@@ -137,6 +137,7 @@ export default function PlayerSearch({
                                     <th className="px-4 py-2 text-left text-sm font-medium text-secondary-text">Player</th>
                                     <th className="px-4 py-2 text-left text-sm font-medium text-secondary-text">Pos</th>
                                     <th className="px-4 py-2 text-left text-sm font-medium text-secondary-text">Team</th>
+                                    <th className="px-4 py-2 text-left text-sm font-medium text-secondary-text">Summary</th>
                                     <th className="px-4 py-2 text-right text-sm font-medium text-secondary-text">Action</th>
                                 </tr>
                             </thead>
@@ -162,6 +163,7 @@ export default function PlayerSearch({
                                         </td>
                                         <td className="px-4 py-3 text-sm">{player.position}</td>
                                         <td className="px-4 py-3 text-sm">{player.team_name}</td>
+                                        <td className="px-4 py-3 text-sm max-w-xs truncate">{player.summary || '-'}</td>
                                         <td className="px-4 py-3 text-right">
                                             <div className="flex justify-end space-x-2">
                                                 <button

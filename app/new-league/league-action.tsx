@@ -87,7 +87,7 @@ export async function addLeague(formData: FormData) {
         
         const pick_order = {
             order: shuffledTeamIds,
-            total_rounds: 15 // Default to 15 rounds for roster size
+            total_rounds: 5 // Default to 5 rounds for roster size
         };
         
         // Create draft settings
