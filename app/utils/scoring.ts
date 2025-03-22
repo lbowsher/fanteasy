@@ -251,7 +251,6 @@ export type NFLScoringRules = {
     else {
       scoringRules = rules.rules;
     }
-    console.log('Scoring rules:', scoringRules);
     
     switch (league.league) {
       case 'NBA':
