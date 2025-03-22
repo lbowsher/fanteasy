@@ -77,6 +77,12 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         .select('*')
         .in('player_id', weeklyPicks?.map(pick => pick.player_id) || []);
 
+    // Also get game stats for all players on the team
+    const { data: allPlayersGameStats } = await supabase
+        .from('game_stats')
+        .select('*')
+        .in('player_id', playerIds);
+
     // Calculate total team score based on league scoring rules
     const totalScore = gameStats ? calculateTeamTotalScore(gameStats, team.leagues) : 0;
 
@@ -97,9 +103,19 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         totalScore
     };
     
+    // Map game stats to respective players
+    const playersWithStats = players?.map(player => {
+        const playerGameStats = allPlayersGameStats?.filter(stat => stat.player_id === player.id) || [];
+        return {
+            ...player,
+            gameStats: playerGameStats
+        };
+    }) || [];
+    
     const teamWithPlayers = {
         ...team,
-        players: players || []
+        players: playersWithStats || [],
+        leagues: team.leagues // Ensure leagues is properly passed to the OneTeam component
     };
 
     const isAuthorized = user.id === team.owner_id || user.id === team.leagues?.commish;

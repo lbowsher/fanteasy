@@ -2,7 +2,7 @@
 
 // league/[id]/team/[teamid]/one-team.tsx
 "use client";
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { calculatePlayerScore } from '../../../../utils/scoring';
 
@@ -28,9 +28,25 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
         });
     }, [team.players, team.leagues?.scoring_type]);
 
+    // Calculate total team score
+    const totalTeamScore = useMemo(() => {
+        if (!team.players) return 0;
+        
+        return team.players.reduce((total: number, player: Player) => {
+            if (!player.gameStats) return total;
+            return total + calculatePlayerScore(player.gameStats, team.leagues);
+        }, 0);
+    }, [team.players, team.leagues]);
+
 
     return (
         <div className="space-y-4">
+            <div className="bg-surface p-4 rounded-lg border border-border mb-6">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-primary-text">Team Total Score</h2>
+                    <div className="text-2xl font-bold text-accent">{totalTeamScore.toFixed(1)}</div>
+                </div>
+            </div>
             {orderedPlayers().map((player: Player) => {
                 const playerScore = player.gameStats 
                     ? calculatePlayerScore(player.gameStats, team.leagues) 
@@ -80,7 +96,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                                         <div className="text-secondary-text text-sm">
                                             {player.gameStats.map((stat : GameStats, index: number) => (
                                                 <span key={stat.id} className="mr-2">
-                                                    {`Week ${stat.week_number || index + 1}: ${calculatePlayerScore([stat], team.leagues).toFixed(1)}`}
+                                                    {`Game ${stat.week_number || index + 1}: ${calculatePlayerScore([stat], team.leagues).toFixed(1)}`}
                                                 </span>
                                             ))}
                                         </div>

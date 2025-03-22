@@ -57,33 +57,57 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
         return <div>No teams found</div>;
     }
 
-    // Get all game stats for the league's teams
-    const teamTotalScores = await Promise.all(teamsData.map(async (team) => {
-        // Get all players for the team
-        const { data: players } = await supabase
-            .from('players')
-            .select('id')
-            .eq('team_id', team.id);
-
-        if (!players?.length) {
+    // Get all team player IDs and weekly picks in a single operation to reduce database queries
+    const teamScores = await Promise.all(teamsData.map(async (team) => {
+        // First, get all player IDs from the team roster
+        const playerIds = team.team_players || [];
+        
+        if (playerIds.length === 0 && leagueData.scoring_type !== 'NFL Playoff Pickem') {
+            console.log('No players found for team:', team.name);
             return { teamId: team.id, totalScore: 0 };
         }
-
-        // Get game stats for all players
-        const { data: gameStats } = await supabase
-            .from('game_stats')
-            .select('*')
-            .in('player_id', players.map(p => p.id));
-
-        const totalScore = gameStats ? calculateTeamTotalScore(gameStats, leagueData) : 0;
-
-        return { teamId: team.id, totalScore };
+        
+        let allRelevantPlayerIds = [...playerIds];
+        let gameStats = [];
+        
+        // Handle different scoring types
+        if (leagueData.scoring_type === 'NFL Playoff Pickem') {
+            // For playoff pickem, we need to get the weekly picks
+            const { data: weeklyPicks } = await supabase
+                .from('weekly_picks')
+                .select('player_id')
+                .eq('team_id', team.id);
+                
+            // Add weekly pick player IDs to the relevant players list
+            if (weeklyPicks && weeklyPicks.length > 0) {
+                const weeklyPickPlayerIds = weeklyPicks.map(pick => pick.player_id).filter(Boolean);
+                allRelevantPlayerIds = [...allRelevantPlayerIds, ...weeklyPickPlayerIds];
+            }
+        }
+        
+        // Get game stats for all relevant players
+        if (allRelevantPlayerIds.length > 0) {
+            const { data: stats } = await supabase
+                .from('game_stats')
+                .select('*')
+                .in('player_id', allRelevantPlayerIds);
+                
+            gameStats = stats || [];
+        }
+        
+        // Calculate total score using the game stats and league scoring rules
+        const totalScore = gameStats.length > 0 ? calculateTeamTotalScore(gameStats, leagueData) : 0;
+        
+        return { 
+            teamId: team.id, 
+            totalScore 
+        };
     }));
 
     const teams = teamsData.map(team => ({
         ...team,
         owner: team.profiles?.full_name,
-        totalScore: teamTotalScores.find(score => score.teamId === team.id)?.totalScore || 0
+        totalScore: teamScores.find(score => score.teamId === team.id)?.totalScore || 0
     }));
 
     const isCommissioner = user.id === leagueData.commish;

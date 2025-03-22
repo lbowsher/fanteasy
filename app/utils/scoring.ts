@@ -1,5 +1,7 @@
 // utils/scoring.ts
 
+import { rule } from "postcss";
+
 export type NFLScoringRules = {
     passing?: {
       yards?: number;
@@ -178,12 +180,24 @@ export type NFLScoringRules = {
     let points = 0;
     
     // Basic stats
-    points += (stats.points || 0) * (rules.points || 0);
-    points += (stats.rebounds || 0) * (rules.rebound || 0);
-    points += (stats.assists || 0) * (rules.assist || 0);
-    points += (stats.steals || 0) * (rules.steal || 0);
-    points += (stats.blocks || 0) * (rules.block || 0);
-    points += (stats.turnovers || 0) * (rules.turnover || 0);
+    if (rules.points) {
+      points += (stats.points || 0) * rules.points;
+    }
+    if (rules.rebound) {
+      points += (stats.rebounds || 0) * rules.rebound;
+    }
+    if (rules.assist) {
+      points += (stats.assists || 0) * rules.assist;
+    }
+    if (rules.steal) {
+      points += (stats.steals || 0) * rules.steal;
+    }
+    if (rules.block) {
+      points += (stats.blocks || 0) * rules.block;
+    }
+    if (rules.turnover) {
+      points += (stats.turnovers || 0) * rules.turnover;
+    }
     
     // Advanced stats
     if (rules.three_pointer) {
@@ -223,18 +237,28 @@ export type NFLScoringRules = {
     league: League
   ): number => {
     const rules = league.scoring_rules as ScoringRules;
+
+    let scoringRules;
     
     if (!rules || !rules.rules) {
-      console.error('Invalid scoring rules for league:', league.id);
-      return 0;
+      if (league.default_scoring_rules) {
+        scoringRules = league.default_scoring_rules.rules;
+      } else {
+        console.error('Invalid scoring rules for league:', league.id);
+        return 0;
+      }
     }
+    else {
+      scoringRules = rules.rules;
+    }
+    console.log('Scoring rules:', scoringRules);
     
     switch (league.league) {
       case 'NBA':
       case 'NCAAM':
-        return calculateNBAPoints(gameStats, rules.rules as NBAScoringRules);
+        return calculateNBAPoints(gameStats, scoringRules as NBAScoringRules);
       case 'NFL':
-        return calculateNFLPoints(gameStats, rules.rules as NFLScoringRules);
+        return calculateNFLPoints(gameStats, scoringRules as NFLScoringRules);
       default:
         console.error('Unsupported league type:', league.league);
         return 0;

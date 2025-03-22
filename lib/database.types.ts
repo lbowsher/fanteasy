@@ -425,7 +425,6 @@ export type Database = {
         Row: {
           attempts: number | null
           carries: number | null
-          college: string | null
           completions: number | null
           created_at: string
           external_id: string | null
@@ -457,7 +456,6 @@ export type Database = {
         Insert: {
           attempts?: number | null
           carries?: number | null
-          college?: string | null
           completions?: number | null
           created_at?: string
           external_id?: string | null
@@ -489,7 +487,6 @@ export type Database = {
         Update: {
           attempts?: number | null
           carries?: number | null
-          college?: string | null
           completions?: number | null
           created_at?: string
           external_id?: string | null
