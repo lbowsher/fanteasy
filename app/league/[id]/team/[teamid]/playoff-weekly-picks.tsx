@@ -90,7 +90,7 @@ function PlayerSearch({
                 <div className="p-3 bg-accent/10 rounded-lg border border-accent">
                     <div className="flex items-center space-x-3">
                         <Image 
-                            src={selectedPlayer.pic_url || '../../../../../public/default-player.png'}
+                            src={selectedPlayer.pic_url || '/default-player.png'}
                             alt={selectedPlayer.name}
                             width={40}
                             height={40}
@@ -118,7 +118,7 @@ function PlayerSearch({
                                      transition-colors text-primary-text flex items-center space-x-3"
                         >
                             <Image 
-                                src={player.pic_url || '../../../../../public/default-player.png'}
+                                src={player.pic_url || '/default-player.png'}
                                 alt={player.name}
                                 width={32}
                                 height={32}
@@ -382,7 +382,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                                             <div className="flex items-center space-x-3 mb-2">
                                                 {pick?.player && (
                                                     <Image 
-                                                        src={pick.player.pic_url || '../../../../../public/default-player.png'} 
+                                                        src={pick.player.pic_url || '/default-player.png'} 
                                                         alt={pick.player.name}
                                                         width={40}
                                                         height={40}

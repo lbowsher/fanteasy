@@ -18,10 +18,7 @@ interface LeagueHomeProps {
 
 export default function LeagueHome({ teams, league_id, league, isCommissioner }: LeagueHomeProps) {
     const [sortedTeams, setSortedTeams] = useState<TeamWithOwner[]>([]);
-    const [weeklyStats, setWeeklyStats] = useState<{[key: string]: GameStats[]}>({});
     const supabase = createClient();
-
-    console.log(teams);
 
     // Add clipboard copy function
     const copyToClipboard = async (text: string) => {
@@ -34,94 +31,9 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
     };
 
     useEffect(() => {
-        const calculateTeamScores = async () => {
-            if (league.scoring_type === 'NFL Playoff Pickem') {
-                // Process each team
-                const teamsWithUpdatedScores = await Promise.all(teams.map(async (team) => {                    
-                    // Get weekly picks for this team
-                    const { data: weeklyPicks, error: picksError } = await supabase
-                        .from('weekly_picks')
-                        .select('*, players(*)')
-                        .eq('team_id', team.id);
-
-                    // Add error handling
-                    if (picksError) {
-                        console.error('Error fetching picks:', picksError);
-                        return { ...team, totalScore: 0 };
-                    }
-
-                    if (!weeklyPicks || weeklyPicks.length === 0) {
-                        console.log('No weekly picks found for team:', team.name);
-                        return { ...team, totalScore: 0 };
-                    }
-                    // Get all player IDs from picks
-                    const playerIds = weeklyPicks.map(pick => pick.player_id).filter(Boolean);
-                    
-                    if (playerIds.length === 0) {
-                        console.log('No player IDs found in picks');
-                        return { ...team, totalScore: 0 };
-                    }
-
-                    // Get game stats for these players
-                    const { data: stats, error: statsError } = await supabase
-                        .from('game_stats')
-                        .select('*')
-                        .in('player_id', playerIds);
-
-                    if (statsError) {
-                        console.error('Error fetching stats:', statsError);
-                        return { ...team, totalScore: 0 };
-                    }
-
-                    if (!stats || stats.length === 0) {
-                        console.log('No stats found for players:', playerIds);
-                        return { ...team, totalScore: 0 };
-                    }
-
-                    // Group stats by week and player ID
-                    const statsByWeek = groupBy(stats, 'week_number');
-                    const statsMap: {[key: string]: GameStats[]} = {};
-                    
-                    Object.entries(statsByWeek).forEach(([week, weekStats]) => {
-                        weekStats.forEach(stat => {
-                            statsMap[`${week}-${stat.player_id}`] = statsMap[`${week}-${stat.player_id}`] 
-                                ? [...statsMap[`${week}-${stat.player_id}`], stat]
-                                : [stat];
-                        });
-                    });
-
-                    // Calculate total score across all weeks
-                    let totalScore = 0;
-                    for (let week = 1; week <= league.num_weeks; week++) {
-                        const weekPicks = weeklyPicks.filter(pick => pick.week_number === week);
-                        let weekScore = 0;
-                        
-                        weekPicks.forEach(pick => {
-                            const playerStats = statsMap[`${week}-${pick.player_id}`];
-                            if (playerStats && league.scoring_rules) {
-                                weekScore += calculateNFLPoints(playerStats, league.scoring_rules.rules);
-                            }
-                        });
-                        
-                        totalScore += weekScore;
-                    }
-
-                    return {
-                        ...team,
-                        totalScore
-                    };
-                }));
-
-                // Sort teams by total score
-                setSortedTeams(teamsWithUpdatedScores.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)));
-            } else {
-                // For other league types, use the existing totalScore
-                setSortedTeams([...teams].sort((a, b) => b.totalScore - a.totalScore));
-            }
-        };
-
-        calculateTeamScores();
-    }, [teams, league, supabase]);
+        // Sort teams by total score, which is now correctly calculated in the parent component
+        setSortedTeams([...teams].sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)));
+    }, [teams]);
 
     return (
         <div className="space-y-4">
