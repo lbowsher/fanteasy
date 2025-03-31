@@ -2,6 +2,7 @@
 "use server";
 import { createClient } from "../../../utils/supabase/server";
 import AuthButtonServer from '../../../auth-button-server';
+import ThemeToggle from '../../../theme-toggle';
 import Link from 'next/link';
 import AddToTeam from './add-to-team';
 import Login from '../../../login/page';
@@ -54,15 +55,18 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
 
     if (!teams || teams.length === 0) {
         return (
-            <div className='w-full text-snow max-w-xl mx-auto'>
-                <div className='flex justify-between px-4 py-6 border border-slateGrey border-t-0'>
-                    <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                    <h1 className='text-xl font-bold'>League Invite</h1>
-                    <AuthButtonServer />
+            <div className='w-full max-w-xl mx-auto'>
+                <div className='flex justify-between px-4 py-6 border border-border'>
+                    <Link className='text-xl font-bold text-primary-text hover:text-accent transition-colors' href={'/'}>Home</Link>
+                    <h1 className='text-xl font-bold text-primary-text'>League Invite</h1>
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                        <AuthButtonServer />
+                    </div>
                 </div>
-                <div className="flex-1 flex flex-col justify-center items-center p-8">
-                    <h2 className="text-2xl font-bold mb-4">No Available Teams</h2>
-                    <p className="text-center mb-4">
+                <div className="flex-1 flex flex-col justify-center items-center p-8 bg-surface rounded-lg border border-border mt-4">
+                    <h2 className="text-2xl font-bold mb-4 text-primary-text">No Available Teams</h2>
+                    <p className="text-center mb-4 text-secondary-text">
                         Sorry, there are no available teams in {league.name}. All teams have been claimed.
                     </p>
                     <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
@@ -76,15 +80,18 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
     const team = teams[0];
 
     return (
-        <div className='w-full text-snow max-w-xl mx-auto'>
-            <div className='flex justify-between px-4 py-6 border border-slateGrey border-t-0'>
-                <Link className='text-xl font-bold' href={'/'}>Home</Link>
-                <h1 className='text-xl font-bold'>League Invite</h1>
-                <AuthButtonServer />
+        <div className='w-full max-w-xl mx-auto'>
+            <div className='flex justify-between px-4 py-6 border border-border'>
+                <Link className='text-xl font-bold text-primary-text hover:text-accent transition-colors' href={'/'}>Home</Link>
+                <h1 className='text-xl font-bold text-primary-text'>League Invite</h1>
+                <div className="flex items-center gap-4">
+                    <ThemeToggle />
+                    <AuthButtonServer />
+                </div>
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center">
+            <div className="flex-1 flex flex-col justify-center items-center p-8 bg-surface rounded-lg border border-border mt-4">
                 <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold mb-2">Join {league.name}</h2>
+                    <h2 className="text-2xl font-bold mb-2 text-primary-text">Join {league.name}</h2>
                     <p className="text-secondary-text">You&apos;ve been invited to join as {team.name}</p>
                 </div>
                 <AddToTeam user={user} team_name={team.name} team_id={team.id}></AddToTeam>

@@ -3,6 +3,7 @@ import { createClient } from '../../utils/supabase/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import AuthButtonServer from '../../auth-button-server';
+import ThemeToggle from '../../theme-toggle';
 import Link from 'next/link';
 import LeagueHome from './league-home';
 import { calculateTeamTotalScore } from '../../utils/scoring';
@@ -125,7 +126,10 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
                     <h1 className="text-xl font-bold text-primary-text">
                         {leagueData.name}
                     </h1>
-                    <AuthButtonServer />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                        <AuthButtonServer />
+                    </div>
                 </header>
                 
                 <main className="py-8">

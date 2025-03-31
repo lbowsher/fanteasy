@@ -77,7 +77,7 @@ export default function DraftStatusPanel({ league_id }: DraftStatusPanelProps) {
     }, [league_id, supabase]);
     
     if (isLoading) {
-        return <div className="h-12 bg-surface animate-pulse rounded-lg"></div>;
+        return <div className="h-12 bg-surface border border-border animate-pulse rounded-lg"></div>;
     }
     
     if (!draftSettings) {
@@ -114,7 +114,7 @@ export default function DraftStatusPanel({ league_id }: DraftStatusPanelProps) {
     const status = getDraftStatusText();
     
     return (
-        <div className="p-4 bg-surface rounded-lg border border-slate-grey">
+        <div className="p-4 bg-surface rounded-lg border border-border">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h3 className="text-lg font-semibold text-primary-text">{status.title}</h3>

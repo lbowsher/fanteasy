@@ -4,6 +4,7 @@
 import { createClient } from "../../../../utils/supabase/server";
 import { redirect } from 'next/navigation';
 import AuthButtonServer from '../../../../auth-button-server';
+import ThemeToggle from '../../../../theme-toggle';
 import Link from 'next/link';
 import OneTeam from './one-team';
 import SearchPage from './search-page';
@@ -133,7 +134,10 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
                     >
                         League Home
                     </Link>
-                    <AuthButtonServer />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                        <AuthButtonServer />
+                    </div>
                 </nav>
                 {content}
             </div>

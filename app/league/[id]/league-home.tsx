@@ -38,7 +38,7 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
     return (
         <div className="space-y-4">
             {isCommissioner && (
-                <div className="mb-6 p-4 bg-gluon-grey rounded-lg border border-slate-grey">
+                <div className="mb-6 p-4 bg-surface rounded-lg border border-border">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-primary-text">Commissioner Controls</h3>
                         <button
@@ -57,7 +57,7 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                 {sortedTeams.map(team => (
                     <div 
                         key={team.id} 
-                        className="border border-slate-grey bg-surface hover:bg-gluon-grey transition-colors duration-200 rounded-lg px-6 py-6"
+                        className="border border-border bg-surface hover:bg-opacity-80 transition-colors duration-200 rounded-lg px-6 py-6"
                     >
                         <div className="flex justify-between items-center">
                             <div className="space-y-2">
@@ -67,7 +67,7 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                                 >
                                     {team.name}
                                 </Link>
-                                <p className="text-dusty-grey text-sm">
+                                <p className="text-secondary-text text-sm">
                                     {team.owner || 'Unclaimed'}
                                 </p>
                             </div>

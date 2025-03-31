@@ -48,18 +48,35 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
     };
 
     return (
-        <div>
-        <h1>Add Players to Roster</h1>
-        <SearchComponent onSearch={handleSearch} />
-        <ul>
-            {searchResults.map((player) => (
-            <p key={`${player.id}`}>
-                <span className="font-bold"> {player.name} </span>
-                <span className="text-sm ml-2 text-gray-400">{player.team_name}</span>
-                <button onClick={() => UpdatePlayer(player.id)}>+</button>
-            </p>
-            ))}
-        </ul>
+        <div className="bg-surface p-4 rounded-lg border border-border">
+            <h2 className="text-xl font-bold text-primary-text mb-4">Add Players to Roster</h2>
+            <SearchComponent onSearch={handleSearch} />
+            
+            {searchResults.length > 0 ? (
+                <div className="space-y-2 mt-4">
+                    {searchResults.map((player) => (
+                        <div 
+                            key={`${player.id}`}
+                            className="flex items-center justify-between p-3 bg-background rounded-lg hover:bg-surface transition-colors"
+                        >
+                            <div>
+                                <span className="font-medium text-primary-text">{player.name}</span>
+                                <span className="ml-2 text-sm text-secondary-text">{player.team_name}</span>
+                            </div>
+                            <button 
+                                onClick={() => UpdatePlayer(player.id)}
+                                className="p-1 w-8 h-8 flex items-center justify-center bg-accent text-white rounded-full hover:opacity-90 transition-opacity"
+                            >
+                                +
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-secondary-text text-center py-4">
+                    Search for players to add to your team
+                </div>
+            )}
         </div>
     );
 };

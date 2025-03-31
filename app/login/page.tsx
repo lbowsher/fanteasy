@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import GoogleButton from "./google-button";
 import MagicLink from './magic-link';
 import OneTapComponent from "./one-tap-component";
+import ThemeToggle from '../theme-toggle';
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,9 @@ export default async function Login({ invitePath }: LoginProps) {
     
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-surface/50">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
         <OneTapComponent redirectPath={invitePath} />
         <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-6">
           <div className="w-full max-w-md space-y-8">
