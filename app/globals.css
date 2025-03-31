@@ -20,15 +20,25 @@
   --border: var(--slate-grey);
 }
 
-/* Light mode overrides */
+/* Light mode */
+html[data-theme="light"] {
+  --background: var(--snow);
+  --surface: #f0f0f0;
+  --primary-text: var(--dark-void);
+  --secondary-text: #444444;
+  --accent: var(--liquid-lava);
+  --border: #dddddd;
+}
+
+/* System preference light mode */
 @media (prefers-color-scheme: light) {
-  :root {
+  html:not([data-theme]) {
     --background: var(--snow);
-    --surface: var(--snow);
+    --surface: #f0f0f0;
     --primary-text: var(--dark-void);
-    --secondary-text: var(--dusty-grey);
+    --secondary-text: #444444;
     --accent: var(--liquid-lava);
-    --border: var(--slate-grey);
+    --border: #dddddd;
   }
 }
 
