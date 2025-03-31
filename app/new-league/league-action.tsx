@@ -3,6 +3,98 @@
 import { createClient } from '../utils/supabase/server';
 import { redirect } from "next/navigation";
 import { revalidatePath } from 'next/cache';
+import { NFLScoringRules, NBAScoringRules } from '../utils/scoring';
+
+// Function to get default scoring rules based on league type and scoring type
+function getDefaultScoringRules(sportsLeague: string, scoringType: string) {
+    if (sportsLeague === 'NFL') {
+        // Default NFL scoring rules
+        const nflRules: NFLScoringRules = {
+            passing: {
+                yards: 0.04,
+                touchdown: 4,
+                interception: -2,
+                two_point_conversion: 2,
+                bonus_300_yards: 3,
+                bonus_400_yards: 5
+            },
+            rushing: {
+                yards: 0.1,
+                touchdown: 6,
+                two_point_conversion: 2,
+                bonus_100_yards: 3,
+                bonus_200_yards: 5
+            },
+            receiving: {
+                yards: 0.1,
+                touchdown: 6,
+                two_point_conversion: 2,
+                bonus_100_yards: 3,
+                bonus_200_yards: 5
+            },
+            kicking: {
+                field_goal_0_39: 3,
+                field_goal_40_49: 4,
+                field_goal_50_59: 5,
+                field_goal_60_plus: 6,
+                extra_point: 1,
+                missed_field_goal: -1,
+                missed_extra_point: -1
+            },
+            defense: {
+                sack: 1,
+                interception: 2,
+                fumble_recovery: 2,
+                safety: 2,
+                touchdown: 6,
+                points_allowed_0: 10,
+                points_allowed_1_6: 7,
+                points_allowed_7_13: 4,
+                points_allowed_14_20: 1,
+                points_allowed_21_27: 0,
+                points_allowed_28_34: -1,
+                points_allowed_35_plus: -4
+            },
+            misc: {
+                fumble_lost: -2,
+                two_point_conversion: 2
+            }
+        };
+
+        // Apply PPR or standard adjustments
+        if (scoringType === 'PPR') {
+            nflRules.receiving!.reception = 1;
+        } else if (scoringType === 'HALF_PPR') {
+            nflRules.receiving!.reception = 0.5;
+        } else {
+            // Standard scoring
+            nflRules.receiving!.reception = 0;
+        }
+
+        return nflRules;
+    } else if (sportsLeague === 'NBA') {
+        // Default NBA scoring rules
+        const nbaRules: NBAScoringRules = {
+            points: 1,
+            rebound: 1.2,
+            assist: 1.5,
+            steal: 2,
+            block: 2,
+            turnover: -1,
+            double_double: 3,
+            triple_double: 5
+        };
+
+        return nbaRules;
+    } else if (sportsLeague === 'NCAAM') {
+        return {
+            points: 1
+        }
+    }
+
+    // Default to empty rules if sport not supported
+    return {};
+}
 
 export async function addLeague(formData: FormData) {
     const supabase = await createClient();
@@ -17,13 +109,27 @@ export async function addLeague(formData: FormData) {
     const scoring_type = String(formData.get('ScoringType'));
     const sports_league = String(formData.get('SportsLeague'));
     
+    // Get default scoring rules based on sport and scoring type
+    const defaultRules = getDefaultScoringRules(sports_league, scoring_type);
+    
+    // Debug log for development
+    console.log(`Creating ${sports_league} league with ${scoring_type} scoring:`, defaultRules);
+    
     const {data, error: leagueError} = await supabase.from('leagues').insert({
         name: league_name, 
         num_teams: num_teams, 
         scoring_type: scoring_type, 
         league: sports_league,
         commish: user.id,
-        num_weeks: 17, // Default NFL season weeks
+        num_weeks: sports_league === 'NFL' ? 17 : 82, // Default season weeks based on sport
+        default_scoring_rules: {
+            scoring_type: scoring_type,
+            rules: defaultRules
+        },
+        scoring_rules: {
+            scoring_type: scoring_type,
+            rules: defaultRules
+        }
     }).select('id');
 
     if (leagueError) {
