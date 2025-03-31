@@ -38,7 +38,6 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
         }, 0);
     }, [team.players, team.leagues]);
 
-
     return (
         <div className="space-y-4">
             <div className="bg-surface p-4 rounded-lg border border-border mb-6">
@@ -67,7 +66,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                             />
                         </div>
                         
-                        <div className="ml-4 flex-grow">
+                        <div className="ml-4 flex-grow overflow-hidden">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h3 className="font-bold text-primary-text">
@@ -85,25 +84,40 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                                 </div>
                             </div>
                             
-                            <div className="mt-2 flex justify-between items-center">
-                                <div className="flex space-x-4 text-secondary-text text-sm">
-                                    {player.height && <span>{player.height}</span>}
+                            <div className="mt-2 flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+                                <div className="flex flex-nowrap whitespace-nowrap text-secondary-text text-sm">
+                                    {player.height && <span className="mr-4">{player.height}</span>}
                                     {player.number && <span>#{player.number}</span>}
                                 </div>
                                 
-                                <div className="flex items-center space-x-4">
+                                <div className="flex items-center">
                                     {player.gameStats && player.gameStats.length > 0 ? (
-                                        <div className="text-secondary-text text-sm">
-                                            {player.gameStats.map((stat : GameStats, index: number) => (
-                                                <span key={stat.id} className="mr-2">
-                                                    {`Game ${stat.week_number || index + 1}: ${calculatePlayerScore([stat], team.leagues).toFixed(1)}`}
-                                                </span>
-                                            ))}
+                                        <div className="relative max-w-[180px] sm:max-w-[240px] md:max-w-[320px] mr-4">
+                                            <div className="overflow-x-auto pb-1 games-scroll-container" 
+                                                 style={{ 
+                                                     scrollbarWidth: 'thin',
+                                                     maskImage: 'linear-gradient(to right, black 90%, transparent 100%)',
+                                                     WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent 100%)'
+                                                 }}>
+                                                <div className="flex whitespace-nowrap text-secondary-text text-sm pr-4">
+                                                    {player.gameStats.map((stat : GameStats, index: number) => {
+                                                        const gameScore = calculatePlayerScore([stat], team.leagues).toFixed(1);
+                                                        return (
+                                                            <div key={stat.id} className="mr-2 flex-shrink-0 text-center">
+                                                                <div className="bg-surface px-2 py-1 rounded-md">
+                                                                    <div className="text-xs opacity-75">G{stat.week_number || index + 1}</div>
+                                                                    <div>{gameScore}</div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="text-secondary-text text-sm">No games played</div>
+                                        <div className="text-secondary-text text-sm mr-4">No games played</div>
                                     )}
-                                    <div className="text-accent font-bold">
+                                    <div className="text-accent font-bold flex-shrink-0">
                                         {playerScore.toFixed(1)}
                                     </div>
                                 </div>
