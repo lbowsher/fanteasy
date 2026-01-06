@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { createClient } from "../utils/supabase/client";
+import "../utils/supabase/debug"; // Load debug utility
 
 // Email validation regex
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -58,8 +59,32 @@ export default function MagicLink({ redirectPath }: { redirectPath?: string }) {
     });
 
     if (error) {
-      console.error("Error sending magic link:", error.message);
-      setMessage("Error: " + error.message);
+      console.error("Error sending magic link:", {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+        fullError: error,
+      });
+      
+      // Provide helpful debugging info for API key errors
+      if (error.message.includes("Invalid API key") || error.message.includes("API key")) {
+        console.error("API Key Debug Info:", {
+          hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+          hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+          urlPrefix: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30),
+          keyPrefix: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20),
+          keyLength: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
+        });
+        console.log("💡 Run window.__debugSupabase() in the console for more details");
+        console.log("💡 Common issues:");
+        console.log("   1. Wrong key (using service_role instead of anon key)");
+        console.log("   2. Extra spaces/quotes in .env.local");
+        console.log("   3. Key from wrong Supabase project");
+        console.log("   4. Dev server not restarted after changing .env.local");
+        setMessage("Error: Invalid API key. Check console for details. Run window.__debugSupabase() for more info.");
+      } else {
+        setMessage("Error: " + error.message);
+      }
     } else {
       setMessage("Magic link sent! Please check your email.");
       setEmail(""); // Clear the email field after successful send
