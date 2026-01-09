@@ -12,6 +12,7 @@ type WeeklyPicksProps = {
     currentWeek: number;
     numWeeks: number;
     isAuthorized: boolean;
+    season: string;
 };
 
 const LINEUP_SLOTS = [
@@ -135,7 +136,7 @@ function PlayerSearch({
     );
 }
 
-export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, isAuthorized }: WeeklyPicksProps) {
+export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, isAuthorized, season }: WeeklyPicksProps) {
     const [selectedWeek, setSelectedWeek] = useState(currentWeek);
     const [weeklyStats, setWeeklyStats] = useState<{[key: string]: GameStats[]}>({});
     const [weeklyScores, setWeeklyScores] = useState<{[key: number]: number}>({});
@@ -150,15 +151,16 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
             const { data: players } = await supabase
                 .from('players')
                 .select('*')
-                .eq('league', 'NFL');
-            
+                .eq('league', 'NFL')
+                .eq('season', season);
+
             if (players) {
                 setAvailablePlayers(players);
             }
         };
 
         fetchPlayers();
-    }, [supabase]);
+    }, [supabase, season]);
 
     useEffect(() => {
         const fetchWeeklyData = async () => {

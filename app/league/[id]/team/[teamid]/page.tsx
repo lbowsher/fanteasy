@@ -152,20 +152,22 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
             </div>
 
             {teamData.league?.scoring_type === 'NFL Playoff Pickem' ? (
-                <PlayoffWeeklyPicks 
+                <PlayoffWeeklyPicks
                     teamData={teamData}
-                    currentWeek={1} 
+                    currentWeek={1}
                     numWeeks={teamData.league.num_weeks}
                     isAuthorized={isAuthorized}
+                    season={teamData.league?.created_at ? String(new Date(teamData.league.created_at).getFullYear()) : '2026'}
                 />
             ) : (
                 <>
                     <OneTeam team={teamWithPlayers} />
                     {user.id === team.leagues?.commish && (
                         <div className="mt-8">
-                            <SearchPage 
-                                team={teamWithScores} 
-                                sports_league={team.leagues?.league} 
+                            <SearchPage
+                                team={teamWithScores}
+                                sports_league={team.leagues?.league}
+                                year={team.leagues?.created_at ? String(new Date(team.leagues.created_at).getFullYear()) : '2026'}
                             />
                         </div>
                     )}

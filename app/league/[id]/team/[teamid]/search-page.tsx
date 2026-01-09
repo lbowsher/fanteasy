@@ -4,7 +4,7 @@ import SearchComponent from './search-component';
 import { useRouter } from 'next/navigation';
 import { createClient } from "../../../../utils/supabase/client";
 
-const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPlayers, year?: string }> = ({ sports_league, team, year = '2025' }) => {
+const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPlayers, year?: string }> = ({ sports_league, team, year = '2026' }) => {
     const supabase = createClient();
     const router = useRouter()
     
