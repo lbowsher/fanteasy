@@ -2,7 +2,7 @@ import AuthButtonServer from './auth-button-server'
 import ThemeToggle from './theme-toggle'
 import { createClient } from './utils/supabase/server'
 import { redirect } from 'next/navigation';
-import Teams from './teams';
+import HomeContent from './home-content';
 import Link from 'next/link';
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export default async function Home() {
     .select(`
       *,
       profiles(id, avatar_url),
-      leagues(id, name)
+      leagues(id, name, created_at)
     `)
     .eq('user_id', user.id);
 
@@ -39,15 +39,15 @@ export default async function Home() {
         </div>
       </div>
       <div className="flex-1 bg-surface">
-        <div className="relative p-4">
-          <Link 
-            href="/new-league" 
-            className="inline-block rounded-lg bg-accent hover:opacity-90 transition-opacity text-white py-2 px-4 absolute top-4 right-4"
+        <div className="flex justify-end p-4">
+          <Link
+            href="/new-league"
+            className="inline-block rounded-lg bg-accent hover:opacity-90 transition-opacity text-white py-2 px-4"
           >
             + Create a New League
           </Link>
         </div>
-        <Teams teams={teams}/>
+        <HomeContent teams={teams}/>
       </div>
     </div>
   )
