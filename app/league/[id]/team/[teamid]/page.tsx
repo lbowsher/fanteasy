@@ -120,7 +120,8 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
     };
 
     const isOwner = user.id === team.user_id;
-    const isAuthorized = isOwner || user.id === team.leagues?.commish;
+    const isCommissioner = user.id === team.leagues?.commish;
+    const isAuthorized = isOwner || isCommissioner;
 
     const baseLayout = (content: React.ReactNode) => (
         <div className="min-h-screen bg-background">
@@ -148,7 +149,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
     const mainContent = (
         <div className="p-6">
             <div className="mb-6">
-                <TeamHeader team={team} isAuthorized={isAuthorized} isOwner={isOwner} />
+                <TeamHeader team={team} isAuthorized={isAuthorized} isOwner={isOwner} isCommissioner={isCommissioner} />
                 <h2 className="text-secondary-text">{teamData.owner?.full_name || 'Unclaimed'}</h2>
             </div>
 
