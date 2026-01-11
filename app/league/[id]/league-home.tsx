@@ -170,10 +170,6 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                                 </p>
                             </div>
                             <div className="flex items-center space-x-4">
-                                <span className="text-secondary-text mr-2">Total Score:</span>
-                                <span className="text-liquid-lava font-bold text-lg">
-                                    {Number(team.totalScore).toFixed(1)}
-                                </span>
                                 {isCommissioner && !team.owner && (
                                     <button
                                         onClick={() => copyToClipboard(`${window.location.origin}/invite/team/${team.id}`)}
@@ -182,6 +178,10 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                                         Copy Team Invite
                                     </button>
                                 )}
+                                <span className="text-secondary-text mr-2">Total Score:</span>
+                                <span className="text-liquid-lava font-bold text-lg">
+                                    {Number(team.totalScore).toFixed(1)}
+                                </span>
                             </div>
                         </div>
                     </div>
