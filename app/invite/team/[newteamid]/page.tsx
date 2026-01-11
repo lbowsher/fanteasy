@@ -1,11 +1,11 @@
 // invite/team/[newteamid]
 "use server";
 import { createClient } from "../../../utils/supabase/server";
+import { redirect } from "next/navigation";
 import AuthButtonServer from '../../../auth-button-server';
 import ThemeToggle from '../../../theme-toggle';
 import Link from 'next/link';
 import AddToTeam from './add-to-team';
-import Login from '../../../login/page';
 
 export default async function TeamInvite(props: { params: Promise<{ newteamid: TeamID }> }) {
     const params = await props.params;
@@ -58,9 +58,10 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
-        return <Login invitePath={`/invite/team/${team_id}`} />;
+        // Middleware should redirect unauthenticated users, but fallback just in case
+        redirect(`/login?next=/invite/team/${team_id}`);
     }
 
     return (

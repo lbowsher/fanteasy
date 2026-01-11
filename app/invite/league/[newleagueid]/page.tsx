@@ -1,11 +1,11 @@
 // invite/league/[newleagueid]
 "use server";
 import { createClient } from "../../../utils/supabase/server";
+import { redirect } from "next/navigation";
 import AuthButtonServer from '../../../auth-button-server';
 import ThemeToggle from '../../../theme-toggle';
 import Link from 'next/link';
 import AddToTeam from './add-to-team';
-import Login from '../../../login/page';
 
 export default async function LeagueInvite(props: { params: Promise<{ newleagueid: LeagueID }> }) {
     const params = await props.params;
@@ -39,19 +39,19 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
-        return <Login invitePath={`/invite/league/${league_id}`} />;
+        // Middleware should redirect unauthenticated users, but fallback just in case
+        redirect(`/login?next=/invite/league/${league_id}`);
     }
 
-    // Find the first unclaimed team in the league, sorted by name
+    // Find all unclaimed teams in the league, sorted by name
     const { data: teams } = await supabase
         .from('teams')
         .select('*')
         .eq('league_id', league_id)
         .is('user_id', null)
-        .order('name', { ascending: true })
-        .limit(1);
+        .order('name', { ascending: true });
 
     if (!teams || teams.length === 0) {
         return (
@@ -77,8 +77,6 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
         );
     }
 
-    const team = teams[0];
-
     return (
         <div className='w-full max-w-xl mx-auto'>
             <div className='flex justify-between px-4 py-6 border border-border'>
@@ -92,9 +90,9 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
             <div className="flex-1 flex flex-col justify-center items-center p-8 bg-surface rounded-lg border border-border mt-4">
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold mb-2 text-primary-text">Join {league.name}</h2>
-                    <p className="text-secondary-text">You&apos;ve been invited to join as {team.name}</p>
+                    <p className="text-secondary-text">Select a team to join</p>
                 </div>
-                <AddToTeam user={user} team_name={team.name} team_id={team.id}></AddToTeam>
+                <AddToTeam user={user} teams={teams} />
             </div>
         </div>
     );

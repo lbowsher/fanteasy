@@ -8,16 +8,17 @@ import ThemeToggle from '../theme-toggle';
 export const dynamic = "force-dynamic";
 
 interface LoginProps {
-    invitePath?: string;
+    searchParams: Promise<{ next?: string }>;
 }
 
-export default async function Login({ invitePath }: LoginProps) {
+export default async function Login({ searchParams }: LoginProps) {
+    const { next: redirectPath } = await searchParams;
     const supabase = await createClient();
 
     const {data : { session }} = await supabase.auth.getSession();
-    
+
     if (session) {
-        redirect(invitePath || '/');
+        redirect(redirectPath || '/');
     }
     
     return (
@@ -25,7 +26,7 @@ export default async function Login({ invitePath }: LoginProps) {
         <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
-        <OneTapComponent redirectPath={invitePath} />
+        <OneTapComponent redirectPath={redirectPath} />
         <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-6">
           <div className="w-full max-w-md space-y-8">
             <div className="text-center animate-fadeIn">
@@ -35,7 +36,7 @@ export default async function Login({ invitePath }: LoginProps) {
             
             <div className="space-y-8 bg-surface/80 backdrop-blur-sm p-8 rounded-2xl border border-border/50 shadow-xl">
               <div className="w-full">
-                <GoogleButton redirectPath={invitePath} />
+                <GoogleButton redirectPath={redirectPath} />
               </div>
               
               <div className="relative">
@@ -48,7 +49,7 @@ export default async function Login({ invitePath }: LoginProps) {
               </div>
 
               <div className="w-full">
-                <MagicLink redirectPath={invitePath} />
+                <MagicLink redirectPath={redirectPath} />
               </div>
             </div>
           </div>
