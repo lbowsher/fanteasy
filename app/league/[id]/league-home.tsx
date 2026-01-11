@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { groupBy } from 'lodash';
 import { createClient } from "../../utils/supabase/client";
 import DraftStatusPanel from './draft-status-panel';
+import { useRouter } from 'next/navigation';
+import { Plus } from 'lucide-react';
 
 interface LeagueHomeProps {
     teams: TeamWithOwner[];
@@ -18,7 +20,12 @@ interface LeagueHomeProps {
 
 export default function LeagueHome({ teams, league_id, league, isCommissioner }: LeagueHomeProps) {
     const [sortedTeams, setSortedTeams] = useState<TeamWithOwner[]>([]);
+    const [showAddTeam, setShowAddTeam] = useState(false);
+    const [newTeamName, setNewTeamName] = useState('');
+    const [isAddingTeam, setIsAddingTeam] = useState(false);
+    const [addTeamError, setAddTeamError] = useState<string | null>(null);
     const supabase = createClient();
+    const router = useRouter();
 
     // Add clipboard copy function
     const copyToClipboard = async (text: string) => {
@@ -27,6 +34,35 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
             alert('Link copied to clipboard!');
         } catch (err) {
             console.error('Failed to copy text: ', err);
+        }
+    };
+
+    const handleAddTeam = async () => {
+        if (!newTeamName.trim()) {
+            setAddTeamError('Please enter a team name');
+            return;
+        }
+
+        setIsAddingTeam(true);
+        setAddTeamError(null);
+
+        const { error } = await supabase
+            .from('teams')
+            .insert({
+                league_id: league_id,
+                name: newTeamName.trim(),
+                is_commish: false
+            });
+
+        if (error) {
+            console.error('Error adding team:', error);
+            setAddTeamError('Failed to add team. Please try again.');
+            setIsAddingTeam(false);
+        } else {
+            setShowAddTeam(false);
+            setNewTeamName('');
+            setIsAddingTeam(false);
+            router.refresh();
         }
     };
 
@@ -41,12 +77,74 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                 <div className="mb-6 p-4 bg-surface rounded-lg border border-border">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-primary-text">Commissioner Controls</h3>
-                        <button
-                            onClick={() => copyToClipboard(`${window.location.origin}/invite/league/${league_id}`)}
-                            className="px-4 py-2 bg-liquid-lava text-snow rounded-lg hover:opacity-80 transition-opacity"
-                        >
-                            Copy League Invite Link
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowAddTeam(true)}
+                                className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2"
+                            >
+                                <Plus size={18} />
+                                Add Team
+                            </button>
+                            <button
+                                onClick={() => copyToClipboard(`${window.location.origin}/invite/league/${league_id}`)}
+                                className="px-4 py-2 bg-liquid-lava text-snow rounded-lg hover:opacity-80 transition-opacity"
+                            >
+                                Copy League Invite Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showAddTeam && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-surface border border-border rounded-lg p-6 max-w-sm mx-4 w-full">
+                        <h3 className="text-lg font-bold text-primary-text mb-4">Add New Team</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="newTeamName" className="block text-sm text-secondary-text mb-1">
+                                    Team Name
+                                </label>
+                                <input
+                                    id="newTeamName"
+                                    type="text"
+                                    value={newTeamName}
+                                    onChange={(e) => setNewTeamName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleAddTeam();
+                                        if (e.key === 'Escape') setShowAddTeam(false);
+                                    }}
+                                    placeholder="Enter team name"
+                                    className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
+                                    autoFocus
+                                />
+                            </div>
+                            {addTeamError && (
+                                <div className="text-red-500 text-sm p-2 bg-red-100/10 rounded">
+                                    {addTeamError}
+                                </div>
+                            )}
+                            <div className="flex justify-end space-x-3">
+                                <button
+                                    onClick={() => {
+                                        setShowAddTeam(false);
+                                        setNewTeamName('');
+                                        setAddTeamError(null);
+                                    }}
+                                    className="px-4 py-2 text-secondary-text hover:text-primary-text transition-colors"
+                                    disabled={isAddingTeam}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleAddTeam}
+                                    disabled={isAddingTeam}
+                                    className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                                >
+                                    {isAddingTeam ? 'Adding...' : 'Add Team'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

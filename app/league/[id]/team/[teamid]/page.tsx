@@ -119,7 +119,8 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         leagues: team.leagues // Ensure leagues is properly passed to the OneTeam component
     };
 
-    const isAuthorized = user.id === team.owner_id || user.id === team.leagues?.commish;
+    const isOwner = user.id === team.user_id;
+    const isAuthorized = isOwner || user.id === team.leagues?.commish;
 
     const baseLayout = (content: React.ReactNode) => (
         <div className="min-h-screen bg-background">
@@ -147,7 +148,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
     const mainContent = (
         <div className="p-6">
             <div className="mb-6">
-                <TeamHeader team={team} isAuthorized={isAuthorized} />
+                <TeamHeader team={team} isAuthorized={isAuthorized} isOwner={isOwner} />
                 <h2 className="text-secondary-text">{teamData.owner?.full_name || 'Unclaimed'}</h2>
             </div>
 
