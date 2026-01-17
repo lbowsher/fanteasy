@@ -48,6 +48,13 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
         return <div>League not found</div>;
     }
 
+    // Get draft settings for the league
+    const { data: draftSettingsData } = await supabase
+        .from('draft_settings')
+        .select('*')
+        .eq('league_id', leagueId)
+        .single();
+
     // Get teams with profiles
     const { data: teamsData } = await supabase
         .from('teams')
@@ -134,10 +141,11 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
                 
                 <main className="py-8">
                     <div className="bg-surface rounded-xl p-6 shadow-lg">
-                        <LeagueHome 
-                            teams={teams} 
-                            league_id={params.id} 
+                        <LeagueHome
+                            teams={teams}
+                            league_id={params.id}
                             league={leagueData}
+                            draftSettings={draftSettingsData}
                             isCommissioner={isCommissioner}
                         />
                     </div>
