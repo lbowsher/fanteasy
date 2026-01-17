@@ -87,4 +87,5 @@ declare global {
     type Player = Player;
     type GameStats = GameStats;
     type League = League;
+    type DraftSettings = DraftSettings;
 }

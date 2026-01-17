@@ -9,18 +9,21 @@ import { groupBy } from 'lodash';
 import { createClient } from "../../utils/supabase/client";
 import DraftStatusPanel from './draft-status-panel';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, Settings } from 'lucide-react';
+import LeagueSettingsModal from './league-settings-modal';
 
 interface LeagueHomeProps {
     teams: TeamWithOwner[];
     league_id: LeagueID;
     league: League;
+    draftSettings: DraftSettings | null;
     isCommissioner: boolean;
 }
 
-export default function LeagueHome({ teams, league_id, league, isCommissioner }: LeagueHomeProps) {
+export default function LeagueHome({ teams, league_id, league, draftSettings, isCommissioner }: LeagueHomeProps) {
     const [sortedTeams, setSortedTeams] = useState<TeamWithOwner[]>([]);
     const [showAddTeam, setShowAddTeam] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [newTeamName, setNewTeamName] = useState('');
     const [isAddingTeam, setIsAddingTeam] = useState(false);
     const [addTeamError, setAddTeamError] = useState<string | null>(null);
@@ -78,6 +81,14 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-primary-text">Commissioner Controls</h3>
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowSettings(true)}
+                                className="px-4 py-2 bg-surface border border-border text-primary-text rounded-lg hover:bg-background transition-colors flex items-center gap-2"
+                                title="League Settings"
+                            >
+                                <Settings size={18} />
+                                Settings
+                            </button>
                             <button
                                 onClick={() => setShowAddTeam(true)}
                                 className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2"
@@ -148,7 +159,15 @@ export default function LeagueHome({ teams, league_id, league, isCommissioner }:
                     </div>
                 </div>
             )}
-            
+
+            {showSettings && (
+                <LeagueSettingsModal
+                    league={league}
+                    draftSettings={draftSettings}
+                    onClose={() => setShowSettings(false)}
+                />
+            )}
+
             <DraftStatusPanel league_id={league_id} />
             
             <div className="space-y-1">
