@@ -56,3 +56,10 @@ Uses CSS custom properties with `data-theme` attribute on `<html>`:
 Required in `.env.local`:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+## Python Scrapers
+
+Use `uv` to run Python scripts in the `scrapers/` directory:
+```bash
+uv run python scrapers/nfl/nfl-playoffs-scraper.py
+```

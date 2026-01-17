@@ -6,7 +6,7 @@ import AuthButtonServer from '../../auth-button-server';
 import ThemeToggle from '../../theme-toggle';
 import Link from 'next/link';
 import LeagueHome from './league-home';
-import { calculateTeamTotalScore } from '../../utils/scoring';
+import { calculatePlayerScore } from '../../utils/scoring';
 
 export const dynamic = "force-dynamic";
 
@@ -93,18 +93,43 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
             }
         }
         
-        // Get game stats for all relevant players
+        // Get game stats and player positions for all relevant players
+        let totalScore = 0;
         if (allRelevantPlayerIds.length > 0) {
-            const { data: stats } = await supabase
-                .from('game_stats')
-                .select('*')
-                .in('player_id', allRelevantPlayerIds);
-                
+            const [{ data: stats }, { data: players }] = await Promise.all([
+                supabase
+                    .from('game_stats')
+                    .select('*')
+                    .in('player_id', allRelevantPlayerIds),
+                supabase
+                    .from('players')
+                    .select('id, position')
+                    .in('id', allRelevantPlayerIds)
+            ]);
+
             gameStats = stats || [];
+
+            // Create a map of player_id to position
+            const playerPositions: Record<string, string> = {};
+            (players || []).forEach((p: { id: string; position: string }) => {
+                playerPositions[p.id] = p.position;
+            });
+
+            // Group stats by player_id and calculate score for each player with their position
+            const statsByPlayer: Record<string, typeof gameStats> = {};
+            gameStats.forEach((stat: GameStats) => {
+                if (!statsByPlayer[stat.player_id]) {
+                    statsByPlayer[stat.player_id] = [];
+                }
+                statsByPlayer[stat.player_id].push(stat);
+            });
+
+            // Calculate total score with proper position handling
+            totalScore = Object.entries(statsByPlayer).reduce((total, [playerId, playerStats]) => {
+                const position = playerPositions[playerId];
+                return total + calculatePlayerScore(playerStats, leagueData, position);
+            }, 0);
         }
-        
-        // Calculate total score using the game stats and league scoring rules
-        const totalScore = gameStats.length > 0 ? calculateTeamTotalScore(gameStats, leagueData) : 0;
         
         return { 
             teamId: team.id, 

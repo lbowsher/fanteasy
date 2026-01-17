@@ -38,3 +38,4 @@ if (typeof window !== 'undefined') {
   (window as any).__debugSupabase = debugSupabaseConfig;
 }
 
+
