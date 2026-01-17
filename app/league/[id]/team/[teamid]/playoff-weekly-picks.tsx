@@ -193,7 +193,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                     weekPicks.forEach(pick => {
                         const playerStats = statsMap[`${week}-${pick.player_id}`];
                         if (playerStats && teamData.team.leagues) {
-                            weekScore += calculateNFLPoints(playerStats, teamData.team.leagues.scoring_rules.rules);
+                            weekScore += calculateNFLPoints(playerStats, teamData.team.leagues.scoring_rules.rules, false, pick.player?.position);
                         }
                     });                    
                     scores[week] = weekScore;
@@ -259,9 +259,42 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         window.location.reload();
     };
 
-    const getPlayerStatline = (stats: GameStats[] | undefined) => {
+    const getPlayerStatline = (stats: GameStats[] | undefined, position?: string) => {
         if (!stats || stats.length === 0) return 'No stats available';
-        
+
+        // D/ST players show defensive stats
+        if (position === 'D/ST') {
+            const combinedStats = stats.reduce((acc, stat) => ({
+                points_allowed: (acc.points_allowed || 0) + (stat.points_allowed || 0),
+                yards_allowed: (acc.yards_allowed || 0) + ((stat as any).yards_allowed || 0),
+                sacks: (acc.sacks || 0) + (stat.sacks || 0),
+                def_interceptions: (acc.def_interceptions || 0) + (stat.def_interceptions || 0),
+                fumbles_recovered: (acc.fumbles_recovered || 0) + (stat.fumbles_recovered || 0),
+                fumbles_forced: (acc.fumbles_forced || 0) + (stat.fumbles_forced || 0),
+                defensive_touchdowns: (acc.defensive_touchdowns || 0) + (stat.defensive_touchdowns || 0),
+                special_teams_touchdowns: (acc.special_teams_touchdowns || 0) + (stat.special_teams_touchdowns || 0),
+                blocked_kicks: (acc.blocked_kicks || 0) + (stat.blocked_kicks || 0),
+                safeties: (acc.safeties || 0) + (stat.safeties || 0)
+            }), {} as GameStats);
+
+            const statParts = [];
+            // Always show PA and YA
+            statParts.push(`${combinedStats.points_allowed ?? 0} Pts Allowed`);
+            statParts.push(`${combinedStats.yards_allowed ?? 0} Yds Allowed`);
+            // Only show other stats if non-zero
+            if (combinedStats.sacks) statParts.push(`${combinedStats.sacks} Sack${combinedStats.sacks !== 1 ? 's' : ''}`);
+            if (combinedStats.def_interceptions) statParts.push(`${combinedStats.def_interceptions} INT`);
+            if (combinedStats.fumbles_recovered) statParts.push(`${combinedStats.fumbles_recovered} Fum Rec`);
+            if (combinedStats.fumbles_forced) statParts.push(`${combinedStats.fumbles_forced} FF`);
+            const totalTDs = (combinedStats.defensive_touchdowns || 0) + (combinedStats.special_teams_touchdowns || 0);
+            if (totalTDs) statParts.push(`${totalTDs} TD`);
+            if (combinedStats.blocked_kicks) statParts.push(`${combinedStats.blocked_kicks} Block${combinedStats.blocked_kicks !== 1 ? 's' : ''}`);
+            if (combinedStats.safeties) statParts.push(`${combinedStats.safeties} Safety`);
+
+            return statParts.join(', ');
+        }
+
+        // Offensive players
         const combinedStats = stats.reduce((acc, stat) => ({
             passing_yards: (acc.passing_yards || 0) + (stat.passing_yards || 0),
             passing_tds: (acc.passing_tds || 0) + (stat.passing_tds || 0),
@@ -270,9 +303,11 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
             rushing_tds: (acc.rushing_tds || 0) + (stat.rushing_tds || 0),
             receiving_yards: (acc.receiving_yards || 0) + (stat.receiving_yards || 0),
             receiving_tds: (acc.receiving_tds || 0) + (stat.receiving_tds || 0),
-            receptions: (acc.receptions || 0) + (stat.receptions || 0)
+            receptions: (acc.receptions || 0) + (stat.receptions || 0),
+            fumbles: (acc.fumbles || 0) + (stat.fumbles || 0),
+            two_point_conversions: (acc.two_point_conversions || 0) + (stat.two_point_conversions || 0)
         }), {} as GameStats);
-        
+
         const statlines = [];
         if (combinedStats.passing_yards) {
             statlines.push(`${combinedStats.passing_yards} Pass YDS, ${combinedStats.passing_tds || 0} TD, ${combinedStats.interceptions || 0} INT`);
@@ -282,6 +317,12 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         }
         if (combinedStats.receiving_yards) {
             statlines.push(`${combinedStats.receptions || 0} REC, ${combinedStats.receiving_yards} REC YDS, ${combinedStats.receiving_tds || 0} TD`);
+        }
+        if (combinedStats.fumbles) {
+            statlines.push(`${combinedStats.fumbles} FUM`);
+        }
+        if (combinedStats.two_point_conversions) {
+            statlines.push(`${combinedStats.two_point_conversions} 2PT`);
         }
         return statlines.join(' | ') || 'No stats available';
     };
@@ -356,8 +397,8 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                                 p => p.week_number === selectedWeek && p.slot_position === slot.id
                             );
                             const stats = pick ? weeklyStats[`${selectedWeek}-${pick.player_id}`] : undefined;
-                            const playerScore = stats && teamData.team.leagues 
-                                ? calculateNFLPoints(stats, teamData.team.leagues.scoring_rules.rules)
+                            const playerScore = stats && teamData.team.leagues
+                                ? calculateNFLPoints(stats, teamData.team.leagues.scoring_rules.rules, false, pick?.player?.position)
                                 : 0;
 
                             return (
@@ -398,7 +439,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                                                             : 'Not selected'}
                                                     </div>
                                                     <div className="text-sm text-secondary-text">
-                                                        {getPlayerStatline(stats)}
+                                                        {getPlayerStatline(stats, pick?.player?.position)}
                                                     </div>
                                                 </div>
                                             </div>

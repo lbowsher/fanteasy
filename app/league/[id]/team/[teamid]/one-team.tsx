@@ -34,7 +34,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
         
         return team.players.reduce((total: number, player: Player) => {
             if (!player.gameStats) return total;
-            return total + calculatePlayerScore(player.gameStats, team.leagues);
+            return total + calculatePlayerScore(player.gameStats, team.leagues, player.position);
         }, 0);
     }, [team.players, team.leagues]);
 
@@ -47,8 +47,8 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                 </div>
             </div>
             {orderedPlayers().map((player: Player) => {
-                const playerScore = player.gameStats 
-                    ? calculatePlayerScore(player.gameStats, team.leagues) 
+                const playerScore = player.gameStats
+                    ? calculatePlayerScore(player.gameStats, team.leagues, player.position)
                     : 0;
 
                 return (
@@ -101,7 +101,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                                                  }}>
                                                 <div className="flex whitespace-nowrap text-secondary-text text-sm pr-4">
                                                     {player.gameStats.map((stat : GameStats, index: number) => {
-                                                        const gameScore = calculatePlayerScore([stat], team.leagues).toFixed(1);
+                                                        const gameScore = calculatePlayerScore([stat], team.leagues, player.position).toFixed(1);
                                                         return (
                                                             <div key={stat.id} className="mr-2 flex-shrink-0 text-center">
                                                                 <div className="bg-surface px-2 py-1 rounded-md">

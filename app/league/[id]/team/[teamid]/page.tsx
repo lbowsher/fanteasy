@@ -9,7 +9,7 @@ import Link from 'next/link';
 import OneTeam from './one-team';
 import SearchPage from './search-page';
 import PlayoffWeeklyPicks from './playoff-weekly-picks';
-import { calculateTeamTotalScore } from '../../../../utils/scoring';
+import { calculatePlayerScore } from '../../../../utils/scoring';
 import TeamHeader from './team-header';
 
 export const dynamic = "force-dynamic";
@@ -84,8 +84,32 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         .select('*')
         .in('player_id', playerIds);
 
-    // Calculate total team score based on league scoring rules
-    const totalScore = gameStats ? calculateTeamTotalScore(gameStats, team.leagues) : 0;
+    // Calculate total team score based on league scoring rules with proper position handling
+    let totalScore = 0;
+    if (gameStats && gameStats.length > 0) {
+        // Create a map of player_id to position from weekly picks
+        const playerPositions: Record<string, string> = {};
+        weeklyPicks?.forEach(pick => {
+            if (pick.players?.position) {
+                playerPositions[pick.player_id] = pick.players.position;
+            }
+        });
+
+        // Group stats by player_id
+        const statsByPlayer: Record<string, GameStats[]> = {};
+        gameStats.forEach((stat: GameStats) => {
+            if (!statsByPlayer[stat.player_id]) {
+                statsByPlayer[stat.player_id] = [];
+            }
+            statsByPlayer[stat.player_id].push(stat);
+        });
+
+        // Calculate total score with proper position handling
+        totalScore = Object.entries(statsByPlayer).reduce((total, [playerId, playerStats]) => {
+            const position = playerPositions[playerId];
+            return total + calculatePlayerScore(playerStats, team.leagues, position);
+        }, 0);
+    }
 
     const teamData = {
         team: team,
