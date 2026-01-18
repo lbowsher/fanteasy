@@ -8,7 +8,7 @@ interface ScoringRules {
         passing?: Record<string, number>;
         rushing?: Record<string, number>;
         receiving?: Record<string, number>;
-        kicking?: Record<string, number>;
+        kicking?: Record<string, number | null>;
         defense?: Record<string, number>;
         misc?: Record<string, number>;
     };

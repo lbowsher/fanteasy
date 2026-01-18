@@ -31,6 +31,7 @@ export type NFLScoringRules = {
       field_goal_60_plus?: number;
       extra_point?: number;
       missed_field_goal?: number;
+      missed_field_goal_max_distance?: number | null;
       missed_extra_point?: number;
     };
     defense?: {
@@ -159,15 +160,32 @@ export type NFLScoringRules = {
           passing_yards: (acc.passing_yards || 0) + (stat.passing_yards || 0),
           passing_tds: (acc.passing_tds || 0) + (stat.passing_tds || 0),
           interceptions: (acc.interceptions || 0) + (stat.interceptions || 0),
+          passing_2pt_conversions: (acc.passing_2pt_conversions || 0) + (stat.passing_2pt_conversions || 0),
           rushing_yards: (acc.rushing_yards || 0) + (stat.rushing_yards || 0),
           rushing_tds: (acc.rushing_tds || 0) + (stat.rushing_tds || 0),
+          rushing_2pt_conversions: (acc.rushing_2pt_conversions || 0) + (stat.rushing_2pt_conversions || 0),
           receptions: (acc.receptions || 0) + (stat.receptions || 0),
           receiving_yards: (acc.receiving_yards || 0) + (stat.receiving_yards || 0),
           receiving_tds: (acc.receiving_tds || 0) + (stat.receiving_tds || 0),
-          kicking_points: (acc.kicking_points || 0) + (stat.kicking_points || 0),
-          fumbles: (acc.fumbles || 0) + (stat.fumbles || 0),
+          receiving_2pt_conversions: (acc.receiving_2pt_conversions || 0) + (stat.receiving_2pt_conversions || 0),
+          extra_points_made: (acc.extra_points_made || 0) + (stat.extra_points_made || 0),
+          extra_points_attempted: (acc.extra_points_attempted || 0) + (stat.extra_points_attempted || 0),
+          fumbles_lost: (acc.fumbles_lost || 0) + (stat.fumbles_lost || 0),
           two_point_conversions: (acc.two_point_conversions || 0) + (stat.two_point_conversions || 0),
       }), {} as GameStats);
+
+      // Collect all field goal yard arrays across stat entries for kicking calculation
+      const allFieldGoalsMade: number[] = [];
+      const allFieldGoalsMissed: number[] = [];
+      statsArray.forEach(stat => {
+          const statAny = stat as any;
+          if (statAny.field_goals_made_yards && Array.isArray(statAny.field_goals_made_yards)) {
+              allFieldGoalsMade.push(...statAny.field_goals_made_yards);
+          }
+          if (statAny.field_goals_missed_yards && Array.isArray(statAny.field_goals_missed_yards)) {
+              allFieldGoalsMissed.push(...statAny.field_goals_missed_yards);
+          }
+      });
 
       let points = 0;
 
@@ -176,6 +194,7 @@ export type NFLScoringRules = {
         points += (aggregatedStats.passing_yards || 0) * (rules.passing.yards || 0);
         points += (aggregatedStats.passing_tds || 0) * (rules.passing.touchdown || 0);
         points += (aggregatedStats.interceptions || 0) * (rules.passing.interception || 0);
+        points += (aggregatedStats.passing_2pt_conversions || 0) * (rules.passing.two_point_conversion || 0);
 
         // Passing yardage bonuses
         if (rules.passing.bonus_300_yards && (aggregatedStats.passing_yards || 0) >= 300) {
@@ -190,6 +209,7 @@ export type NFLScoringRules = {
       if (rules.rushing) {
         points += (aggregatedStats.rushing_yards || 0) * (rules.rushing.yards || 0);
         points += (aggregatedStats.rushing_tds || 0) * (rules.rushing.touchdown || 0);
+        points += (aggregatedStats.rushing_2pt_conversions || 0) * (rules.rushing.two_point_conversion || 0);
 
         // Rushing yardage bonuses
         if (rules.rushing.bonus_100_yards && (aggregatedStats.rushing_yards || 0) >= 100) {
@@ -205,6 +225,7 @@ export type NFLScoringRules = {
         points += (aggregatedStats.receptions || 0) * (rules.receiving.reception || 0);
         points += (aggregatedStats.receiving_yards || 0) * (rules.receiving.yards || 0);
         points += (aggregatedStats.receiving_tds || 0) * (rules.receiving.touchdown || 0);
+        points += (aggregatedStats.receiving_2pt_conversions || 0) * (rules.receiving.two_point_conversion || 0);
 
         // Receiving yardage bonuses
         if (rules.receiving.bonus_100_yards && (aggregatedStats.receiving_yards || 0) >= 100) {
@@ -217,7 +238,32 @@ export type NFLScoringRules = {
 
     // Kicking
     if (rules.kicking) {
-      points += (aggregatedStats.kicking_points || 0);
+      // Calculate points for each made field goal based on yardage tiers
+      allFieldGoalsMade.forEach(yards => {
+        if (yards >= 60) {
+          points += rules.kicking!.field_goal_60_plus || 0;
+        } else if (yards >= 50) {
+          points += rules.kicking!.field_goal_50_59 || 0;
+        } else if (yards >= 40) {
+          points += rules.kicking!.field_goal_40_49 || 0;
+        } else {
+          points += rules.kicking!.field_goal_0_39 || 0;
+        }
+      });
+
+      // Calculate points for missed field goals
+      allFieldGoalsMissed.forEach((missedYards) => {
+        const maxDistance = rules.kicking!.missed_field_goal_max_distance;
+        // Only apply penalty if no max distance set, or if missed FG was within max distance
+        if (maxDistance === undefined || maxDistance === null || missedYards <= maxDistance) {
+          points += rules.kicking!.missed_field_goal || 0;
+        }
+      });
+
+      // Extra points
+      points += (aggregatedStats.extra_points_made || 0) * (rules.kicking.extra_point || 0);
+      const missedExtraPoints = (aggregatedStats.extra_points_attempted || 0) - (aggregatedStats.extra_points_made || 0);
+      points += missedExtraPoints * (rules.kicking.missed_extra_point || 0);
     }
 
     // Defense/Special Teams - only apply to D/ST position players
@@ -229,7 +275,7 @@ export type NFLScoringRules = {
 
     // Misc
     if (rules.misc) {
-      points += (aggregatedStats.fumbles || 0) * (rules.misc.fumble_lost || 0);
+      points += (aggregatedStats.fumbles_lost || 0) * (rules.misc.fumble_lost || 0);
       points += (aggregatedStats.two_point_conversions || 0) * (rules.misc.two_point_conversion || 0);
     }
 

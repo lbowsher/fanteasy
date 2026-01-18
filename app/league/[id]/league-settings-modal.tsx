@@ -16,7 +16,7 @@ interface ScoringRules {
         passing?: Record<string, number>;
         rushing?: Record<string, number>;
         receiving?: Record<string, number>;
-        kicking?: Record<string, number>;
+        kicking?: Record<string, number | null>;
         defense?: Record<string, number>;
         misc?: Record<string, number>;
     };
@@ -30,6 +30,13 @@ const CATEGORY_LABELS: Record<string, string> = {
     kicking: 'Kicking',
     defense: 'Defense/Special Teams',
     misc: 'Misc',
+};
+
+// Additional fields to always show in each category (even if not in stored rules)
+const ADDITIONAL_CATEGORY_FIELDS: Record<string, Record<string, number | null>> = {
+    kicking: {
+        missed_field_goal_max_distance: null,
+    },
 };
 
 const FIELD_LABELS: Record<string, string> = {
@@ -53,6 +60,7 @@ const FIELD_LABELS: Record<string, string> = {
     field_goal_50_59: 'FG 50-59 yards',
     field_goal_60_plus: 'FG 60+ yards',
     missed_field_goal: 'Missed Field Goal',
+    missed_field_goal_max_distance: 'Missed FG Max Distance (yards)',
     // Defense
     sack: 'Sack',
     safety: 'Safety',
@@ -86,8 +94,8 @@ function ScoringCategoryEditor({
     onChange,
 }: {
     category: string;
-    rules: Record<string, number>;
-    onChange: (key: string, value: number) => void;
+    rules: Record<string, number | null>;
+    onChange: (key: string, value: number | null) => void;
 }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -109,20 +117,31 @@ function ScoringCategoryEditor({
             </button>
             {isExpanded && (
                 <div className="p-4 space-y-3 bg-surface">
-                    {Object.entries(rules).map(([key, value]) => (
-                        <div key={key} className="flex items-center justify-between gap-4">
-                            <label className="text-sm text-secondary-text flex-1">
-                                {FIELD_LABELS[key] || key.replace(/_/g, ' ')}
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                value={value}
-                                onChange={(e) => onChange(key, parseFloat(e.target.value) || 0)}
-                                className="w-24 bg-background text-primary-text border border-border rounded px-3 py-1 text-right focus:border-accent focus:outline-none transition-colors"
-                            />
-                        </div>
-                    ))}
+                    {Object.entries(rules).map(([key, value]) => {
+                        const isMaxDistanceField = key === 'missed_field_goal_max_distance';
+                        return (
+                            <div key={key} className="flex items-center justify-between gap-4">
+                                <label className="text-sm text-secondary-text flex-1">
+                                    {FIELD_LABELS[key] || key.replace(/_/g, ' ')}
+                                </label>
+                                <input
+                                    type="number"
+                                    step={isMaxDistanceField ? "1" : "0.01"}
+                                    value={value === null ? '' : value}
+                                    placeholder={isMaxDistanceField ? 'All distances' : undefined}
+                                    onChange={(e) => {
+                                        if (isMaxDistanceField) {
+                                            const val = e.target.value === '' ? null : parseInt(e.target.value);
+                                            onChange(key, val);
+                                        } else {
+                                            onChange(key, parseFloat(e.target.value) || 0);
+                                        }
+                                    }}
+                                    className="w-24 bg-background text-primary-text border border-border rounded px-3 py-1 text-right focus:border-accent focus:outline-none transition-colors"
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>
@@ -152,7 +171,7 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
     const [timePerPick, setTimePerPick] = useState(draftSettings?.time_per_pick || 60);
     const [autoPickEnabled, setAutoPickEnabled] = useState(draftSettings?.auto_pick_enabled ?? true);
 
-    const handleScoringRuleChange = (category: string, key: string, value: number) => {
+    const handleScoringRuleChange = (category: string, key: string, value: number | null) => {
         setScoringRules((prev) => ({
             ...prev,
             rules: {
@@ -276,8 +295,11 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                         <h3 className="text-lg font-semibold text-primary-text mb-4">Scoring Rules</h3>
                         <div className="space-y-2">
                             {categoryOrder.map((category) => {
-                                const rules = scoringRules.rules[category as keyof typeof scoringRules.rules];
-                                if (!rules || Object.keys(rules).length === 0) return null;
+                                const storedRules = scoringRules.rules[category as keyof typeof scoringRules.rules];
+                                if (!storedRules || Object.keys(storedRules).length === 0) return null;
+                                // Merge stored rules with additional fields that should always be shown
+                                const additionalFields = ADDITIONAL_CATEGORY_FIELDS[category] || {};
+                                const rules = { ...additionalFields, ...storedRules };
                                 return (
                                     <ScoringCategoryEditor
                                         key={category}
