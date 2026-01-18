@@ -225,6 +225,8 @@ export type Database = {
           two_point_conversions: number | null
           week_number: number | null
           yards_allowed: number | null
+          rushing_yards_allowed: number | null
+          passing_yards_allowed: number | null
         }
         Insert: {
           assists?: number | null
@@ -280,6 +282,8 @@ export type Database = {
           two_point_conversions?: number | null
           week_number?: number | null
           yards_allowed?: number | null
+          rushing_yards_allowed?: number | null
+          passing_yards_allowed?: number | null
         }
         Update: {
           assists?: number | null
@@ -335,6 +339,8 @@ export type Database = {
           two_point_conversions?: number | null
           week_number?: number | null
           yards_allowed?: number | null
+          rushing_yards_allowed?: number | null
+          passing_yards_allowed?: number | null
         }
         Relationships: [
           {

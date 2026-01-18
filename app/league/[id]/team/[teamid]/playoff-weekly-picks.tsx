@@ -311,7 +311,8 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         if (position === 'D/ST') {
             const combinedStats = stats.reduce((acc, stat) => ({
                 points_allowed: (acc.points_allowed || 0) + (stat.points_allowed || 0),
-                yards_allowed: (acc.yards_allowed || 0) + ((stat as any).yards_allowed || 0),
+                rushing_yards_allowed: (acc.rushing_yards_allowed || 0) + (stat.rushing_yards_allowed || 0),
+                passing_yards_allowed: (acc.passing_yards_allowed || 0) + (stat.passing_yards_allowed || 0),
                 sacks: (acc.sacks || 0) + (stat.sacks || 0),
                 def_interceptions: (acc.def_interceptions || 0) + (stat.def_interceptions || 0),
                 fumbles_recovered: (acc.fumbles_recovered || 0) + (stat.fumbles_recovered || 0),
@@ -323,9 +324,10 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
             }), {} as GameStats);
 
             const statParts = [];
-            // Always show PA and YA
+            // Always show PA and YA (combined rushing + passing)
             statParts.push(`${combinedStats.points_allowed ?? 0} Pts Allowed`);
-            statParts.push(`${combinedStats.yards_allowed ?? 0} Yds Allowed`);
+            const totalYardsAllowed = (combinedStats.rushing_yards_allowed || 0) + (combinedStats.passing_yards_allowed || 0);
+            statParts.push(`${totalYardsAllowed} Yds Allowed`);
             // Only show other stats if non-zero
             if (combinedStats.sacks) statParts.push(`${combinedStats.sacks} Sack${combinedStats.sacks !== 1 ? 's' : ''}`);
             if (combinedStats.def_interceptions) statParts.push(`${combinedStats.def_interceptions} INT`);
