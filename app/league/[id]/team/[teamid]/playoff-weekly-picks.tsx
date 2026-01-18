@@ -23,7 +23,7 @@ const LINEUP_SLOTS = [
     { id: 'WR2', label: 'WR 2', validPositions: ['WR'] },
     { id: 'TE', label: 'TE', validPositions: ['TE'] },
     { id: 'FLEX', label: 'FLEX', validPositions: ['RB', 'WR', 'TE'] },
-    { id: 'DST', label: 'D/ST', validPositions: ['D/ST'] },
+    { id: 'D/ST', label: 'D/ST', validPositions: ['D/ST'] },
     { id: 'K', label: 'K', validPositions: ['K'] }
 ];
 
