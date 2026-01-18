@@ -126,9 +126,12 @@ export type NFLScoringRules = {
       }
     }
 
-    // Yards allowed tiers (cast to any since this column may need to be added to the database)
-    const yardsAllowed = (stats as any).yards_allowed as number | null | undefined;
-    if (yardsAllowed !== null && yardsAllowed !== undefined) {
+    // Yards allowed tiers (rushing + passing)
+    const rushingYardsAllowed = stats.rushing_yards_allowed ?? 0;
+    const passingYardsAllowed = stats.passing_yards_allowed ?? 0;
+    const yardsAllowed = rushingYardsAllowed + passingYardsAllowed;
+    // Only apply yards allowed scoring if at least one of the values exists in the data
+    if (stats.rushing_yards_allowed !== null || stats.passing_yards_allowed !== null) {
       if (yardsAllowed < 200 && defenseRules.yards_allowed_0_199) {
         points += defenseRules.yards_allowed_0_199;
       } else if (yardsAllowed <= 249 && defenseRules.yards_allowed_200_249) {
@@ -267,10 +270,24 @@ export type NFLScoringRules = {
     }
 
     // Defense/Special Teams - only apply to D/ST position players
+    // Aggregate all defensive stats first so tier-based scoring (points allowed, yards allowed)
+    // is calculated on totals per week, not per game entry
     if (rules.defense && position === 'D/ST') {
-      statsArray.forEach(stat => {
-        points += calculateDefensePoints(stat, rules.defense);
-      });
+      const aggregatedDefenseStats = statsArray.reduce((acc, stat) => ({
+        sacks: (acc.sacks || 0) + (stat.sacks || 0),
+        def_interceptions: (acc.def_interceptions || 0) + (stat.def_interceptions || 0),
+        fumbles_recovered: (acc.fumbles_recovered || 0) + (stat.fumbles_recovered || 0),
+        fumbles_forced: (acc.fumbles_forced || 0) + (stat.fumbles_forced || 0),
+        safeties: (acc.safeties || 0) + (stat.safeties || 0),
+        defensive_touchdowns: (acc.defensive_touchdowns || 0) + (stat.defensive_touchdowns || 0),
+        special_teams_touchdowns: (acc.special_teams_touchdowns || 0) + (stat.special_teams_touchdowns || 0),
+        blocked_kicks: (acc.blocked_kicks || 0) + (stat.blocked_kicks || 0),
+        points_allowed: (acc.points_allowed || 0) + (stat.points_allowed || 0),
+        rushing_yards_allowed: (acc.rushing_yards_allowed || 0) + (stat.rushing_yards_allowed || 0),
+        passing_yards_allowed: (acc.passing_yards_allowed || 0) + (stat.passing_yards_allowed || 0),
+      }), {} as GameStats);
+
+      points += calculateDefensePoints(aggregatedDefenseStats, rules.defense);
     }
 
     // Misc
@@ -376,6 +393,23 @@ export type NFLScoringRules = {
     league: League,
     position?: string
   ): number => {
+    // For NFL, pass all stats at once so aggregation (especially D/ST tier scoring) works correctly
+    if (league.league === 'NFL') {
+      const rules = league.scoring_rules as ScoringRules;
+      let scoringRules;
+      if (!rules || !rules.rules) {
+        if (league.default_scoring_rules) {
+          scoringRules = league.default_scoring_rules.rules;
+        } else {
+          return 0;
+        }
+      } else {
+        scoringRules = rules.rules;
+      }
+      return calculateNFLPoints(gameStats, scoringRules as NFLScoringRules, false, position);
+    }
+
+    // For other leagues, calculate per-stat
     return gameStats.reduce((total, stats) =>
       total + calculateFantasyPoints(stats, league, position), 0);
   };
@@ -385,6 +419,23 @@ export type NFLScoringRules = {
     league: League,
     position?: string
   ): number => {
+    // For NFL, pass all stats at once so aggregation (especially D/ST tier scoring) works correctly
+    if (league.league === 'NFL') {
+      const rules = league.scoring_rules as ScoringRules;
+      let scoringRules;
+      if (!rules || !rules.rules) {
+        if (league.default_scoring_rules) {
+          scoringRules = league.default_scoring_rules.rules;
+        } else {
+          return 0;
+        }
+      } else {
+        scoringRules = rules.rules;
+      }
+      return calculateNFLPoints(gameStats, scoringRules as NFLScoringRules, false, position);
+    }
+
+    // For other leagues, calculate per-stat
     return gameStats.reduce((total, stats) =>
       total + calculateFantasyPoints(stats, league, position), 0);
   };
