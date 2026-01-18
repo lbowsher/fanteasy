@@ -262,6 +262,51 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
     const getPlayerStatline = (stats: GameStats[] | undefined, position?: string) => {
         if (!stats || stats.length === 0) return 'No stats available';
 
+        // Kickers show field goal stats
+        if (position === 'K') {
+            const allFGMade: number[] = [];
+            const allFGMissed: number[] = [];
+            let extraPointsMade = 0;
+            let extraPointsAttempted = 0;
+
+            stats.forEach(stat => {
+                const statAny = stat as any;
+                if (statAny.field_goals_made_yards && Array.isArray(statAny.field_goals_made_yards)) {
+                    allFGMade.push(...statAny.field_goals_made_yards);
+                }
+                if (statAny.field_goals_missed_yards && Array.isArray(statAny.field_goals_missed_yards)) {
+                    allFGMissed.push(...statAny.field_goals_missed_yards);
+                }
+                extraPointsMade += stat.extra_points_made || 0;
+                extraPointsAttempted += stat.extra_points_attempted || 0;
+            });
+
+            const statParts = [];
+
+            // Field goals made with distances
+            if (allFGMade.length > 0) {
+                const fgMadeStr = allFGMade.map(y => `${y}`).join(', ');
+                statParts.push(`FG Made: ${fgMadeStr}`);
+            } else {
+                statParts.push('FG Made: None');
+            }
+
+            // Field goals missed with distances
+            if (allFGMissed.length > 0) {
+                const fgMissedStr = allFGMissed.map(y => `${y}`).join(', ');
+                statParts.push(`FG Missed: ${fgMissedStr}`);
+            }
+
+            // Extra points
+            const extraPointsMissed = extraPointsAttempted - extraPointsMade;
+            statParts.push(`XP: ${extraPointsMade}/${extraPointsAttempted}`);
+            if (extraPointsMissed > 0) {
+                statParts.push(`${extraPointsMissed} XP Missed`);
+            }
+
+            return statParts.join(' | ');
+        }
+
         // D/ST players show defensive stats
         if (position === 'D/ST') {
             const combinedStats = stats.reduce((acc, stat) => ({
@@ -304,7 +349,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
             receiving_yards: (acc.receiving_yards || 0) + (stat.receiving_yards || 0),
             receiving_tds: (acc.receiving_tds || 0) + (stat.receiving_tds || 0),
             receptions: (acc.receptions || 0) + (stat.receptions || 0),
-            fumbles: (acc.fumbles || 0) + (stat.fumbles || 0),
+            fumbles_lost: (acc.fumbles_lost || 0) + (stat.fumbles_lost || 0),
             two_point_conversions: (acc.two_point_conversions || 0) + (stat.two_point_conversions || 0)
         }), {} as GameStats);
 
@@ -318,8 +363,8 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         if (combinedStats.receiving_yards) {
             statlines.push(`${combinedStats.receptions || 0} REC, ${combinedStats.receiving_yards} REC YDS, ${combinedStats.receiving_tds || 0} TD`);
         }
-        if (combinedStats.fumbles) {
-            statlines.push(`${combinedStats.fumbles} FUM`);
+        if (combinedStats.fumbles_lost) {
+            statlines.push(`${combinedStats.fumbles_lost} FUM`);
         }
         if (combinedStats.two_point_conversions) {
             statlines.push(`${combinedStats.two_point_conversions} 2PT`);
