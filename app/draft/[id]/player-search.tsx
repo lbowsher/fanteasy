@@ -12,6 +12,8 @@ interface PlayerSearchProps {
     onSelectPlayer: (player: any) => void;
     onAddToQueue: (player: any) => Promise<void>; // Function to add player to queue
     isMyTurn: boolean;
+    isCommissioner?: boolean; // Commissioner can draft for any team
+    isDraftActive?: boolean; // Whether draft is in progress
     selectedPlayer: any | null;
     leagueType?: string; // 'NFL', 'NBA', 'NCAAM', etc.
 }
@@ -24,6 +26,8 @@ export default function PlayerSearch({
     onSelectPlayer,
     onAddToQueue,
     isMyTurn,
+    isCommissioner = false,
+    isDraftActive = false,
     selectedPlayer,
     leagueType = 'NFL' // Default to NFL if not provided
 }: PlayerSearchProps) {
@@ -173,7 +177,7 @@ export default function PlayerSearch({
                                                     Queue
                                                 </button>
                                                 
-                                                {isMyTurn && (
+                                                {(isMyTurn || (isCommissioner && isDraftActive)) && (
                                                     <button
                                                         className="px-2 py-1 bg-liquid-lava text-snow text-xs rounded"
                                                         onClick={() => {
