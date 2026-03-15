@@ -367,9 +367,11 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                                 </div>
                             </div>
 
-                            {isMyTurn && (
+                            {(isMyTurn || (isCommissioner && isDraftActive)) && (
                                 <div className="mt-4 pt-4 border-t border-slate-grey">
-                                    <p className="text-primary-text font-bold text-lg mb-2">It&apos;s Your Turn to Draft!</p>
+                                    <p className="text-primary-text font-bold text-lg mb-2">
+                                        {isMyTurn ? "It's Your Turn to Draft!" : "Commissioner Pick"}
+                                    </p>
 
                                     {pickError && (
                                         <p className="text-red-500 text-sm mb-2">{pickError}</p>
