@@ -123,6 +123,7 @@ export type Database = {
           league_id: string
           pick_order: Json | null
           time_per_pick: number
+          timer_started_at: string | null
           updated_at: string | null
         }
         Insert: {
@@ -138,6 +139,7 @@ export type Database = {
           league_id: string
           pick_order?: Json | null
           time_per_pick?: number
+          timer_started_at?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -153,6 +155,7 @@ export type Database = {
           league_id?: string
           pick_order?: Json | null
           time_per_pick?: number
+          timer_started_at?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -691,6 +694,19 @@ export type Database = {
           team_id: string
         }
         Returns: string
+      }
+      make_draft_pick: {
+        Args: {
+          p_draft_id: string
+          p_team_id: string
+          p_player_id: string
+          p_is_auto_pick?: boolean
+        }
+        Returns: Json
+      }
+      auto_pick_expired_drafts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       insert_default_scoring_rules: {
         Args: Record<PropertyKey, never>

@@ -21,13 +21,17 @@ Fanteasy is a fantasy sports league application supporting NFL, NBA, and NCAAM l
 - `app/` - Next.js App Router pages and components (colocated by feature)
 - `app/utils/supabase/` - Supabase client utilities (server.ts, client.ts, middleware.ts)
 - `app/utils/scoring.ts` - Fantasy points calculation for NFL/NBA
+- `app/global.d.ts` - Extended relationship types (TeamWithLeague, DraftPickWithDetails, etc.)
 - `lib/database.types.ts` - Auto-generated Supabase TypeScript types
 - `documentation/` - Feature and development docs
+- `scrapers/` - Python data scrapers for NFL, NBA, and NCAA
+- `migration2026/` - Data migration utilities
 
 ### Core Features
 - **Draft System** (`app/draft/[id]/`) - Real-time snake/linear draft with auto-pick, queue, timer
 - **League Management** (`app/league/[id]/`) - Teams, standings, scoring
-- **Authentication** (`app/login/`, `middleware.ts`) - Supabase Auth with Google OAuth and magic links
+- **Weekly Picks** (`app/league/[id]/`) - Playoff lineup selection with position slots, cross-week duplicate prevention, and lock management
+- **Authentication** (`app/login/`, `middleware.ts`) - Supabase Auth with Google OAuth, Google One-Tap, and magic links
 
 ### Database Tables
 Key tables: `leagues`, `teams`, `players`, `profiles`, `game_stats`, `draft_settings`, `draft_picks`, `draft_queue`, `weekly_picks`
@@ -50,6 +54,7 @@ Uses CSS custom properties with `data-theme` attribute on `<html>`:
 - Dark mode (default): `--background`, `--surface`, `--primary-text` etc.
 - Light mode: `html[data-theme="light"]` overrides
 - Theme state persisted in localStorage
+- Custom Tailwind colors defined in `tailwind.config.ts`: liquid-lava, dark-void, snow, dusty-grey, gluon-grey, slate-grey
 
 ## Environment Variables
 
@@ -62,4 +67,6 @@ Required in `.env.local`:
 Use `uv` to run Python scripts in the `scrapers/` directory:
 ```bash
 uv run python scrapers/nfl/nfl-playoffs-scraper.py
+uv run python scrapers/nba/add-new-players.py
+uv run python scrapers/ncaa/ncaa-update-scores.py
 ```
