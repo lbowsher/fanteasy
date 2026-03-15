@@ -12,16 +12,29 @@ import { useRouter } from 'next/navigation';
 import { Plus, Settings } from 'lucide-react';
 import LeagueSettingsModal from './league-settings-modal';
 
+interface TeamWithOwnerAndScores {
+    id: string;
+    name: string;
+    owner?: string | null;
+    totalScore: number;
+    weeklyScores: Record<number, number>;
+    team_players?: string[] | null;
+    league_id: string;
+    user_id?: string | null;
+    is_commish?: boolean | null;
+}
+
 interface LeagueHomeProps {
-    teams: TeamWithOwner[];
+    teams: TeamWithOwnerAndScores[];
     league_id: LeagueID;
     league: League;
     draftSettings: DraftSettings | null;
     isCommissioner: boolean;
+    weeks: number[];
 }
 
-export default function LeagueHome({ teams, league_id, league, draftSettings, isCommissioner }: LeagueHomeProps) {
-    const [sortedTeams, setSortedTeams] = useState<TeamWithOwner[]>([]);
+export default function LeagueHome({ teams, league_id, league, draftSettings, isCommissioner, weeks }: LeagueHomeProps) {
+    const [sortedTeams, setSortedTeams] = useState<TeamWithOwnerAndScores[]>([]);
     const [showAddTeam, setShowAddTeam] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [newTeamName, setNewTeamName] = useState('');
@@ -170,15 +183,24 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
 
             <DraftStatusPanel league_id={league_id} />
             
+            {weeks.length > 0 && (
+                <div className="flex justify-end items-center gap-4 px-6 py-2 text-sm text-secondary-text">
+                    {weeks.map(week => (
+                        <span key={week} className="w-16 text-center">Wk {week}</span>
+                    ))}
+                    <span className="w-20 text-center">Total</span>
+                </div>
+            )}
+
             <div className="space-y-1">
                 {sortedTeams.map(team => (
-                    <div 
-                        key={team.id} 
+                    <div
+                        key={team.id}
                         className="border border-border bg-surface hover:bg-opacity-80 transition-colors duration-200 rounded-lg px-6 py-6"
                     >
                         <div className="flex justify-between items-center">
                             <div className="space-y-2">
-                                <Link 
+                                <Link
                                     href={`${league_id}/team/${team.id}`}
                                     className="text-lg font-bold text-primary-text hover:text-liquid-lava transition-colors"
                                 >
@@ -188,7 +210,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                                     {team.owner || 'Unclaimed'}
                                 </p>
                             </div>
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center gap-4">
                                 {isCommissioner && !team.owner && (
                                     <button
                                         onClick={() => copyToClipboard(`${window.location.origin}/invite/team/${team.id}`)}
@@ -197,8 +219,12 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                                         Copy Team Invite
                                     </button>
                                 )}
-                                <span className="text-secondary-text mr-2">Total Score:</span>
-                                <span className="text-liquid-lava font-bold text-lg">
+                                {weeks.map(week => (
+                                    <span key={week} className="w-16 text-center text-secondary-text">
+                                        {Number(team.weeklyScores[week] || 0).toFixed(1)}
+                                    </span>
+                                ))}
+                                <span className="w-20 text-center text-liquid-lava font-bold text-lg">
                                     {Number(team.totalScore).toFixed(1)}
                                 </span>
                             </div>

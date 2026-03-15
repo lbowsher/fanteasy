@@ -69,79 +69,146 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
     const teamScores = await Promise.all(teamsData.map(async (team) => {
         // First, get all player IDs from the team roster
         const playerIds = team.team_players || [];
-        
+
         if (playerIds.length === 0 && leagueData.scoring_type !== 'NFL Playoff Pickem') {
             console.log('No players found for team:', team.name);
-            return { teamId: team.id, totalScore: 0 };
+            return { teamId: team.id, totalScore: 0, weeklyScores: {} as Record<number, number> };
         }
-        
+
         let allRelevantPlayerIds = [...playerIds];
         let gameStats = [];
-        
+
         // Handle different scoring types
+        let totalScore = 0;
+        const weeklyScores: Record<number, number> = {};
+
         if (leagueData.scoring_type === 'NFL Playoff Pickem') {
-            // For playoff pickem, we need to get the weekly picks
+            // For playoff pickem, we need to get the weekly picks WITH week_number
             const { data: weeklyPicks } = await supabase
                 .from('weekly_picks')
-                .select('player_id')
+                .select('player_id, week_number')
                 .eq('team_id', team.id);
-                
-            // Add weekly pick player IDs to the relevant players list
+
             if (weeklyPicks && weeklyPicks.length > 0) {
                 const weeklyPickPlayerIds = weeklyPicks.map(pick => pick.player_id).filter(Boolean);
-                allRelevantPlayerIds = [...allRelevantPlayerIds, ...weeklyPickPlayerIds];
+
+                // Get stats and positions for picked players
+                const [{ data: stats }, { data: players }] = await Promise.all([
+                    supabase
+                        .from('game_stats')
+                        .select('*')
+                        .in('player_id', weeklyPickPlayerIds),
+                    supabase
+                        .from('players')
+                        .select('id, position')
+                        .in('id', weeklyPickPlayerIds)
+                ]);
+
+                // Create position map
+                const playerPositions: Record<string, string> = {};
+                (players || []).forEach((p: { id: string; position: string }) => {
+                    playerPositions[p.id] = p.position;
+                });
+
+                // Group stats by week-player key
+                const statsByWeekPlayer: Record<string, GameStats[]> = {};
+                (stats || []).forEach((stat: GameStats) => {
+                    const key = `${stat.week_number}-${stat.player_id}`;
+                    if (!statsByWeekPlayer[key]) {
+                        statsByWeekPlayer[key] = [];
+                    }
+                    statsByWeekPlayer[key].push(stat);
+                });
+
+                // Calculate score for each weekly pick using only matching week's stats
+                // Also track scores by week
+                weeklyPicks.forEach(pick => {
+                    const key = `${pick.week_number}-${pick.player_id}`;
+                    const playerStats = statsByWeekPlayer[key] || [];
+                    const position = playerPositions[pick.player_id];
+                    const playerScore = calculatePlayerScore(playerStats, leagueData, position);
+
+                    // Add to weekly total
+                    if (!weeklyScores[pick.week_number]) {
+                        weeklyScores[pick.week_number] = 0;
+                    }
+                    weeklyScores[pick.week_number] += playerScore;
+                    totalScore += playerScore;
+                });
+            }
+        } else {
+            // Non-pickem scoring: get game stats and player positions for all relevant players
+            if (allRelevantPlayerIds.length > 0) {
+                const [{ data: stats }, { data: players }] = await Promise.all([
+                    supabase
+                        .from('game_stats')
+                        .select('*')
+                        .in('player_id', allRelevantPlayerIds),
+                    supabase
+                        .from('players')
+                        .select('id, position')
+                        .in('id', allRelevantPlayerIds)
+                ]);
+
+                gameStats = stats || [];
+
+                // Create a map of player_id to position
+                const playerPositions: Record<string, string> = {};
+                (players || []).forEach((p: { id: string; position: string }) => {
+                    playerPositions[p.id] = p.position;
+                });
+
+                // Group stats by player_id and week_number
+                const statsByPlayerAndWeek: Record<string, Record<number, GameStats[]>> = {};
+                gameStats.forEach((stat: GameStats) => {
+                    if (!statsByPlayerAndWeek[stat.player_id]) {
+                        statsByPlayerAndWeek[stat.player_id] = {};
+                    }
+                    if (!statsByPlayerAndWeek[stat.player_id][stat.week_number]) {
+                        statsByPlayerAndWeek[stat.player_id][stat.week_number] = [];
+                    }
+                    statsByPlayerAndWeek[stat.player_id][stat.week_number].push(stat);
+                });
+
+                // Calculate weekly and total scores
+                Object.entries(statsByPlayerAndWeek).forEach(([playerId, weekStats]) => {
+                    const position = playerPositions[playerId];
+                    Object.entries(weekStats).forEach(([weekNum, stats]) => {
+                        const weekNumber = parseInt(weekNum);
+                        const weekScore = calculatePlayerScore(stats, leagueData, position);
+                        if (!weeklyScores[weekNumber]) {
+                            weeklyScores[weekNumber] = 0;
+                        }
+                        weeklyScores[weekNumber] += weekScore;
+                        totalScore += weekScore;
+                    });
+                });
             }
         }
-        
-        // Get game stats and player positions for all relevant players
-        let totalScore = 0;
-        if (allRelevantPlayerIds.length > 0) {
-            const [{ data: stats }, { data: players }] = await Promise.all([
-                supabase
-                    .from('game_stats')
-                    .select('*')
-                    .in('player_id', allRelevantPlayerIds),
-                supabase
-                    .from('players')
-                    .select('id, position')
-                    .in('id', allRelevantPlayerIds)
-            ]);
 
-            gameStats = stats || [];
-
-            // Create a map of player_id to position
-            const playerPositions: Record<string, string> = {};
-            (players || []).forEach((p: { id: string; position: string }) => {
-                playerPositions[p.id] = p.position;
-            });
-
-            // Group stats by player_id and calculate score for each player with their position
-            const statsByPlayer: Record<string, typeof gameStats> = {};
-            gameStats.forEach((stat: GameStats) => {
-                if (!statsByPlayer[stat.player_id]) {
-                    statsByPlayer[stat.player_id] = [];
-                }
-                statsByPlayer[stat.player_id].push(stat);
-            });
-
-            // Calculate total score with proper position handling
-            totalScore = Object.entries(statsByPlayer).reduce((total, [playerId, playerStats]) => {
-                const position = playerPositions[playerId];
-                return total + calculatePlayerScore(playerStats, leagueData, position);
-            }, 0);
-        }
-        
-        return { 
-            teamId: team.id, 
-            totalScore 
+        return {
+            teamId: team.id,
+            totalScore,
+            weeklyScores
         };
     }));
 
-    const teams = teamsData.map(team => ({
-        ...team,
-        owner: team.profiles?.full_name,
-        totalScore: teamScores.find(score => score.teamId === team.id)?.totalScore || 0
-    }));
+    // Collect all weeks that have scores across all teams
+    const allWeeks = new Set<number>();
+    teamScores.forEach(ts => {
+        Object.keys(ts.weeklyScores).forEach(week => allWeeks.add(parseInt(week)));
+    });
+    const sortedWeeks = Array.from(allWeeks).sort((a, b) => a - b);
+
+    const teams = teamsData.map(team => {
+        const scoreData = teamScores.find(score => score.teamId === team.id);
+        return {
+            ...team,
+            owner: team.profiles?.full_name,
+            totalScore: scoreData?.totalScore || 0,
+            weeklyScores: scoreData?.weeklyScores || {}
+        };
+    });
 
     const isCommissioner = user.id === leagueData.commish;
 
@@ -172,6 +239,7 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
                             league={leagueData}
                             draftSettings={draftSettingsData}
                             isCommissioner={isCommissioner}
+                            weeks={sortedWeeks}
                         />
                     </div>
                 </main>
