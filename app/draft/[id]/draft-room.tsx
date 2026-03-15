@@ -490,6 +490,8 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                                 }
                             }}
                             isMyTurn={isMyTurn}
+                            isCommissioner={isCommissioner}
+                            isDraftActive={isDraftActive}
                             selectedPlayer={selectedPlayer}
                             leagueType={draftSettings.leagues.league}
                         />
