@@ -27,6 +27,15 @@ export async function makePick(draftId: string, playerId: string): Promise<Actio
         return { success: false, error: 'Draft not found' };
     }
 
+    // Check if user is commissioner
+    const { data: league } = await supabase
+        .from('leagues')
+        .select('commish')
+        .eq('id', draft.league_id)
+        .single();
+
+    const isCommissioner = league?.commish === user.id;
+
     // Get user's team in this league
     const { data: team, error: teamError } = await supabase
         .from('teams')
@@ -35,59 +44,44 @@ export async function makePick(draftId: string, playerId: string): Promise<Actio
         .eq('user_id', user.id)
         .single();
 
-    if (teamError || !team) {
-        // Check if user is commissioner (can pick for current team)
-        const { data: league } = await supabase
-            .from('leagues')
-            .select('commish')
-            .eq('id', draft.league_id)
-            .single();
-
-        if (!league || league.commish !== user.id) {
-            return { success: false, error: 'No team found in this league' };
-        }
-
-        // Commissioner picks on behalf of the current team
-        const pickOrder = (draft.pick_order as any)?.order || [];
-        const totalTeams = pickOrder.length;
-        if (totalTeams === 0) {
-            return { success: false, error: 'Invalid pick order' };
-        }
-
+    // Calculate current team from pick order
+    const pickOrder = (draft.pick_order as any)?.order || [];
+    const totalTeams = pickOrder.length;
+    
+    let currentTeamId: string | null = null;
+    if (totalTeams > 0) {
         const currentIndex = ((draft.current_pick! - 1) % totalTeams);
         const isSnake = draft.draft_type === 'snake';
         const isEvenRound = draft.current_round! % 2 === 0;
 
-        let currentTeamId: string;
         if (isSnake && isEvenRound) {
             currentTeamId = pickOrder[totalTeams - 1 - currentIndex];
         } else {
             currentTeamId = pickOrder[currentIndex];
         }
-
-        const { data: result, error: rpcError } = await supabase.rpc('make_draft_pick', {
-            p_draft_id: draftId,
-            p_team_id: currentTeamId,
-            p_player_id: playerId,
-            p_is_auto_pick: false,
-        });
-
-        if (rpcError) {
-            return { success: false, error: rpcError.message };
-        }
-
-        const rpcResult = result as any;
-        if (!rpcResult?.success) {
-            return { success: false, error: rpcResult?.error || 'Pick failed' };
-        }
-
-        return { success: true, data: rpcResult };
     }
 
-    // Regular user making a pick
+    // Determine which team to pick for
+    let pickingTeamId: string;
+    
+    if (team && team.id === currentTeamId) {
+        // It's the user's turn - pick for their own team
+        pickingTeamId = team.id;
+    } else if (isCommissioner && currentTeamId) {
+        // Commissioner picking for the current team (not their turn)
+        pickingTeamId = currentTeamId;
+    } else if (!team && isCommissioner && currentTeamId) {
+        // Commissioner with no team - pick for current team
+        pickingTeamId = currentTeamId;
+    } else if (!team) {
+        return { success: false, error: 'No team found in this league' };
+    } else {
+        return { success: false, error: 'Not your turn to pick' };
+    }
+
     const { data: result, error: rpcError } = await supabase.rpc('make_draft_pick', {
         p_draft_id: draftId,
-        p_team_id: team.id,
+        p_team_id: pickingTeamId,
         p_player_id: playerId,
         p_is_auto_pick: false,
     });
