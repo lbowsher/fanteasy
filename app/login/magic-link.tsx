@@ -3,6 +3,9 @@
 import { useState, FormEvent } from "react";
 import { createClient } from "../utils/supabase/client";
 import "../utils/supabase/debug"; // Load debug utility
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Email validation regex
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -40,11 +43,11 @@ export default function MagicLink({ redirectPath }: { redirectPath?: string }) {
   const handleMagicLinkSignIn = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     if (!email || loading) return;
-    
+
     if (!validateEmail(email)) {
       return;
     }
-    
+
     setLoading(true);
     setMessage("");
     // Construct the redirect URL (adjust if needed)
@@ -65,7 +68,7 @@ export default function MagicLink({ redirectPath }: { redirectPath?: string }) {
         name: error.name,
         fullError: error,
       });
-      
+
       // Provide helpful debugging info for API key errors
       if (error.message.includes("Invalid API key") || error.message.includes("API key")) {
         console.error("API Key Debug Info:", {
@@ -97,16 +100,18 @@ export default function MagicLink({ redirectPath }: { redirectPath?: string }) {
     <form onSubmit={handleMagicLinkSignIn} className="w-full space-y-4">
       <div className="flex flex-col space-y-2">
         <div className="relative">
-          <input
+          <Label htmlFor="magic-link-email" className="sr-only">Email</Label>
+          <Input
+            id="magic-link-email"
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={handleEmailChange}
             onBlur={() => email && validateEmail(email)}
             disabled={loading}
-            className={`w-full px-4 py-3 rounded-lg border ${
-              validationError ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-accent'
-            } bg-surface text-primary-text placeholder-secondary-text focus:outline-none focus:ring-2 transition-all duration-200`}
+            className={`h-12 px-4 ${
+              validationError ? 'border-red-500 focus-visible:ring-red-500' : ''
+            }`}
             required
             pattern={EMAIL_REGEX.source}
           />
@@ -121,13 +126,14 @@ export default function MagicLink({ redirectPath }: { redirectPath?: string }) {
             {validationError}
           </p>
         )}
-        <button
+        <Button
           type="submit"
           disabled={loading || !email || !!validationError}
-          className="w-full px-4 py-3 rounded-lg bg-accent text-snow font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
+          loading={loading}
+          className="h-12"
         >
           {loading ? "Sending..." : "Send Magic Link"}
-        </button>
+        </Button>
       </div>
       {message && (
         <p className={`text-sm ${message.includes("Error") ? "text-red-500" : "text-green-500"} text-center animate-fadeIn`}>

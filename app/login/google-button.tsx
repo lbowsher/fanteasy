@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "../utils/supabase/client";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export default function GoogleButton({ redirectPath }: { redirectPath?: string }) {
   const [loading, setLoading] = useState(false);
@@ -24,10 +25,11 @@ export default function GoogleButton({ redirectPath }: { redirectPath?: string }
   };
 
   return (
-    <button
+    <Button
+      variant="outline"
       onClick={handleGoogleSignIn}
       disabled={loading}
-      className="w-full flex items-center justify-center px-4 py-3 rounded-lg border border-border hover:bg-surface/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      className="w-full h-auto py-3 px-4"
     >
       <div className="relative w-full max-w-[280px] h-[52px]">
         <Image
@@ -39,8 +41,8 @@ export default function GoogleButton({ redirectPath }: { redirectPath?: string }
         />
       </div>
       {loading && (
-        <span className="ml-2 text-primary-text">Signing in...</span>
+        <span className="ml-2 text-foreground">Signing in...</span>
       )}
-    </button>
+    </Button>
   );
 }

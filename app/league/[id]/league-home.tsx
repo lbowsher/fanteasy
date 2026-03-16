@@ -11,6 +11,17 @@ import DraftStatusPanel from './draft-status-panel';
 import { useRouter } from 'next/navigation';
 import { Plus, Settings } from 'lucide-react';
 import LeagueSettingsModal from './league-settings-modal';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 interface TeamWithOwnerAndScores {
     id: string;
@@ -90,88 +101,91 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
     return (
         <div className="space-y-4">
             {isCommissioner && (
-                <div className="mb-6 p-4 bg-surface rounded-lg border border-border">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-primary-text">Commissioner Controls</h3>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setShowSettings(true)}
-                                className="px-4 py-2 bg-surface border border-border text-primary-text rounded-lg hover:bg-background transition-colors flex items-center gap-2"
-                                title="League Settings"
-                            >
-                                <Settings size={18} />
-                                Settings
-                            </button>
-                            <button
-                                onClick={() => setShowAddTeam(true)}
-                                className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2"
-                            >
-                                <Plus size={18} />
-                                Add Team
-                            </button>
-                            <button
-                                onClick={() => copyToClipboard(`${window.location.origin}/invite/league/${league_id}`)}
-                                className="px-4 py-2 bg-liquid-lava text-snow rounded-lg hover:opacity-80 transition-opacity"
-                            >
-                                Copy League Invite Link
-                            </button>
+                <Card className="mb-6">
+                    <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-foreground">Commissioner Controls</h3>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowSettings(true)}
+                                >
+                                    <Settings size={18} />
+                                    Settings
+                                </Button>
+                                <Button
+                                    onClick={() => setShowAddTeam(true)}
+                                >
+                                    <Plus size={18} />
+                                    Add Team
+                                </Button>
+                                <Button
+                                    onClick={() => copyToClipboard(`${window.location.origin}/invite/league/${league_id}`)}
+                                >
+                                    Copy League Invite Link
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             )}
 
-            {showAddTeam && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-surface border border-border rounded-lg p-6 max-w-sm mx-4 w-full">
-                        <h3 className="text-lg font-bold text-primary-text mb-4">Add New Team</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label htmlFor="newTeamName" className="block text-sm text-secondary-text mb-1">
-                                    Team Name
-                                </label>
-                                <input
-                                    id="newTeamName"
-                                    type="text"
-                                    value={newTeamName}
-                                    onChange={(e) => setNewTeamName(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleAddTeam();
-                                        if (e.key === 'Escape') setShowAddTeam(false);
-                                    }}
-                                    placeholder="Enter team name"
-                                    className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
-                                    autoFocus
-                                />
-                            </div>
-                            {addTeamError && (
-                                <div className="text-red-500 text-sm p-2 bg-red-100/10 rounded">
-                                    {addTeamError}
-                                </div>
-                            )}
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    onClick={() => {
-                                        setShowAddTeam(false);
-                                        setNewTeamName('');
-                                        setAddTeamError(null);
-                                    }}
-                                    className="px-4 py-2 text-secondary-text hover:text-primary-text transition-colors"
-                                    disabled={isAddingTeam}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleAddTeam}
-                                    disabled={isAddingTeam}
-                                    className="px-4 py-2 bg-accent text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                                >
-                                    {isAddingTeam ? 'Adding...' : 'Add Team'}
-                                </button>
-                            </div>
+            <Dialog open={showAddTeam} onOpenChange={(open) => {
+                setShowAddTeam(open);
+                if (!open) {
+                    setNewTeamName('');
+                    setAddTeamError(null);
+                }
+            }}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Add New Team</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="newTeamName" className="text-muted-foreground mb-1">
+                                Team Name
+                            </Label>
+                            <Input
+                                id="newTeamName"
+                                type="text"
+                                value={newTeamName}
+                                onChange={(e) => setNewTeamName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleAddTeam();
+                                }}
+                                placeholder="Enter team name"
+                                autoFocus
+                            />
                         </div>
+                        {addTeamError && (
+                            <div className="text-red-500 text-sm p-2 bg-red-100/10 rounded">
+                                {addTeamError}
+                            </div>
+                        )}
                     </div>
-                </div>
-            )}
+                    <DialogFooter>
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setShowAddTeam(false);
+                                setNewTeamName('');
+                                setAddTeamError(null);
+                            }}
+                            disabled={isAddingTeam}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleAddTeam}
+                            disabled={isAddingTeam}
+                            loading={isAddingTeam}
+                        >
+                            {isAddingTeam ? 'Adding...' : 'Add Team'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {showSettings && (
                 <LeagueSettingsModal
@@ -182,9 +196,9 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
             )}
 
             <DraftStatusPanel league_id={league_id} />
-            
+
             {weeks.length > 0 && (
-                <div className="flex justify-end items-center gap-4 px-6 py-2 text-sm text-secondary-text">
+                <div className="flex justify-end items-center gap-4 px-6 py-2 text-sm text-muted-foreground">
                     {weeks.map(week => (
                         <span key={week} className="w-16 text-center">Wk {week}</span>
                     ))}
@@ -196,31 +210,31 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                 {sortedTeams.map(team => (
                     <div
                         key={team.id}
-                        className="border border-border bg-surface hover:bg-opacity-80 transition-colors duration-200 rounded-lg px-6 py-6"
+                        className="border border-border bg-card hover:bg-opacity-80 transition-colors duration-200 rounded-lg px-6 py-6"
                     >
                         <div className="flex justify-between items-center">
                             <div className="space-y-2">
                                 <Link
                                     href={`${league_id}/team/${team.id}`}
-                                    className="text-lg font-bold text-primary-text hover:text-liquid-lava transition-colors"
+                                    className="text-lg font-bold text-foreground hover:text-liquid-lava transition-colors"
                                 >
                                     {team.name}
                                 </Link>
-                                <p className="text-secondary-text text-sm">
+                                <p className="text-muted-foreground text-sm">
                                     {team.owner || 'Unclaimed'}
                                 </p>
                             </div>
                             <div className="flex items-center gap-4">
                                 {isCommissioner && !team.owner && (
-                                    <button
+                                    <Button
+                                        size="sm"
                                         onClick={() => copyToClipboard(`${window.location.origin}/invite/team/${team.id}`)}
-                                        className="px-3 py-1 text-sm bg-liquid-lava text-snow rounded-lg hover:opacity-80 transition-opacity"
                                     >
                                         Copy Team Invite
-                                    </button>
+                                    </Button>
                                 )}
                                 {weeks.map(week => (
-                                    <span key={week} className="w-16 text-center text-secondary-text">
+                                    <span key={week} className="w-16 text-center text-muted-foreground">
                                         {Number(team.weeklyScores[week] || 0).toFixed(1)}
                                     </span>
                                 ))}
@@ -235,37 +249,3 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
         </div>
     );
 }
-// export default function LeagueHome({ teams, league_id, league }: LeagueHomeProps) {
-//     const sortedTeams = teams.sort((a, b) => b.totalScore - a.totalScore);
-
-//     return (
-//         <div className="space-y-1">
-//             {sortedTeams.map(team => (
-//                 <div 
-//                     key={team.id} 
-//                     className="border border-slate-grey bg-surface hover:bg-gluon-grey transition-colors duration-200 rounded-lg px-6 py-6"
-//                 >
-//                     <div className="flex justify-between items-center">
-//                         <div className="space-y-2">
-//                             <Link 
-//                                 href={`${league_id}/team/${team.id}`}
-//                                 className="text-lg font-bold text-primary-text hover:text-liquid-lava transition-colors"
-//                             >
-//                                 {team.name}
-//                             </Link>
-//                             <p className="text-dusty-grey text-sm">
-//                                 {team.owner || 'Unclaimed'}
-//                             </p>
-//                         </div>
-//                         <div className="flex items-center">
-//                             <span className="text-secondary-text mr-2">Total Score:</span>
-//                             <span className="text-liquid-lava font-bold text-lg">
-//                                 {Number(team.totalScore).toFixed(1)}
-//                             </span>
-//                         </div>
-//                     </div>
-//                 </div>
-//             ))}
-//         </div>
-//     );
-// }

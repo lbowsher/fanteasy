@@ -5,6 +5,9 @@ import { createClient } from "../../../utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Database } from "@/lib/database.types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Team = Database['public']['Tables']['teams']['Row'];
 
@@ -55,14 +58,14 @@ export default function AddToTeam({user, teams}: { user: User, teams: Team[]}) {
         <div className="w-full max-w-md p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="TeamSelect" className="block text-sm text-secondary-text mb-1">
+                    <Label htmlFor="TeamSelect" className="text-muted-foreground mb-1">
                         Select a team:
-                    </label>
+                    </Label>
                     <select
                         id="TeamSelect"
                         value={selectedTeamId}
                         onChange={(e) => setSelectedTeamId(e.target.value)}
-                        className="w-full bg-surface text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
+                        className="w-full bg-card text-foreground border border-input rounded-md px-4 py-2 focus:border-accent focus:outline-none transition-colors"
                     >
                         {teams.map((team) => (
                             <option key={team.id} value={team.id}>
@@ -73,15 +76,14 @@ export default function AddToTeam({user, teams}: { user: User, teams: Team[]}) {
                 </div>
 
                 <div>
-                    <label htmlFor="TeamName" className="block text-sm text-secondary-text mb-1">
+                    <Label htmlFor="TeamName" className="text-muted-foreground mb-1">
                         Customize your team name (optional):
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                         id="TeamName"
                         name="TeamName"
                         type="text"
                         placeholder={selectedTeam?.name || ''}
-                        className="w-full bg-surface text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
                     />
                 </div>
 
@@ -91,13 +93,14 @@ export default function AddToTeam({user, teams}: { user: User, teams: Team[]}) {
                     </div>
                 )}
 
-                <button
+                <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-accent text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                    loading={isSubmitting}
+                    className="w-full h-12 font-bold"
                 >
                     {isSubmitting ? "Joining..." : "Join Team"}
-                </button>
+                </Button>
             </form>
         </div>
     );
