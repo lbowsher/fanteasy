@@ -135,6 +135,11 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                     .eq('league', draftSettings.leagues.league)
                     .order('name');
 
+                // For NCAAM, only show players from the 2026 season
+                if (draftSettings.leagues.league === 'NCAAM') {
+                    playersQuery = playersQuery.eq('season', '2026');
+                }
+
                 if (draftedIds.length > 0) {
                     playersQuery = playersQuery.not('id', 'in', `(${draftedIds.join(',')})`);
                 }
