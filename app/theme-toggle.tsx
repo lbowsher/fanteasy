@@ -1,44 +1,100 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+
+const THEMES = [
+  { id: 'dark', label: 'Dark', icon: '🌑', description: 'Default dark' },
+  { id: 'light', label: 'Light', icon: '☀️', description: 'Clean light' },
+  { id: 'midnight', label: 'Midnight', icon: '🌌', description: 'Deep navy' },
+  { id: 'forest', label: 'Forest', icon: '🌲', description: 'Rich greens' },
+  { id: 'crimson', label: 'Crimson', icon: '🔴', description: 'Bold reds' },
+  { id: 'sunset', label: 'Sunset', icon: '🌅', description: 'Warm amber' },
+  { id: 'arctic', label: 'Arctic', icon: '❄️', description: 'Icy blues' },
+] as const
+
+type ThemeId = (typeof THEMES)[number]['id']
+
+function applyTheme(themeId: ThemeId) {
+  if (themeId === 'dark') {
+    // Dark is the :root default — remove attribute to use it
+    document.documentElement.removeAttribute('data-theme')
+  } else {
+    document.documentElement.dataset.theme = themeId
+  }
+}
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState<ThemeId>('dark')
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // On mount, read the theme from localStorage or use system preference
-    const savedTheme = localStorage.getItem('theme')
-    const systemTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-    setTheme(savedTheme || systemTheme)
-    
-    // Apply the theme immediately
-    document.documentElement.dataset.theme = savedTheme || systemTheme
+    const saved = localStorage.getItem('theme') as ThemeId | null
+    if (saved && THEMES.some(t => t.id === saved)) {
+      setTheme(saved)
+      applyTheme(saved)
+    } else {
+      const systemLight = window.matchMedia('(prefers-color-scheme: light)').matches
+      const initial = systemLight ? 'light' : 'dark'
+      setTheme(initial)
+      applyTheme(initial)
+    }
   }, [])
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-    document.documentElement.dataset.theme = newTheme
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const selectTheme = (id: ThemeId) => {
+    setTheme(id)
+    localStorage.setItem('theme', id)
+    applyTheme(id)
+    setOpen(false)
   }
 
+  const current = THEMES.find(t => t.id === theme)!
+
   return (
-    <button 
-      onClick={toggleTheme}
-      className="text-xs flex items-center gap-1 px-3 py-1 rounded border border-border hover:bg-surface transition-colors"
-      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-    >
-      {theme === 'dark' ? (
-        <span className="flex items-center gap-1">
-          <span className="text-yellow-400">☀️</span> 
-          <span>Light</span>
-        </span>
-      ) : (
-        <span className="flex items-center gap-1">
-          <span className="text-indigo-400">🌙</span> 
-          <span>Dark</span>
-        </span>
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="text-xs flex items-center gap-1 px-3 py-1 rounded border border-border hover:bg-card transition-colors"
+        aria-label="Change theme"
+        aria-expanded={open}
+      >
+        <span>{current.icon}</span>
+        <span>{current.label}</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-1 w-44 rounded-md border border-border bg-popover text-popover-foreground shadow-md z-50 py-1 animate-fadeIn">
+          {THEMES.map(t => (
+            <button
+              key={t.id}
+              onClick={() => selectTheme(t.id)}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors hover:bg-muted ${
+                theme === t.id ? 'bg-muted font-medium' : ''
+              }`}
+            >
+              <span className="w-5 text-center">{t.icon}</span>
+              <div className="text-left">
+                <div>{t.label}</div>
+                <div className="text-muted-foreground text-[10px]">{t.description}</div>
+              </div>
+              {theme === t.id && (
+                <span className="ml-auto text-primary">&#10003;</span>
+              )}
+            </button>
+          ))}
+        </div>
       )}
-    </button>
+    </div>
   )
 }

@@ -86,6 +86,181 @@
     --secondary-text: #444444;
   }
 
+  /* Midnight — deep navy blue */
+  html[data-theme="midnight"] {
+    --background: 222 47% 8%;           /* #0B1120 */
+    --foreground: 210 40% 96%;          /* #EFF3FA */
+
+    --card: 222 40% 12%;               /* #121D33 */
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 40% 12%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 210 100% 56%;           /* #2089FF electric blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 222 30% 16%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 210 100% 56%;            /* electric blue */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 25% 18%;
+    --input: 222 25% 18%;
+    --ring: 210 100% 56%;
+
+    --surface: #121D33;
+    --primary-text: #EFF3FA;
+    --secondary-text: #7B8FAD;
+  }
+
+  /* Forest — rich dark greens */
+  html[data-theme="forest"] {
+    --background: 150 20% 7%;           /* #0E1A14 */
+    --foreground: 120 15% 93%;          /* #E8EDE9 */
+
+    --card: 150 15% 11%;               /* #162220 */
+    --card-foreground: 120 15% 93%;
+
+    --popover: 150 15% 11%;
+    --popover-foreground: 120 15% 93%;
+
+    --primary: 142 70% 45%;            /* #22A559 emerald */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 150 12% 15%;
+    --secondary-foreground: 120 15% 93%;
+
+    --muted: 150 12% 15%;
+    --muted-foreground: 140 10% 50%;
+
+    --accent: 142 70% 45%;             /* emerald */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 12% 18%;
+    --input: 150 12% 18%;
+    --ring: 142 70% 45%;
+
+    --surface: #162220;
+    --primary-text: #E8EDE9;
+    --secondary-text: #6E8B7B;
+  }
+
+  /* Crimson — deep reds, bold sports energy */
+  html[data-theme="crimson"] {
+    --background: 0 20% 8%;             /* #1A0F0F */
+    --foreground: 0 10% 95%;            /* #F2EEEE */
+
+    --card: 0 15% 12%;                 /* #221818 */
+    --card-foreground: 0 10% 95%;
+
+    --popover: 0 15% 12%;
+    --popover-foreground: 0 10% 95%;
+
+    --primary: 0 85% 55%;              /* #E62222 vivid red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 10% 16%;
+    --secondary-foreground: 0 10% 95%;
+
+    --muted: 0 10% 16%;
+    --muted-foreground: 0 8% 52%;
+
+    --accent: 0 85% 55%;               /* vivid red */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 30 90% 55%;         /* orange for destructive since primary is already red */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 10% 18%;
+    --input: 0 10% 18%;
+    --ring: 0 85% 55%;
+
+    --surface: #221818;
+    --primary-text: #F2EEEE;
+    --secondary-text: #8B6E6E;
+  }
+
+  /* Sunset — warm amber and purple tones */
+  html[data-theme="sunset"] {
+    --background: 270 25% 8%;           /* #150E1C */
+    --foreground: 40 30% 95%;           /* #F5F0E6 */
+
+    --card: 270 20% 12%;               /* #1E1528 */
+    --card-foreground: 40 30% 95%;
+
+    --popover: 270 20% 12%;
+    --popover-foreground: 40 30% 95%;
+
+    --primary: 32 95% 55%;             /* #F0921A warm amber */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 15% 16%;
+    --secondary-foreground: 40 30% 95%;
+
+    --muted: 270 15% 16%;
+    --muted-foreground: 280 12% 52%;
+
+    --accent: 32 95% 55%;              /* warm amber */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 270 15% 19%;
+    --input: 270 15% 19%;
+    --ring: 32 95% 55%;
+
+    --surface: #1E1528;
+    --primary-text: #F5F0E6;
+    --secondary-text: #8B7A9B;
+  }
+
+  /* Arctic — icy light blues, clean */
+  html[data-theme="arctic"] {
+    --background: 205 30% 96%;          /* #F0F5FA */
+    --foreground: 210 30% 12%;          /* #17232E */
+
+    --card: 205 30% 100%;              /* white */
+    --card-foreground: 210 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 30% 12%;
+
+    --primary: 200 90% 45%;            /* #0E8ACF sky blue */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 205 20% 92%;
+    --secondary-foreground: 210 30% 12%;
+
+    --muted: 205 20% 92%;
+    --muted-foreground: 210 15% 40%;
+
+    --accent: 200 90% 45%;             /* sky blue */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 205 20% 85%;
+    --input: 205 20% 85%;
+    --ring: 200 90% 45%;
+
+    --surface: #FFFFFF;
+    --primary-text: #17232E;
+    --secondary-text: #55687A;
+  }
+
   /* System preference light mode */
   @media (prefers-color-scheme: light) {
     html:not([data-theme]) {
