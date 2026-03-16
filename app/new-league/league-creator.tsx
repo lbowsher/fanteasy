@@ -2,11 +2,14 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { addLeague } from './league-action';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LeagueCreator() {
     const [draftEnabled, setDraftEnabled] = useState(true);
-    
-    return ( 
+
+    return (
         <div className="w-full max-w-xl mx-auto">
             <div className="flex justify-between px-4 py-6 border-slate-grey border border-t-0">
                 <Link className="text-xl font-bold hover:text-liquid-lava transition-colors" href={'/'}>
@@ -17,74 +20,74 @@ export default function LeagueCreator() {
                 <form className="flex-wrap border-slate-grey border border-t-0 p-6" action={addLeague}>
                     <fieldset className="flex flex-col space-y-4">
                         <legend className="text-2xl font-bold mb-6">Create a New League</legend>
-                        
+
                         <div className="space-y-2">
-                            <input 
-                                name="LeagueName" 
-                                className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 text-xl placeholder-dusty-grey focus:border-liquid-lava focus:outline-none transition-colors" 
-                                placeholder="League Name" 
+                            <Input
+                                name="LeagueName"
+                                className="h-12 text-xl"
+                                placeholder="League Name"
                                 required
                             />
                         </div>
-    
+
                         <div className="space-y-2">
-                            <label htmlFor="NumTeams" className="block text-secondary-text">
+                            <Label htmlFor="NumTeams" className="text-muted-foreground">
                                 Number of teams
-                            </label>
+                            </Label>
                             <div className="relative">
-                                <select 
+                                <select
                                     id="NumTeams"
-                                    name="NumTeams" 
-                                    className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                    name="NumTeams"
+                                    className="w-full bg-card text-foreground border border-input rounded-md px-4 py-2 appearance-none focus:border-accent focus:outline-none transition-colors cursor-pointer"
                                 >
                                     {Array.from({length: 24}, (_, i) => i + 2).map((number) => (
                                         <option key={number} value={number}>{number}</option>
                                     ))}
                                 </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
                                     <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                                     </svg>
                                 </div>
                             </div>
                         </div>
-    
+
                         <div className="space-y-2">
-                            <label htmlFor="SportsLeague" className="block text-secondary-text">
+                            <Label htmlFor="SportsLeague" className="text-muted-foreground">
                                 Sports League
-                            </label>
+                            </Label>
                             <div className="relative">
-                                <select 
+                                <select
                                     id="SportsLeague"
-                                    name="SportsLeague" 
-                                    className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                    name="SportsLeague"
+                                    className="w-full bg-card text-foreground border border-input rounded-md px-4 py-2 appearance-none focus:border-accent focus:outline-none transition-colors cursor-pointer"
                                 >
                                     <option value="NFL">NFL</option>
                                     <option value="NBA">NBA</option>
                                     <option value="NCAAM">NCAAM</option>
                                 </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
                                     <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                                     </svg>
                                 </div>
                             </div>
                         </div>
-    
+
                         <div className="space-y-2">
-                            <label htmlFor="ScoringType" className="block text-secondary-text">
+                            <Label htmlFor="ScoringType" className="text-muted-foreground">
                                 Scoring Type
-                            </label>
+                            </Label>
                             <div className="relative">
-                                <select 
+                                <select
                                     id="ScoringType"
-                                    name="ScoringType" 
-                                    className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                    name="ScoringType"
+                                    className="w-full bg-card text-foreground border border-input rounded-md px-4 py-2 appearance-none focus:border-accent focus:outline-none transition-colors cursor-pointer"
                                 >
                                     <option value="NFL Playoff Pickem">NFL Playoff Pickem</option>
                                     <option value="Best Ball Tournament">BestBall</option>
                                 </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
                                     <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                                     </svg>
@@ -95,98 +98,96 @@ export default function LeagueCreator() {
                         {/* Draft Settings */}
                         <div className="mt-8 border-t border-slate-grey pt-6">
                             <div className="flex items-center space-x-2 mb-4">
-                                <input 
-                                    type="checkbox" 
-                                    id="EnableDraft" 
+                                <input
+                                    type="checkbox"
+                                    id="EnableDraft"
                                     checked={draftEnabled}
                                     onChange={(e) => setDraftEnabled(e.target.checked)}
                                     className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
                                 />
-                                <label htmlFor="EnableDraft" className="text-lg font-semibold text-primary-text">
+                                <Label htmlFor="EnableDraft" className="text-lg font-semibold">
                                     Enable Draft
-                                </label>
+                                </Label>
                             </div>
-                            
+
                             {/* Always send the current draft enabled state */}
-                            <input 
-                                type="hidden" 
-                                name="EnableDraft" 
-                                value={draftEnabled ? "true" : "false"} 
+                            <input
+                                type="hidden"
+                                name="EnableDraft"
+                                value={draftEnabled ? "true" : "false"}
                             />
 
                             {draftEnabled && (
                                 <div className="space-y-4">
-                                    
+
                                     <div className="space-y-2">
-                                        <label htmlFor="DraftType" className="block text-secondary-text">
+                                        <Label htmlFor="DraftType" className="text-muted-foreground">
                                             Draft Type
-                                        </label>
+                                        </Label>
                                         <div className="relative">
-                                            <select 
+                                            <select
                                                 id="DraftType"
-                                                name="DraftType" 
-                                                className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 appearance-none focus:border-liquid-lava focus:outline-none transition-colors cursor-pointer"
+                                                name="DraftType"
+                                                className="w-full bg-card text-foreground border border-input rounded-md px-4 py-2 appearance-none focus:border-accent focus:outline-none transition-colors cursor-pointer"
                                             >
                                                 <option value="snake">Snake Draft</option>
                                                 <option value="linear">Linear Draft</option>
                                             </select>
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
                                                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                                                 </svg>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="space-y-2">
-                                        <label htmlFor="DraftDate" className="block text-secondary-text">
+                                        <Label htmlFor="DraftDate" className="text-muted-foreground">
                                             Draft Date (optional)
-                                        </label>
-                                        <input 
-                                            type="datetime-local" 
-                                            name="DraftDate" 
+                                        </Label>
+                                        <Input
+                                            type="datetime-local"
+                                            name="DraftDate"
                                             id="DraftDate"
-                                            className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
                                         />
                                     </div>
-                                    
+
                                     <div className="space-y-2">
-                                        <label htmlFor="TimePerPick" className="block text-secondary-text">
+                                        <Label htmlFor="TimePerPick" className="text-muted-foreground">
                                             Time Per Pick (seconds)
-                                        </label>
-                                        <input 
-                                            type="number" 
-                                            name="TimePerPick" 
+                                        </Label>
+                                        <Input
+                                            type="number"
+                                            name="TimePerPick"
                                             id="TimePerPick"
                                             defaultValue="60"
-                                            min="10" 
-                                            max="600" 
-                                            className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
+                                            min="10"
+                                            max="600"
                                         />
                                     </div>
-                                    
+
                                     <div className="flex items-center space-x-2 mt-2">
-                                        <input 
-                                            type="checkbox" 
-                                            id="AutoPickEnabled" 
-                                            name="AutoPickEnabled" 
+                                        <input
+                                            type="checkbox"
+                                            id="AutoPickEnabled"
+                                            name="AutoPickEnabled"
                                             defaultChecked={true}
                                             className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
                                         />
-                                        <label htmlFor="AutoPickEnabled" className="text-secondary-text">
+                                        <Label htmlFor="AutoPickEnabled" className="text-muted-foreground">
                                             Enable Auto-Pick when time expires
-                                        </label>
+                                        </Label>
                                     </div>
                                 </div>
                             )}
                         </div>
-    
-                        <button 
-                            type="submit" 
-                            className="w-full bg-liquid-lava text-snow font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity mt-6"
+
+                        <Button
+                            type="submit"
+                            className="w-full h-12 font-bold mt-6"
                         >
                             Create League
-                        </button>
+                        </Button>
                     </fieldset>
                 </form>
             </div>

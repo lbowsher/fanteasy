@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { Progress } from "@/components/ui/progress";
 
 interface DraftTimerProps {
     timePerPick: number;
@@ -56,33 +57,35 @@ export default function DraftTimer({ timePerPick, timerStartedAt, isMyTurn, isPa
     const percentage = (timeLeft / timePerPick) * 100;
 
     // Determine color based on time left
-    let timerColor = 'bg-green-500';
+    let indicatorColor = 'bg-green-500';
     if (timeLeft < timePerPick * 0.3) {
-        timerColor = 'bg-red-500';
+        indicatorColor = 'bg-red-500';
     } else if (timeLeft < timePerPick * 0.6) {
-        timerColor = 'bg-yellow-500';
+        indicatorColor = 'bg-yellow-500';
+    }
+    if (isPaused) {
+        indicatorColor = 'bg-yellow-500';
     }
 
     return (
         <div className="w-32">
             <div className="flex justify-between mb-1">
-                <span className="text-secondary-text text-sm">
+                <span className="text-muted-foreground text-sm">
                     {isPaused ? "PAUSED" : "Time Left:"}
                 </span>
                 <span className={`text-sm font-bold ${
                     isPaused ? 'text-yellow-500' :
-                    timeLeft < timePerPick * 0.3 ? 'text-red-500' : 'text-primary-text'
+                    timeLeft < timePerPick * 0.3 ? 'text-red-500' : 'text-foreground'
                 }`}>
                     {isPaused ? "\u23F8\uFE0F" : `${timeLeft}s`}
                 </span>
             </div>
 
-            <div className="w-full bg-slate-grey rounded-full h-2.5">
-                <div
-                    className={`h-2.5 rounded-full ${isPaused ? 'bg-yellow-500' : timerColor} transition-all duration-1000 ease-linear`}
-                    style={{ width: isPaused ? '100%' : `${percentage}%` }}
-                ></div>
-            </div>
+            <Progress
+                value={isPaused ? 100 : percentage}
+                className="h-2.5"
+                indicatorClassName={`${indicatorColor} transition-all duration-1000 ease-linear`}
+            />
         </div>
     );
 }

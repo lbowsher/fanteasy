@@ -3,6 +3,16 @@ import { useState, useOptimistic, startTransition, useEffect } from 'react';
 import { createClient } from "../../../../utils/supabase/client";
 import { Edit2, Check, X, LogOut, Trash2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 type TeamHeaderProps = {
     team: TeamWithRelations;
@@ -26,7 +36,7 @@ export default function TeamHeader({ team, isAuthorized, isOwner, isCommissioner
         (state, newName) => ({ ...state, ...newName })
     );
     const [editingName, setEditingName] = useState(team.name);
-    
+
     // Reset editing name when team prop changes
     useEffect(() => {
         setEditingName(team.name);
@@ -118,123 +128,137 @@ export default function TeamHeader({ team, isAuthorized, isOwner, isCommissioner
         <div className="flex items-center justify-between">
             {isEditing ? (
                 <div className="flex items-center space-x-2">
-                    <input
+                    <Input
                         type="text"
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="bg-background border border-border rounded px-2 py-1"
                         autoFocus
                     />
-                    <button 
-                        onClick={handleSave} 
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleSave}
                         className="text-green-500"
                         aria-label="Save team name"
                     >
                         <Check size={20} />
-                    </button>
-                    <button 
-                        onClick={handleCancel} 
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCancel}
                         className="text-red-500"
                         aria-label="Cancel editing"
                     >
                         <X size={20} />
-                    </button>
+                    </Button>
                 </div>
             ) : (
                 <div className="flex items-center space-x-2">
-                    <h1 className="text-2xl font-bold text-primary-text">{optimisticTeam.name}</h1>
+                    <h1 className="text-2xl font-bold text-foreground">{optimisticTeam.name}</h1>
                     {isAuthorized && (
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setIsEditing(true)}
                             className="text-accent"
                             aria-label="Edit team name"
                         >
                             <Edit2 size={16} />
-                        </button>
+                        </Button>
                     )}
                     {isOwner && (
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setShowLeaveConfirm(true)}
-                            className="text-red-500 hover:text-red-400 transition-colors"
+                            className="text-red-500 hover:text-red-400"
                             aria-label="Leave team"
                         >
                             <LogOut size={16} />
-                        </button>
+                        </Button>
                     )}
                     {isCommissioner && (
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setShowDeleteConfirm(true)}
-                            className="text-red-500 hover:text-red-400 transition-colors"
+                            className="text-red-500 hover:text-red-400"
                             aria-label="Delete team"
                         >
                             <Trash2 size={16} />
-                        </button>
+                        </Button>
                     )}
                 </div>
             )}
 
-            {showLeaveConfirm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-surface border border-border rounded-lg p-6 max-w-sm mx-4">
-                        <h3 className="text-lg font-bold text-primary-text mb-2">Leave Team?</h3>
-                        <p className="text-secondary-text mb-4">
+            <Dialog open={showLeaveConfirm} onOpenChange={setShowLeaveConfirm}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Leave Team?</DialogTitle>
+                        <DialogDescription>
                             Are you sure you want to leave {team.name}? The team will become available for others to claim.
-                        </p>
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={() => setShowLeaveConfirm(false)}
-                                className="px-4 py-2 text-secondary-text hover:text-primary-text transition-colors"
-                                disabled={isLeaving}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleLeaveTeam}
-                                disabled={isLeaving}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
-                            >
-                                {isLeaving ? 'Leaving...' : 'Leave Team'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="ghost"
+                            onClick={() => setShowLeaveConfirm(false)}
+                            disabled={isLeaving}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleLeaveTeam}
+                            disabled={isLeaving}
+                            loading={isLeaving}
+                        >
+                            {isLeaving ? 'Leaving...' : 'Leave Team'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-            {showDeleteConfirm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-surface border border-border rounded-lg p-6 max-w-sm mx-4">
-                        <h3 className="text-lg font-bold text-primary-text mb-2">Delete Team?</h3>
-                        <p className="text-secondary-text mb-4">
+            <Dialog open={showDeleteConfirm} onOpenChange={(open) => {
+                setShowDeleteConfirm(open);
+                if (!open) setDeleteError(null);
+            }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Team?</DialogTitle>
+                        <DialogDescription>
                             Are you sure you want to permanently delete {team.name}? This action cannot be undone.
-                        </p>
-                        {deleteError && (
-                            <div className="text-red-500 text-sm p-2 bg-red-100/10 rounded mb-4">
-                                {deleteError}
-                            </div>
-                        )}
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={() => {
-                                    setShowDeleteConfirm(false);
-                                    setDeleteError(null);
-                                }}
-                                className="px-4 py-2 text-secondary-text hover:text-primary-text transition-colors"
-                                disabled={isDeleting}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleDeleteTeam}
-                                disabled={isDeleting}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
-                            >
-                                {isDeleting ? 'Deleting...' : 'Delete Team'}
-                            </button>
+                        </DialogDescription>
+                    </DialogHeader>
+                    {deleteError && (
+                        <div className="text-red-500 text-sm p-2 bg-red-100/10 rounded">
+                            {deleteError}
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
+                    <DialogFooter>
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setShowDeleteConfirm(false);
+                                setDeleteError(null);
+                            }}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteTeam}
+                            disabled={isDeleting}
+                            loading={isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Delete Team'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

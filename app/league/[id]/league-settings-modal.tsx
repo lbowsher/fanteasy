@@ -1,9 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { X, ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { updateLeagueSettings } from './league-settings-action';
 import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 interface LeagueSettingsModalProps {
     league: League;
@@ -106,25 +117,25 @@ function ScoringCategoryEditor({
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="w-full flex items-center justify-between px-4 py-3 bg-background hover:bg-background/80 transition-colors"
             >
-                <span className="font-medium text-primary-text">
+                <span className="font-medium text-foreground">
                     {CATEGORY_LABELS[category] || category}
                 </span>
                 {isExpanded ? (
-                    <ChevronDown size={20} className="text-secondary-text" />
+                    <ChevronDown size={20} className="text-muted-foreground" />
                 ) : (
-                    <ChevronRight size={20} className="text-secondary-text" />
+                    <ChevronRight size={20} className="text-muted-foreground" />
                 )}
             </button>
             {isExpanded && (
-                <div className="p-4 space-y-3 bg-surface">
+                <div className="p-4 space-y-3 bg-card">
                     {Object.entries(rules).map(([key, value]) => {
                         const isMaxDistanceField = key === 'missed_field_goal_max_distance';
                         return (
                             <div key={key} className="flex items-center justify-between gap-4">
-                                <label className="text-sm text-secondary-text flex-1">
+                                <Label className="text-muted-foreground flex-1 font-normal">
                                     {FIELD_LABELS[key] || key.replace(/_/g, ' ')}
-                                </label>
-                                <input
+                                </Label>
+                                <Input
                                     type="number"
                                     step={isMaxDistanceField ? "1" : "0.01"}
                                     value={value === null ? '' : value}
@@ -137,7 +148,7 @@ function ScoringCategoryEditor({
                                             onChange(key, parseFloat(e.target.value) || 0);
                                         }
                                     }}
-                                    className="w-24 bg-background text-primary-text border border-border rounded px-3 py-1 text-right focus:border-accent focus:outline-none transition-colors"
+                                    className="w-24 text-right"
                                 />
                             </div>
                         );
@@ -218,43 +229,32 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
     const categoryOrder = ['passing', 'rushing', 'receiving', 'kicking', 'defense', 'misc'];
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-surface border border-border rounded-lg p-6 max-w-2xl mx-4 w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-primary-text">League Settings</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-secondary-text hover:text-primary-text transition-colors"
-                    >
-                        <X size={24} />
-                    </button>
-                </div>
+        <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>League Settings</DialogTitle>
+                </DialogHeader>
 
                 <div className="space-y-6">
                     {/* League Name */}
-                    <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-secondary-text mb-1">
-                            League Name
-                        </label>
-                        <input
+                    <div className="space-y-2">
+                        <Label htmlFor="name">League Name</Label>
+                        <Input
                             id="name"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
                         />
                     </div>
 
                     {/* Scoring Type */}
-                    <div>
-                        <label htmlFor="scoringType" className="block text-sm font-medium text-secondary-text mb-1">
-                            Scoring Type
-                        </label>
+                    <div className="space-y-2">
+                        <Label htmlFor="scoringType">Scoring Type</Label>
                         <select
                             id="scoringType"
                             value={scoringType}
                             onChange={(e) => setScoringType(e.target.value)}
-                            className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
+                            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                             <option value="NFL Playoff Pickem">NFL Playoff Pickem</option>
                             <option value="BestBall">BestBall</option>
@@ -262,17 +262,14 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                     </div>
 
                     {/* Number of Weeks */}
-                    <div>
-                        <label htmlFor="numWeeks" className="block text-sm font-medium text-secondary-text mb-1">
-                            Number of Weeks
-                        </label>
-                        <input
+                    <div className="space-y-2">
+                        <Label htmlFor="numWeeks">Number of Weeks</Label>
+                        <Input
                             id="numWeeks"
                             type="number"
                             value={numWeeks}
                             onChange={(e) => setNumWeeks(parseInt(e.target.value) || 1)}
                             min={1}
-                            className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
                         />
                     </div>
 
@@ -285,14 +282,15 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                             onChange={(e) => setCustomScoringEnabled(e.target.checked)}
                             className="w-4 h-4 rounded border-border text-accent focus:ring-accent"
                         />
-                        <label htmlFor="customScoring" className="text-sm font-medium text-secondary-text">
+                        <Label htmlFor="customScoring" className="font-normal text-muted-foreground">
                             Enable Custom Scoring Rules
-                        </label>
+                        </Label>
                     </div>
 
                     {/* Scoring Rules Editor */}
-                    <div className="border-t border-border pt-6">
-                        <h3 className="text-lg font-semibold text-primary-text mb-4">Scoring Rules</h3>
+                    <Separator />
+                    <div>
+                        <h3 className="text-lg font-semibold text-foreground mb-4">Scoring Rules</h3>
                         <div className="space-y-2">
                             {categoryOrder.map((category) => {
                                 const storedRules = scoringRules.rules[category as keyof typeof scoringRules.rules];
@@ -315,20 +313,19 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                     {/* Draft Settings Section */}
                     {draftSettings && (
                         <>
-                            <div className="border-t border-border pt-6">
-                                <h3 className="text-lg font-semibold text-primary-text mb-4">Draft Settings</h3>
+                            <Separator />
+                            <div>
+                                <h3 className="text-lg font-semibold text-foreground mb-4">Draft Settings</h3>
                             </div>
 
                             {/* Draft Type */}
-                            <div>
-                                <label htmlFor="draftType" className="block text-sm font-medium text-secondary-text mb-1">
-                                    Draft Type
-                                </label>
+                            <div className="space-y-2">
+                                <Label htmlFor="draftType">Draft Type</Label>
                                 <select
                                     id="draftType"
                                     value={draftType}
                                     onChange={(e) => setDraftType(e.target.value)}
-                                    className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
+                                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 >
                                     <option value="snake">Snake</option>
                                     <option value="linear">Linear</option>
@@ -336,34 +333,28 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                             </div>
 
                             {/* Draft Date */}
-                            <div>
-                                <label htmlFor="draftDate" className="block text-sm font-medium text-secondary-text mb-1">
-                                    Draft Date
-                                </label>
-                                <input
+                            <div className="space-y-2">
+                                <Label htmlFor="draftDate">Draft Date</Label>
+                                <Input
                                     id="draftDate"
                                     type="datetime-local"
                                     value={draftDate}
                                     onChange={(e) => setDraftDate(e.target.value)}
-                                    className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
                                 />
                             </div>
 
                             {/* Time Per Pick */}
-                            <div>
-                                <label htmlFor="timePerPick" className="block text-sm font-medium text-secondary-text mb-1">
-                                    Time Per Pick (seconds)
-                                </label>
-                                <input
+                            <div className="space-y-2">
+                                <Label htmlFor="timePerPick">Time Per Pick (seconds)</Label>
+                                <Input
                                     id="timePerPick"
                                     type="number"
                                     value={timePerPick}
                                     onChange={(e) => setTimePerPick(Math.min(600, Math.max(10, parseInt(e.target.value) || 60)))}
                                     min={10}
                                     max={600}
-                                    className="w-full bg-background text-primary-text border border-border rounded-lg px-4 py-2 focus:border-accent focus:outline-none transition-colors"
                                 />
-                                <p className="text-xs text-secondary-text mt-1">Between 10 and 600 seconds</p>
+                                <p className="text-xs text-muted-foreground">Between 10 and 600 seconds</p>
                             </div>
 
                             {/* Auto-Pick Enabled */}
@@ -375,9 +366,9 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                                     onChange={(e) => setAutoPickEnabled(e.target.checked)}
                                     className="w-4 h-4 rounded border-border text-accent focus:ring-accent"
                                 />
-                                <label htmlFor="autoPick" className="text-sm font-medium text-secondary-text">
+                                <Label htmlFor="autoPick" className="font-normal text-muted-foreground">
                                     Auto-Pick When Time Expires
-                                </label>
+                                </Label>
                             </div>
                         </>
                     )}
@@ -387,26 +378,25 @@ export default function LeagueSettingsModal({ league, draftSettings, onClose }: 
                             {error}
                         </div>
                     )}
-
-                    {/* Actions */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                        <button
-                            onClick={onClose}
-                            disabled={isSaving}
-                            className="px-4 py-2 text-secondary-text hover:text-primary-text transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className="px-4 py-2 bg-liquid-lava text-snow rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                        >
-                            {isSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
                 </div>
-            </div>
-        </div>
+
+                <DialogFooter>
+                    <Button
+                        variant="ghost"
+                        onClick={onClose}
+                        disabled={isSaving}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        loading={isSaving}
+                    >
+                        {isSaving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

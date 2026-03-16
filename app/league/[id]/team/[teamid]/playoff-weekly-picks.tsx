@@ -6,6 +6,10 @@ import { Edit2, Check, X, Search } from "lucide-react";
 import { calculateNFLPoints } from '../../../../utils/scoring';
 import { debounce, groupBy } from 'lodash';
 import Image from 'next/image';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type WeeklyPicksProps = {
     teamData: TeamData;
@@ -27,13 +31,13 @@ const LINEUP_SLOTS = [
     { id: 'K', label: 'K', validPositions: ['K'] }
 ];
 
-function PlayerSearch({ 
-    slot, 
-    validPositions, 
-    onSelect, 
+function PlayerSearch({
+    slot,
+    validPositions,
+    onSelect,
     availablePlayers,
-    selectedPlayer 
-}: { 
+    selectedPlayer
+}: {
     slot: typeof LINEUP_SLOTS[0];
     validPositions: string[];
     onSelect: (player: Player) => void;
@@ -75,22 +79,19 @@ function PlayerSearch({
     return (
         <div className="relative">
             <div className="flex items-center space-x-2 mb-2">
-                <input
+                <Input
                     type="text"
                     value={searchQuery}
                     onChange={handleSearch}
                     placeholder={`Search ${slot.label} by name or team...`}
-                    className="w-full p-2 bg-background border border-border rounded-lg
-                             text-primary-text placeholder:text-secondary-text
-                             focus:outline-none focus:border-accent"
                 />
-                <Search className="text-secondary-text" size={20} />
+                <Search className="text-muted-foreground" size={20} />
             </div>
 
             {selectedPlayer && !isSearching && (
                 <div className="p-3 bg-accent/10 rounded-lg border border-accent">
                     <div className="flex items-center space-x-3">
-                        <Image 
+                        <Image
                             src={selectedPlayer.pic_url || '/default-player.png'}
                             alt={selectedPlayer.name}
                             width={40}
@@ -105,7 +106,7 @@ function PlayerSearch({
             )}
 
             {isSearching && searchResults.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-surface border border-border rounded-lg shadow-lg">
+                <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg">
                     {searchResults.map(player => (
                         <button
                             key={player.id}
@@ -115,10 +116,10 @@ function PlayerSearch({
                                 setIsSearching(false);
                                 setSearchResults([]);
                             }}
-                            className="w-full p-2 text-left hover:bg-accent/20 
-                                     transition-colors text-primary-text flex items-center space-x-3"
+                            className="w-full p-2 text-left hover:bg-accent/20
+                                     transition-colors text-foreground flex items-center space-x-3"
                         >
-                            <Image 
+                            <Image
                                 src={player.pic_url || '/default-player.png'}
                                 alt={player.name}
                                 width={32}
@@ -165,7 +166,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
     useEffect(() => {
         const fetchWeeklyData = async () => {
             const playerIds = teamData.weeklyPicks.map(pick => pick.player_id);
-            
+
             const { data: stats } = await supabase
                 .from('game_stats')
                 .select('*')
@@ -174,31 +175,31 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
             if (stats) {
                 const statsByWeek = groupBy(stats, 'week_number');
                 const statsMap: {[key: string]: GameStats[]} = {};
-                
+
                 Object.entries(statsByWeek).forEach(([week, weekStats]) => {
                     weekStats.forEach(stat => {
-                        statsMap[`${week}-${stat.player_id}`] = statsMap[`${week}-${stat.player_id}`] 
+                        statsMap[`${week}-${stat.player_id}`] = statsMap[`${week}-${stat.player_id}`]
                             ? [...statsMap[`${week}-${stat.player_id}`], stat]
                             : [stat];
                     });
                 });
-                
+
                 setWeeklyStats(statsMap);
 
                 const scores: {[key: number]: number} = {};
                 for (let week = 1; week <= numWeeks; week++) {
                     const weekPicks = teamData.weeklyPicks.filter(pick => pick.week_number === week);
                     let weekScore = 0;
-                    
+
                     weekPicks.forEach(pick => {
                         const playerStats = statsMap[`${week}-${pick.player_id}`];
                         if (playerStats && teamData.team.leagues) {
                             weekScore += calculateNFLPoints(playerStats, teamData.team.leagues.scoring_rules.rules, false, pick.player?.position);
                         }
-                    });                    
+                    });
                     scores[week] = weekScore;
                 }
-                
+
                 setWeeklyScores(scores);
                 setTotalScore(Object.values(scores).reduce((sum, score) => sum + score, 0));
             }
@@ -209,7 +210,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
 
     const handleEditWeek = (week: number) => {
         setEditingWeek(week);
-        
+
         // Pre-populate selected picks
         const weekPicks = teamData.weeklyPicks.filter(p => p.week_number === week);
         const picksMap: {[key: string]: Player | null} = {};
@@ -226,7 +227,7 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         if (!slot?.validPositions.includes(player.position)) {
             return;
         }
-        
+
         setSelectedPicks(prev => ({
             ...prev,
             [slotId]: player
@@ -247,9 +248,9 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
         const picksToInsert = LINEUP_SLOTS.map(slot => ({
             team_id: teamData.team.id,
             player_id: selectedPicks[slot.id]?.id ?? '',
-            week_number: editingWeek as number, // we know it's not null here
+            week_number: editingWeek as number,
             slot_position: slot.id
-        })).filter(pick => pick.player_id !== ''); // remove empty picks
+        })).filter(pick => pick.player_id !== '');
 
         await supabase
             .from('weekly_picks')
@@ -283,7 +284,6 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
 
             const statParts = [];
 
-            // Field goals made with distances
             if (allFGMade.length > 0) {
                 const fgMadeStr = allFGMade.map(y => `${y}`).join(', ');
                 statParts.push(`FG Made: ${fgMadeStr}`);
@@ -291,13 +291,11 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
                 statParts.push('FG Made: None');
             }
 
-            // Field goals missed with distances
             if (allFGMissed.length > 0) {
                 const fgMissedStr = allFGMissed.map(y => `${y}`).join(', ');
                 statParts.push(`FG Missed: ${fgMissedStr}`);
             }
 
-            // Extra points
             const extraPointsMissed = extraPointsAttempted - extraPointsMade;
             statParts.push(`XP: ${extraPointsMade}/${extraPointsAttempted}`);
             if (extraPointsMissed > 0) {
@@ -324,11 +322,9 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
             }), {} as GameStats);
 
             const statParts = [];
-            // Always show PA and YA (combined rushing + passing)
             statParts.push(`${combinedStats.points_allowed ?? 0} Pts Allowed`);
             const totalYardsAllowed = (combinedStats.rushing_yards_allowed || 0) + (combinedStats.passing_yards_allowed || 0);
             statParts.push(`${totalYardsAllowed} Yds Allowed`);
-            // Only show other stats if non-zero
             if (combinedStats.sacks) statParts.push(`${combinedStats.sacks} Sack${combinedStats.sacks !== 1 ? 's' : ''}`);
             if (combinedStats.def_interceptions) statParts.push(`${combinedStats.def_interceptions} INT`);
             if (combinedStats.fumbles_recovered) statParts.push(`${combinedStats.fumbles_recovered} Fum Rec`);
@@ -375,129 +371,139 @@ export default function PlayoffWeeklyPicks({ teamData, currentWeek, numWeeks, is
     };
 
     return (
-        (<div className="w-full bg-surface rounded-lg border border-border">
-            <div className="p-6 border-b border-border">
-                <h2 className="text-2xl font-bold text-primary-text">Weekly Picks</h2>
+        <Card>
+            <CardHeader className="border-b border-border">
+                <h2 className="text-2xl font-bold text-foreground">Weekly Picks</h2>
                 <div className="mt-4 text-xl font-semibold text-accent">
                     Total Season Score: {totalScore.toFixed(1)}
                 </div>
-            </div>
-            <div className="p-6">
-                <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
+            </CardHeader>
+            <CardContent className="p-6">
+                <Tabs value={String(selectedWeek)} onValueChange={(v) => setSelectedWeek(Number(v))}>
+                    <TabsList className="mb-6 overflow-x-auto w-full justify-start">
+                        {Array.from({ length: numWeeks }, (_, i) => i + 1).map(week => (
+                            <TabsTrigger key={week} value={String(week)}>
+                                Week {week}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+
                     {Array.from({ length: numWeeks }, (_, i) => i + 1).map(week => (
-                        <button
-                            key={week}
-                            onClick={() => setSelectedWeek(week)}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors
-                                ${selectedWeek === week 
-                                    ? 'bg-accent text-white' 
-                                    : 'bg-surface text-secondary-text hover:bg-accent/20'}`}
-                        >
-                            Week {week}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="bg-surface rounded-lg border border-border">
-                    <div className="p-4 border-b border-border bg-background">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-primary-text">
-                                Week {selectedWeek} Details
-                            </h3>
-                            <div className="flex space-x-4 items-center">
-                                <span className="text-accent font-semibold">
-                                    Week Score: {weeklyScores[selectedWeek]?.toFixed(1) || 0}
-                                </span>
-                                {isAuthorized && (  // Only show edit button if authorized
-                                    (editingWeek === selectedWeek ? (<div className="flex space-x-2">
-                                        <button
-                                            onClick={submitPicks}
-                                            className="flex items-center text-green-500 hover:opacity-80"
-                                        >
-                                            <Check size={16} className="mr-1" />
-                                            Save
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setEditingWeek(null);
-                                                setSelectedPicks({});
-                                            }}
-                                            className="flex items-center text-red-500 hover:opacity-80"
-                                        >
-                                            <X size={16} className="mr-1" />
-                                            Cancel
-                                        </button>
-                                    </div>) : (<button
-                                        onClick={() => handleEditWeek(selectedWeek)}
-                                        className="flex items-center text-accent hover:opacity-80"
-                                    >
-                                        <Edit2 size={16} className="mr-1" />Edit
-                                                                                </button>))
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="divide-y divide-border">
-                        {LINEUP_SLOTS.map(slot => {
-                            const pick = teamData.weeklyPicks.find(
-                                p => p.week_number === selectedWeek && p.slot_position === slot.id
-                            );
-                            const stats = pick ? weeklyStats[`${selectedWeek}-${pick.player_id}`] : undefined;
-                            const playerScore = stats && teamData.team.leagues
-                                ? calculateNFLPoints(stats, teamData.team.leagues.scoring_rules.rules, false, pick?.player?.position)
-                                : 0;
-
-                            return (
-                                <div key={slot.id} className="p-4">
-                                    {editingWeek === selectedWeek ? (
-                                        <div>
-                                            <h4 className="font-medium text-primary-text mb-2">{slot.label}</h4>
-                                            <PlayerSearch
-                                                slot={slot}
-                                                validPositions={slot.validPositions}
-                                                onSelect={(player) => handlePlayerSelect(slot.id, player)}
-                                                availablePlayers={availablePlayers}
-                                                selectedPlayer={selectedPicks[slot.id]}
-                                            />
+                        <TabsContent key={week} value={String(week)}>
+                            <Card>
+                                <div className="p-4 border-b border-border bg-background rounded-t-lg">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="text-lg font-semibold text-foreground">
+                                            Week {week} Details
+                                        </h3>
+                                        <div className="flex space-x-4 items-center">
+                                            <span className="text-accent font-semibold">
+                                                Week Score: {weeklyScores[week]?.toFixed(1) || 0}
+                                            </span>
+                                            {isAuthorized && (
+                                                editingWeek === week ? (
+                                                    <div className="flex space-x-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={submitPicks}
+                                                            className="text-green-500"
+                                                        >
+                                                            <Check size={16} className="mr-1" />
+                                                            Save
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                setEditingWeek(null);
+                                                                setSelectedPicks({});
+                                                            }}
+                                                            className="text-red-500"
+                                                        >
+                                                            <X size={16} className="mr-1" />
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleEditWeek(week)}
+                                                        className="text-accent"
+                                                    >
+                                                        <Edit2 size={16} className="mr-1" />
+                                                        Edit
+                                                    </Button>
+                                                )
+                                            )}
                                         </div>
-                                    ) : (
-                                        <>
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="font-medium text-primary-text">{slot.label}</span>
-                                                <span className="text-accent font-medium">
-                                                    {playerScore.toFixed(1)} pts
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center space-x-3 mb-2">
-                                                {pick?.player && (
-                                                    <Image 
-                                                        src={pick.player.pic_url || '/default-player.png'} 
-                                                        alt={pick.player.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className="w-10 h-10 rounded-full object-cover"
-                                                    />
-                                                )}
-                                                <div>
-                                                    <div className="text-secondary-text">
-                                                        {pick?.player 
-                                                            ? `${pick.player.name} (${pick.player.team_name})`
-                                                            : 'Not selected'}
-                                                    </div>
-                                                    <div className="text-sm text-secondary-text">
-                                                        {getPlayerStatline(stats, pick?.player?.position)}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
+                                    </div>
                                 </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            </div>
-        </div>)
+
+                                <div className="divide-y divide-border">
+                                    {LINEUP_SLOTS.map(slot => {
+                                        const pick = teamData.weeklyPicks.find(
+                                            p => p.week_number === week && p.slot_position === slot.id
+                                        );
+                                        const stats = pick ? weeklyStats[`${week}-${pick.player_id}`] : undefined;
+                                        const playerScore = stats && teamData.team.leagues
+                                            ? calculateNFLPoints(stats, teamData.team.leagues.scoring_rules.rules, false, pick?.player?.position)
+                                            : 0;
+
+                                        return (
+                                            <div key={slot.id} className="p-4">
+                                                {editingWeek === week ? (
+                                                    <div>
+                                                        <h4 className="font-medium text-foreground mb-2">{slot.label}</h4>
+                                                        <PlayerSearch
+                                                            slot={slot}
+                                                            validPositions={slot.validPositions}
+                                                            onSelect={(player) => handlePlayerSelect(slot.id, player)}
+                                                            availablePlayers={availablePlayers}
+                                                            selectedPlayer={selectedPicks[slot.id]}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <span className="font-medium text-foreground">{slot.label}</span>
+                                                            <span className="text-accent font-medium">
+                                                                {playerScore.toFixed(1)} pts
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center space-x-3 mb-2">
+                                                            {pick?.player && (
+                                                                <Image
+                                                                    src={pick.player.pic_url || '/default-player.png'}
+                                                                    alt={pick.player.name}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="w-10 h-10 rounded-full object-cover"
+                                                                />
+                                                            )}
+                                                            <div>
+                                                                <div className="text-muted-foreground">
+                                                                    {pick?.player
+                                                                        ? `${pick.player.name} (${pick.player.team_name})`
+                                                                        : 'Not selected'}
+                                                                </div>
+                                                                <div className="text-sm text-muted-foreground">
+                                                                    {getPlayerStatline(stats, pick?.player?.position)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </Card>
+                        </TabsContent>
+                    ))}
+                </Tabs>
+            </CardContent>
+        </Card>
     );
 }
