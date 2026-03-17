@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { getPositionColor, getPositionTextColor, getTeamIdForPick } from './utils';
+import { getPositionColor, getPositionTextColor, getPositionBorderColor, getTeamIdForPick } from './utils';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface DraftBoardGridProps {
@@ -115,6 +115,7 @@ export default function DraftBoardGrid({
                                                                 ? 'bg-transparent'
                                                                 : 'bg-muted/30'
                                                 }`}
+                                                style={pick ? { borderLeftWidth: '3px', borderLeftColor: getPositionBorderColor(pick.player?.position, leagueType) } : undefined}
                                             >
                                                 {pick ? (
                                                     <div className="flex flex-col items-center py-1">
