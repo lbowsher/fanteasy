@@ -1,16 +1,15 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import Image from 'next/image';
 import { createClient } from '@/app/utils/supabase/client';
 import DraftQueue from './draft-queue';
-import DraftHistory from './draft-history';
 import PlayerSearch from './player-search';
-import DraftTimer from './draft-timer';
-import TeamPicker from './team-picker';
+import PicksCarousel from './picks-carousel';
+import DraftBoardGrid from './draft-board-grid';
+import DraftInfoPanel from './draft-info-panel';
 import { makePick, startDraft, togglePause, toggleAutoPick, triggerAutoPick } from './actions';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface DraftRoomProps {
     draftSettings: any;
@@ -274,244 +273,193 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
     const isDraftCompleted = draftState.draft_status === 'completed';
     const isMyTurn = currentPickTeam?.id === currentTeam.id && isDraftActive;
 
+    const draftOrder = draftState.pick_order?.order || [];
+    const totalRounds = draftState.pick_order?.total_rounds || 15;
+
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left column - Draft Queue & History */}
-            <div className="lg:col-span-1 space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Your Draft Queue</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DraftQueue teamId={currentTeam.id} draftId={draftSettings.id} />
-                    </CardContent>
-                </Card>
+        <div className="space-y-4">
+            {/* Picks Carousel - always visible */}
+            <Card>
+                <CardContent className="p-3">
+                    <PicksCarousel
+                        leagueTeams={leagueTeams}
+                        draftOrder={draftOrder}
+                        currentPickTeamId={currentPickTeam?.id || null}
+                        draftPicks={draftPicks}
+                        leagueType={draftSettings.leagues.league}
+                        currentRound={draftState.current_round}
+                        currentPick={draftState.current_pick}
+                        totalRounds={totalRounds}
+                        draftType={draftState.draft_type}
+                    />
+                </CardContent>
+            </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Draft History</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DraftHistory draftPicks={draftPicks} />
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Middle column - Draft Board */}
-            <div className="lg:col-span-2 space-y-6">
-                <Card>
-                    <CardContent className="p-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-foreground">
+            {/* Status Bar */}
+            <Card>
+                <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-lg font-bold text-foreground">
                                 {isDraftCompleted ? 'Draft Complete' : isDraftActive ? 'Draft In Progress' : 'Draft Scheduled'}
-                                {isDraftActive && isPaused && (
-                                    <span className="ml-2 text-yellow-500 text-sm font-normal">(Paused)</span>
-                                )}
                             </h2>
+                            {isDraftActive && (
+                                <span className="text-sm text-muted-foreground">
+                                    Round {draftState.current_round}, Pick {draftState.current_pick}
+                                    {isPaused && <span className="ml-2 text-yellow-500 font-medium">(Paused)</span>}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {currentPickTeam && isDraftActive && (
+                                <span className="text-sm font-medium text-foreground">
+                                    {currentPickTeam.name}
+                                </span>
+                            )}
+                        </div>
+                    </div>
 
-                            <div className="flex space-x-2">
-                                {isCommissioner && !isDraftActive && !isDraftCompleted && (
-                                    <Button
-                                        onClick={handleStartDraft}
-                                        disabled={isPending}
-                                        loading={isPending}
-                                    >
-                                        {isPending ? 'Starting...' : 'Start Draft'}
-                                    </Button>
-                                )}
+                    {!isDraftActive && !isDraftCompleted && (
+                        <div className="mt-2 text-sm text-muted-foreground">
+                            <p>
+                                The draft is scheduled to begin{' '}
+                                {draftState.draft_date
+                                    ? `on ${new Date(draftState.draft_date).toLocaleString()}`
+                                    : 'soon'}.
+                                You can add players to your draft queue while you wait.
+                            </p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
-                                {isCommissioner && isDraftActive && !isDraftCompleted && (
-                                    <Button
-                                        variant={isPaused ? 'default' : 'secondary'}
-                                        onClick={handleTogglePause}
-                                        disabled={isPending}
-                                        className={isPaused ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-yellow-700'}
-                                    >
-                                        {isPaused ? 'Resume Draft' : 'Pause Draft'}
-                                    </Button>
-                                )}
-                            </div>
+            {/* Tabbed Content */}
+            <Tabs defaultValue="players">
+                <TabsList>
+                    <TabsTrigger value="players">Players</TabsTrigger>
+                    <TabsTrigger value="board">Draft Board</TabsTrigger>
+                </TabsList>
+
+                {/* Players Tab - 3 column layout */}
+                <TabsContent value="players">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        {/* Player Search - main area */}
+                        <div className="lg:col-span-5">
+                            <Card>
+                                <CardContent className="p-4">
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Available Players</h3>
+                                    <PlayerSearch
+                                        availablePlayers={availablePlayers}
+                                        searchResults={searchResults}
+                                        isLoading={isLoading}
+                                        onSearch={handleSearch}
+                                        onSelectPlayer={(player) => {
+                                            if (player && typeof player === 'object') {
+                                                setSelectedPlayer({ ...player, id: String(player.id) });
+                                            }
+                                        }}
+                                        onAddToQueue={async (player) => {
+                                            try {
+                                                const { data: currentQueue, error: queueError } = await supabase
+                                                    .from('draft_queue')
+                                                    .select('id, player_id, priority')
+                                                    .eq('team_id', currentTeam.id)
+                                                    .order('priority', { ascending: true });
+
+                                                if (queueError) throw queueError;
+
+                                                if (currentQueue?.some(item => item.player_id === player.id)) {
+                                                    alert('This player is already in your queue.');
+                                                    return;
+                                                }
+
+                                                const nextPriority = currentQueue?.length
+                                                    ? Math.max(...currentQueue.map(item => item.priority)) + 1
+                                                    : 1;
+
+                                                const { error } = await supabase
+                                                    .from('draft_queue')
+                                                    .insert({
+                                                        team_id: currentTeam.id,
+                                                        player_id: player.id,
+                                                        priority: nextPriority
+                                                    });
+
+                                                if (error) throw error;
+
+                                                alert('Player added to your queue!');
+                                            } catch (error: any) {
+                                                console.error('Error adding player to queue:', error);
+                                                alert(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
+                                            }
+                                        }}
+                                        isMyTurn={isMyTurn}
+                                        isCommissioner={isCommissioner}
+                                        isDraftActive={isDraftActive}
+                                        selectedPlayer={selectedPlayer}
+                                        leagueType={draftSettings.leagues.league}
+                                    />
+                                </CardContent>
+                            </Card>
                         </div>
 
-                        {isDraftActive && (
-                            <div className="mb-6 p-4 bg-muted rounded-lg">
-                                <div className="flex flex-col sm:flex-row justify-between items-center">
-                                    <div>
-                                        <p className="text-muted-foreground mb-1">Current Pick:</p>
-                                        <p className="text-lg font-bold">
-                                            Round {draftState.current_round}, Pick {draftState.current_pick}
-                                        </p>
-                                        <p className="text-md">
-                                            Team: {currentPickTeam?.name || 'Loading...'}
-                                            {currentPickTeam?.profiles?.full_name && ` (${currentPickTeam.profiles.full_name})`}
-                                        </p>
-                                    </div>
-
-                                    <div className="mt-4 sm:mt-0">
-                                        <div className="flex flex-col items-end">
-                                            <DraftTimer
-                                                timePerPick={draftState.time_per_pick}
-                                                timerStartedAt={draftState.timer_started_at}
-                                                isMyTurn={isMyTurn}
-                                                isPaused={isPaused}
-                                                onTimerExpired={handleTimerExpired}
-                                            />
-
-                                            {isMyTurn && (
-                                                <div className="flex items-center mt-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="auto-pick"
-                                                        checked={autoPickEnabled}
-                                                        onChange={handleToggleAutoPick}
-                                                        disabled={isPending}
-                                                        className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava mr-2"
-                                                    />
-                                                    <label htmlFor="auto-pick" className="text-xs text-muted-foreground">
-                                                        Auto-pick if time expires
-                                                    </label>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {(isMyTurn || (isCommissioner && isDraftActive)) && (
-                                    <div className="mt-4 pt-4 border-t border-border">
-                                        <p className="text-foreground font-bold text-lg mb-2">
-                                            {isMyTurn ? "It's Your Turn to Draft!" : "Commissioner Pick"}
-                                        </p>
-
-                                        {pickError && (
-                                            <p className="text-red-500 text-sm mb-2">{pickError}</p>
-                                        )}
-
-                                        {selectedPlayer ? (
-                                            <div className="flex flex-col sm:flex-row items-center justify-between p-3 bg-card rounded-lg">
-                                                <div className="flex items-center mb-3 sm:mb-0">
-                                                    <Image
-                                                        src={selectedPlayer.pic_url || '/default-player.png'}
-                                                        alt={selectedPlayer.name}
-                                                        className="w-12 h-12 rounded-full object-cover mr-3"
-                                                        width={48}
-                                                        height={48}
-                                                    />
-                                                    <div>
-                                                        <p className="font-bold">{selectedPlayer.name}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {selectedPlayer.position} - {selectedPlayer.team_name}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-x-2">
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => setSelectedPlayer(null)}
-                                                    >
-                                                        Cancel
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        onClick={() => handleMakePick(String(selectedPlayer.id))}
-                                                        disabled={isPending}
-                                                        loading={isPending}
-                                                    >
-                                                        {isPending ? 'Picking...' : 'Confirm Pick'}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <p className="text-muted-foreground">
-                                                Select a player to draft from the player list or your queue
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {!isDraftActive && !isDraftCompleted && (
-                            <div className="mb-6 p-4 bg-muted rounded-lg">
-                                <p className="text-lg">
-                                    The draft is scheduled to begin{' '}
-                                    {draftState.draft_date
-                                        ? `on ${new Date(draftState.draft_date).toLocaleString()}`
-                                        : 'soon'}
-                                </p>
-                                <p className="text-muted-foreground mt-2">
-                                    You can add players to your draft queue while you wait.
-                                </p>
-                            </div>
-                        )}
-
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold mb-2">Teams</h3>
-                            <TeamPicker
-                                teams={leagueTeams}
-                                draftOrder={draftState.pick_order?.order || []}
-                                currentPick={draftState.current_pick}
-                            />
+                        {/* Draft Queue */}
+                        <div className="lg:col-span-4">
+                            <Card>
+                                <CardContent className="p-4">
+                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Your Draft Queue</h3>
+                                    <DraftQueue teamId={currentTeam.id} draftId={draftSettings.id} />
+                                </CardContent>
+                            </Card>
                         </div>
 
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">Available Players</h3>
-                            <PlayerSearch
-                                availablePlayers={availablePlayers}
-                                searchResults={searchResults}
-                                isLoading={isLoading}
-                                onSearch={handleSearch}
-                                onSelectPlayer={(player) => {
-                                    if (player && typeof player === 'object') {
-                                        setSelectedPlayer({ ...player, id: String(player.id) });
-                                    }
-                                }}
-                                onAddToQueue={async (player) => {
-                                    try {
-                                        const { data: currentQueue, error: queueError } = await supabase
-                                            .from('draft_queue')
-                                            .select('id, player_id, priority')
-                                            .eq('team_id', currentTeam.id)
-                                            .order('priority', { ascending: true });
-
-                                        if (queueError) throw queueError;
-
-                                        if (currentQueue?.some(item => item.player_id === player.id)) {
-                                            alert('This player is already in your queue.');
-                                            return;
-                                        }
-
-                                        const nextPriority = currentQueue?.length
-                                            ? Math.max(...currentQueue.map(item => item.priority)) + 1
-                                            : 1;
-
-                                        const { error } = await supabase
-                                            .from('draft_queue')
-                                            .insert({
-                                                team_id: currentTeam.id,
-                                                player_id: player.id,
-                                                priority: nextPriority
-                                            });
-
-                                        if (error) throw error;
-
-                                        alert('Player added to your queue!');
-                                    } catch (error: any) {
-                                        console.error('Error adding player to queue:', error);
-                                        alert(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
-                                    }
-                                }}
+                        {/* Draft Info Panel */}
+                        <div className="lg:col-span-3">
+                            <DraftInfoPanel
+                                currentPickTeam={currentPickTeam}
+                                currentTeam={currentTeam}
+                                draftState={draftState}
                                 isMyTurn={isMyTurn}
                                 isCommissioner={isCommissioner}
                                 isDraftActive={isDraftActive}
+                                isDraftCompleted={isDraftCompleted}
+                                isPaused={isPaused}
+                                isPending={isPending}
+                                autoPickEnabled={autoPickEnabled}
                                 selectedPlayer={selectedPlayer}
+                                pickError={pickError}
+                                draftPicks={draftPicks}
                                 leagueType={draftSettings.leagues.league}
+                                onStartDraft={handleStartDraft}
+                                onTogglePause={handleTogglePause}
+                                onToggleAutoPick={handleToggleAutoPick}
+                                onMakePick={handleMakePick}
+                                onCancelSelection={() => setSelectedPlayer(null)}
+                                onTimerExpired={handleTimerExpired}
                             />
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
+                    </div>
+                </TabsContent>
+
+                {/* Draft Board Tab - full width grid */}
+                <TabsContent value="board">
+                    <Card>
+                        <CardContent className="p-4">
+                            <DraftBoardGrid
+                                leagueTeams={leagueTeams}
+                                draftOrder={draftOrder}
+                                draftPicks={draftPicks}
+                                totalRounds={totalRounds}
+                                draftType={draftState.draft_type}
+                                currentPickTeamId={currentPickTeam?.id || null}
+                                currentRound={draftState.current_round}
+                                currentPick={draftState.current_pick}
+                                leagueType={draftSettings.leagues.league}
+                            />
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { createClient } from '@/app/utils/supabase/client';
 import { Input } from "@/components/ui/input";
+import { getPositionsForLeague, getPositionBorderColor } from './utils';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -43,7 +43,6 @@ export default function PlayerSearch({
     selectedPlayer,
     leagueType = 'NFL'
 }: PlayerSearchProps) {
-    const supabase = createClient();
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPosition, setCurrentPosition] = useState('All');
 
@@ -62,19 +61,7 @@ export default function PlayerSearch({
         }
     };
 
-    const getPositionsForLeague = () => {
-        switch(leagueType) {
-            case 'NFL':
-                return ['All', 'QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
-            case 'NBA':
-            case 'NCAAM':
-                return ['All', 'PG', 'SG', 'SF', 'PF', 'C'];
-            default:
-                return ['All'];
-        }
-    };
-
-    const positions = getPositionsForLeague();
+    const positions = ['All', ...getPositionsForLeague(leagueType)];
 
     const displayedResults = currentPosition === 'All'
         ? searchResults
@@ -120,14 +107,14 @@ export default function PlayerSearch({
                             <p className="text-muted-foreground">No players found.</p>
                         </div>
                     ) : (
-                        <Table>
+                        <Table className="table-fixed w-full">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Player</TableHead>
-                                    <TableHead>Pos</TableHead>
-                                    <TableHead>Team</TableHead>
-                                    <TableHead>Summary</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
+                                    <TableHead className="w-[40%] xl:w-[25%]">Player</TableHead>
+                                    <TableHead className="w-[10%]">Pos</TableHead>
+                                    <TableHead className="w-[15%]">Team</TableHead>
+                                    <TableHead className="hidden xl:table-cell xl:w-[25%]">Summary</TableHead>
+                                    <TableHead className="w-[35%] xl:w-[25%] text-right">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -135,6 +122,7 @@ export default function PlayerSearch({
                                     <TableRow
                                         key={player.id}
                                         className={selectedPlayer?.id === player.id ? 'bg-muted' : ''}
+                                        style={{ borderLeftWidth: '3px', borderLeftColor: getPositionBorderColor(player.position, leagueType) }}
                                     >
                                         <TableCell>
                                             <div className="flex items-center">
@@ -145,12 +133,12 @@ export default function PlayerSearch({
                                                     width={32}
                                                     height={32}
                                                 />
-                                                <span className="font-medium">{player.name}</span>
+                                                <span className="font-medium" title={player.summary || ''}>{player.name}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>{player.position}</TableCell>
                                         <TableCell>{player.team_name}</TableCell>
-                                        <TableCell className="max-w-xs truncate">{player.summary || '-'}</TableCell>
+                                        <TableCell className="hidden xl:table-cell max-w-xs truncate">{player.summary || '-'}</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end space-x-2">
                                                 <Button
