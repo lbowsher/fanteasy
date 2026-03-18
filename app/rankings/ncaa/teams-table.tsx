@@ -85,19 +85,20 @@ export default function TeamsTable({
                   {team.region || '-'}
                 </TableCell>
                 <TableCell className="text-center">
-                  <select
+                  <input
+                    type="number"
                     value={team.expectedGames}
-                    onChange={(e) =>
-                      onExpectedGamesChange(team.teamName, parseInt(e.target.value))
-                    }
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val) && val >= 0 && val <= 6) {
+                        onExpectedGamesChange(team.teamName, Math.round(val * 10) / 10);
+                      }
+                    }}
+                    min={0}
+                    max={6}
+                    step={0.1}
                     className="bg-background border border-border rounded px-1 py-0.5 text-sm w-14 text-foreground"
-                  >
-                    {[1, 2, 3, 4, 5, 6].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </TableCell>
                 <TableCell className="text-center">{team.playerCount}</TableCell>
                 <TableCell className="text-right">{team.avgPpg}</TableCell>

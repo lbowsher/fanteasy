@@ -1,5 +1,3 @@
-import AuthButtonServer from './auth-button-server'
-import ThemeToggle from './theme-toggle'
 import { createClient } from './utils/supabase/server'
 import { redirect } from 'next/navigation';
 import HomeContent from './home-content';
@@ -31,12 +29,8 @@ export default async function Home() {
 
   return (
     <div className="w-full max-w-xl mx-auto bg-background text-primary-text">
-      <div className="flex justify-between items-center px-4 py-6 border border-border">
+      <div className="px-4 py-6">
         <h1 className="text-xl font-bold">My Teams</h1>
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <AuthButtonServer />
-        </div>
       </div>
       <div className="flex-1 bg-surface">
         <div className="flex justify-end p-4">

@@ -67,17 +67,20 @@ export default function ExpectedGamesSection({
                     <span className="text-muted-foreground">#{info.seed}</span>
                   )}
                 </div>
-                <select
+                <input
+                  type="number"
                   value={games}
-                  onChange={(e) => onChange(team, parseInt(e.target.value))}
-                  className="bg-background border border-border rounded px-1 py-0.5 text-xs w-12 text-foreground"
-                >
-                  {[1, 2, 3, 4, 5, 6].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && val >= 0 && val <= 6) {
+                      onChange(team, Math.round(val * 10) / 10);
+                    }
+                  }}
+                  min={0}
+                  max={6}
+                  step={0.1}
+                  className="bg-background border border-border rounded px-1 py-0.5 text-xs w-14 text-foreground"
+                />
               </div>
             );
           })}
