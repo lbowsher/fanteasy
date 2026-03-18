@@ -2,8 +2,6 @@
 import { createClient } from '@/app/utils/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import DraftRoom from './draft-room';
-import AuthButtonServer from '@/app/auth-button-server';
-import ThemeToggle from '@/app/theme-toggle';
 import Link from 'next/link';
 
 export const dynamic = "force-dynamic";
@@ -86,23 +84,13 @@ export default async function DraftPage({
     return (
         <div className="min-h-screen bg-background">
             <div className="w-full max-w-[1600px] mx-auto px-4">
-                <header className="flex justify-between items-center py-6 border-b border-slate-grey">
-                    <Link 
-                        href={`/league/${draftSettings.league_id}`}
-                        className="text-xl font-bold text-primary-text hover:text-liquid-lava transition-colors"
-                    >
-                        Back to League
-                    </Link>
+                <div className="py-6">
                     <h1 className="text-xl font-bold text-primary-text">
                         {draftSettings.leagues.name} Draft
                     </h1>
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
-                        <AuthButtonServer />
-                    </div>
-                </header>
-                
-                <main className="py-6">
+                </div>
+
+                <main>
                     <DraftRoom 
                         draftSettings={draftSettings} 
                         currentTeam={currentTeam} 

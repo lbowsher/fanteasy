@@ -14,6 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      ncaa_team_info: {
+        Row: {
+          id: string
+          team_name: string
+          seed: number | null
+          region: string | null
+          season_year: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          team_name: string
+          seed?: number | null
+          region?: string | null
+          season_year?: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          team_name?: string
+          seed?: number | null
+          region?: string | null
+          season_year?: number
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      user_ncaa_rankings: {
+        Row: {
+          id: string
+          user_id: string
+          player_id: string
+          rank_position: number
+          season_year: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          player_id: string
+          rank_position: number
+          season_year?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          player_id?: string
+          rank_position?: number
+          season_year?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ncaa_rankings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_ncaa_team_settings: {
+        Row: {
+          id: string
+          user_id: string
+          team_name: string
+          expected_games: number
+          season_year: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          team_name: string
+          expected_games?: number
+          season_year?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          team_name?: string
+          expected_games?: number
+          season_year?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       draft_picks: {
         Row: {
           created_at: string | null
