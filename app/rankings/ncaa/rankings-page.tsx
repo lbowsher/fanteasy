@@ -6,8 +6,8 @@ import RankingsFilters from './rankings-filters';
 import PlayerRankingsList from './player-rankings-list';
 import ExpectedGamesSection from './expected-games-section';
 import TeamsTable from './teams-table';
-import { savePlayerRankings, saveExpectedGames } from './actions';
-import { computeProjectedTotal } from './utils';
+import { savePlayerRankings, saveExpectedGames, deletePlayerRankings, deleteExpectedGames } from './actions';
+import { computeProjectedTotal, getDefaultExpectedGames } from './utils';
 import type { PlayerWithStats, NcaaTeamInfo, UserRanking, UserTeamSetting } from './utils';
 
 type SortBy = 'projection' | 'expectedGames' | 'custom';
@@ -60,7 +60,13 @@ export default function RankingsPage({
   }, [orderedPlayers]);
 
   const [hasUnsavedRankings, setHasUnsavedRankings] = useState(false);
+  const [hasCustomRankings, setHasCustomRankings] = useState(userRankings.length > 0);
+  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Snapshot of player order before editing, for cancel
+  const preEditOrderRef = useRef<PlayerWithStats[]>(orderedPlayers);
+  const preEditSortByRef = useRef<SortBy>(sortBy);
 
   // Debounce ref for expected games saving
   const gamesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -184,8 +190,44 @@ export default function RankingsPage({
     }));
     await savePlayerRankings(rankings);
     setHasUnsavedRankings(false);
+    setHasCustomRankings(true);
+    setIsEditing(false);
     setIsSaving(false);
   }, [orderedPlayers]);
+
+  // Reset rankings to default projection order
+  const handleResetRankings = useCallback(async () => {
+    setOrderedPlayers((prev) =>
+      [...prev].sort((a, b) => b.projectedTotal - a.projectedTotal)
+    );
+    setSortBy('projection');
+    setHasUnsavedRankings(false);
+    setHasCustomRankings(false);
+    setIsEditing(false);
+    await deletePlayerRankings();
+  }, []);
+
+  // Build default expected games map from team seeds
+  const defaultExpectedGames = useMemo(() => {
+    const teamInfoMap = new Map(teamInfo.map((ti) => [ti.team_name, ti]));
+    const defaults: Record<string, number> = {};
+    for (const team of allTeams) {
+      defaults[team] = getDefaultExpectedGames(teamInfoMap.get(team)?.seed);
+    }
+    return defaults;
+  }, [teamInfo, allTeams]);
+
+  const hasCustomExpectedGames = useMemo(() => {
+    return allTeams.some((team) => expectedGames[team] !== defaultExpectedGames[team]);
+  }, [expectedGames, defaultExpectedGames, allTeams]);
+
+  // Reset expected games to seed-based defaults
+  const handleResetExpectedGames = useCallback(async () => {
+    setExpectedGames(defaultExpectedGames);
+    updateProjectedTotals(defaultExpectedGames);
+    if (gamesTimeoutRef.current) clearTimeout(gamesTimeoutRef.current);
+    await deleteExpectedGames();
+  }, [defaultExpectedGames, updateProjectedTotals]);
 
   // Cleanup timeouts
   useEffect(() => {
@@ -252,17 +294,49 @@ export default function RankingsPage({
                   );
                 })}
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground mr-1">
                   {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''}
                 </span>
-                {hasUnsavedRankings && (
+                {(hasUnsavedRankings || hasCustomRankings) && (
                   <button
-                    onClick={handleSaveRankings}
-                    disabled={isSaving}
-                    className="px-3 py-1 rounded text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                    onClick={handleResetRankings}
+                    className="px-3 py-1 rounded text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {isSaving ? 'Saving...' : 'Save Rankings'}
+                    Reset to Default
+                  </button>
+                )}
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        setOrderedPlayers(preEditOrderRef.current);
+                        setSortBy(preEditSortByRef.current);
+                        setHasUnsavedRankings(false);
+                        setIsEditing(false);
+                      }}
+                      className="px-3 py-1 rounded text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveRankings}
+                      disabled={isSaving || !hasUnsavedRankings}
+                      className="px-3 py-1 rounded text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    >
+                      {isSaving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      preEditOrderRef.current = orderedPlayers;
+                      preEditSortByRef.current = sortBy;
+                      setIsEditing(true);
+                    }}
+                    className="px-3 py-1 rounded text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Edit Rankings
                   </button>
                 )}
               </div>
@@ -273,15 +347,25 @@ export default function RankingsPage({
               onReorder={handleReorder}
               expectedGames={expectedGames}
               rankMap={rankMap}
+              isEditing={isEditing}
             />
           </TabsContent>
 
           <TabsContent value="teams">
+            {hasCustomExpectedGames && (
+              <div className="mb-3 flex justify-end">
+                <button
+                  onClick={handleResetExpectedGames}
+                  className="px-3 py-1 rounded text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Reset to Default
+                </button>
+              </div>
+            )}
             <TeamsTable
               teams={allTeams}
               teamInfo={teamInfo}
               expectedGames={expectedGames}
-              players={orderedPlayers}
               onExpectedGamesChange={handleExpectedGamesChange}
             />
           </TabsContent>

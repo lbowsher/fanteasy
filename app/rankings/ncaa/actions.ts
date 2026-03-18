@@ -36,6 +36,48 @@ export async function savePlayerRankings(
   return { success: true };
 }
 
+export async function deletePlayerRankings(): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  const { error } = await supabase
+    .from('user_ncaa_rankings')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('season_year', 2026);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function deleteExpectedGames(): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  const { error } = await supabase
+    .from('user_ncaa_team_settings')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('season_year', 2026);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
 export async function saveExpectedGames(
   settings: { team_name: string; expected_games: number }[]
 ): Promise<ActionResult> {
