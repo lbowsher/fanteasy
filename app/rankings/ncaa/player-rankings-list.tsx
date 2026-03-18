@@ -9,6 +9,7 @@ interface PlayerRankingsListProps {
   onReorder: (newOrder: PlayerWithStats[]) => void;
   expectedGames: Record<string, number>;
   rankMap?: Map<string, number>;
+  isEditing: boolean;
 }
 
 export default function PlayerRankingsList({
@@ -16,6 +17,7 @@ export default function PlayerRankingsList({
   onReorder,
   expectedGames,
   rankMap,
+  isEditing,
 }: PlayerRankingsListProps) {
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -37,7 +39,7 @@ export default function PlayerRankingsList({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="playerRankings">
+      <Droppable droppableId="playerRankings" isDropDisabled={!isEditing}>
         {(provided) => (
           <div
             {...provided.droppableProps}
@@ -45,7 +47,7 @@ export default function PlayerRankingsList({
             className="space-y-1"
           >
             {players.map((player, index) => (
-              <Draggable key={player.id} draggableId={player.id} index={index}>
+              <Draggable key={player.id} draggableId={player.id} index={index} isDragDisabled={!isEditing}>
                 {(provided, snapshot) => (
                   <PlayerRankingCard
                     player={player}
@@ -53,6 +55,7 @@ export default function PlayerRankingsList({
                     expectedGames={expectedGames[player.team_name] || 1}
                     provided={provided}
                     isDragging={snapshot.isDragging}
+                    isEditing={isEditing}
                   />
                 )}
               </Draggable>

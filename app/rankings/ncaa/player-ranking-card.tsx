@@ -11,6 +11,7 @@ interface PlayerRankingCardProps {
   expectedGames: number;
   provided: DraggableProvided;
   isDragging: boolean;
+  isEditing: boolean;
 }
 
 export default function PlayerRankingCard({
@@ -19,6 +20,7 @@ export default function PlayerRankingCard({
   expectedGames,
   provided,
   isDragging,
+  isEditing,
 }: PlayerRankingCardProps) {
   const borderColor = getPositionBorderColor(player.position, 'NCAAM');
   const posTextColor = getPositionTextColor(player.position, 'NCAAM');
@@ -39,16 +41,20 @@ export default function PlayerRankingCard({
       }}
     >
       {/* Drag handle */}
-      <div
-        {...provided.dragHandleProps}
-        className="flex-shrink-0 mr-2 sm:mr-3 cursor-grab active:cursor-grabbing"
-      >
-        <div className="flex flex-col gap-0.5">
-          <div className="w-4 h-0.5 bg-muted-foreground/40 rounded" />
-          <div className="w-4 h-0.5 bg-muted-foreground/40 rounded" />
-          <div className="w-4 h-0.5 bg-muted-foreground/40 rounded" />
+      {isEditing ? (
+        <div
+          {...provided.dragHandleProps}
+          className="flex-shrink-0 mr-2 sm:mr-3 cursor-grab active:cursor-grabbing"
+        >
+          <div className="flex flex-col gap-0.5">
+            <div className="w-4 h-0.5 bg-muted-foreground/40 rounded" />
+            <div className="w-4 h-0.5 bg-muted-foreground/40 rounded" />
+            <div className="w-4 h-0.5 bg-muted-foreground/40 rounded" />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div {...provided.dragHandleProps} className="hidden" />
+      )}
 
       {/* Rank number */}
       <div className="flex-shrink-0 mr-2 sm:mr-3">
