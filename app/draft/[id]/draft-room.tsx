@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useMemo, useTransition } from 'react';
 import { createClient } from '@/app/utils/supabase/client';
 import DraftQueue from './draft-queue';
 import PlayerSearch from './player-search';
@@ -10,15 +10,21 @@ import DraftInfoPanel from './draft-info-panel';
 import { makePick, startDraft, togglePause, toggleAutoPick, triggerAutoPick } from './actions';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { getDefaultExpectedGames, parsePlayerSummary, computeProjectedTotal } from '@/app/rankings/ncaa/utils';
+
+type PlayerSortBy = 'rank' | 'projection' | 'name';
 
 interface DraftRoomProps {
     draftSettings: any;
     currentTeam: any;
     isCommissioner: boolean;
     leagueTeams?: any[];
+    userRankings?: any[];
+    userTeamSettings?: any[];
+    ncaaTeamInfo?: any[];
 }
 
-export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, leagueTeams = [] }: DraftRoomProps) {
+export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, leagueTeams = [], userRankings = [], userTeamSettings = [], ncaaTeamInfo = [] }: DraftRoomProps) {
     const supabase = createClient();
 
     // Draft state
@@ -33,6 +39,63 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
     const [isPaused, setIsPaused] = useState<boolean>(draftSettings.is_paused || false);
     const [pickError, setPickError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
+    const [isQueueOpen, setIsQueueOpen] = useState(true);
+
+    const isNcaam = draftSettings.leagues.league === 'NCAAM';
+    const [playerSortBy, setPlayerSortBy] = useState<PlayerSortBy>(isNcaam ? 'rank' : 'name');
+
+    // Build NCAAM ranking/projection maps
+    const expectedGamesMap = useMemo(() => {
+        if (!isNcaam) return {};
+        const map: Record<string, number> = {};
+        for (const ti of ncaaTeamInfo) {
+            map[ti.team_name] = getDefaultExpectedGames(ti.seed);
+        }
+        for (const s of userTeamSettings) {
+            map[s.team_name] = s.expected_games;
+        }
+        return map;
+    }, [isNcaam, ncaaTeamInfo, userTeamSettings]);
+
+    const rankMap = useMemo(() => {
+        const m = new Map<string, number>();
+        for (const r of userRankings) {
+            m.set(r.player_id, r.rank_position);
+        }
+        return m;
+    }, [userRankings]);
+
+    // Enrich players with NCAAM rank/projection and sort
+    const enrichAndSort = (players: any[]): any[] => {
+        if (!isNcaam) return players;
+        return players.map(p => {
+            const { ppg } = parsePlayerSummary(p.summary);
+            const expGames = expectedGamesMap[p.team_name] || 1;
+            return {
+                ...p,
+                rank: rankMap.get(p.id) ?? null,
+                projectedTotal: computeProjectedTotal(ppg, expGames),
+            };
+        });
+    };
+
+    const sortPlayers = (players: any[], sort: PlayerSortBy): any[] => {
+        const sorted = [...players];
+        if (sort === 'rank') {
+            sorted.sort((a, b) => {
+                const aRank = a.rank;
+                const bRank = b.rank;
+                if (aRank != null && bRank != null) return aRank - bRank;
+                if (aRank != null) return -1;
+                if (bRank != null) return 1;
+                return (b.projectedTotal || 0) - (a.projectedTotal || 0);
+            });
+        } else if (sort === 'projection') {
+            sorted.sort((a, b) => (b.projectedTotal || 0) - (a.projectedTotal || 0));
+        }
+        // 'name' keeps the original alphabetical order from the query
+        return sorted;
+    };
 
     // Get current pick team information
     useEffect(() => {
@@ -149,8 +212,10 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
 
                 if (playersError) throw playersError;
 
-                setAvailablePlayers(players || []);
-                setSearchResults(players || []);
+                const enriched = enrichAndSort(players || []);
+                const sorted = sortPlayers(enriched, playerSortBy);
+                setAvailablePlayers(sorted);
+                setSearchResults(sorted);
             } catch (error) {
                 console.error('Error fetching available players:', error);
             } finally {
@@ -274,6 +339,13 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
         setSearchResults(filtered);
     };
 
+    const handleSortChange = (sort: PlayerSortBy) => {
+        setPlayerSortBy(sort);
+        const sorted = sortPlayers(availablePlayers, sort);
+        setAvailablePlayers(sorted);
+        setSearchResults(sorted);
+    };
+
     const isDraftActive = draftState.draft_status === 'in_progress';
     const isDraftCompleted = draftState.draft_status === 'completed';
     const isMyTurn = currentPickTeam?.id === currentTeam.id && isDraftActive;
@@ -349,7 +421,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                 <TabsContent value="players">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                         {/* Player Search - main area */}
-                        <div className="lg:col-span-5">
+                        <div className={isQueueOpen ? 'lg:col-span-5' : 'lg:col-span-9'}>
                             <Card>
                                 <CardContent className="p-4">
                                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Available Players</h3>
@@ -403,20 +475,48 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                                         isDraftActive={isDraftActive}
                                         selectedPlayer={selectedPlayer}
                                         leagueType={draftSettings.leagues.league}
+                                        isNcaam={isNcaam}
+                                        sortBy={playerSortBy}
+                                        onSortChange={handleSortChange}
                                     />
                                 </CardContent>
                             </Card>
                         </div>
 
-                        {/* Draft Queue */}
-                        <div className="lg:col-span-4">
-                            <Card>
-                                <CardContent className="p-4">
-                                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Your Draft Queue</h3>
-                                    <DraftQueue teamId={currentTeam.id} draftId={draftSettings.id} />
-                                </CardContent>
-                            </Card>
-                        </div>
+                        {/* Draft Queue - collapsible */}
+                        {isQueueOpen ? (
+                            <div className="lg:col-span-4">
+                                <Card>
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Your Draft Queue</h3>
+                                            <button
+                                                onClick={() => setIsQueueOpen(false)}
+                                                className="text-muted-foreground hover:text-foreground transition-colors"
+                                                title="Collapse queue"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="15 18 9 12 15 6" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <DraftQueue teamId={currentTeam.id} draftId={draftSettings.id} />
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        ) : (
+                            <div className="hidden lg:flex items-start">
+                                <button
+                                    onClick={() => setIsQueueOpen(true)}
+                                    className="p-2 bg-card border border-border rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                                    title="Show queue"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="9 18 15 12 9 6" />
+                                    </svg>
+                                </button>
+                            </div>
+                        )}
 
                         {/* Draft Info Panel */}
                         <div className="lg:col-span-3">
