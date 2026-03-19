@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useMemo } from 'react';
-import { getPositionColor, getPositionBorderColor, computePickInfo, getTeamIdForPick } from './utils';
+import { getPositionColor, getPositionBorderColor, getPositionsForLeague, computePickInfo, getTeamIdForPick } from './utils';
 
 interface PicksCarouselProps {
     leagueTeams: any[];
@@ -51,6 +51,41 @@ export default function PicksCarousel({
         }
         return map;
     }, [leagueTeams]);
+
+    const positions = getPositionsForLeague(leagueType);
+
+    // Build roster counts per team: teamId -> { G: 2, F: 1, ... }
+    const teamRosters = useMemo(() => {
+        const rosters: Record<string, Record<string, number>> = {};
+        for (const pick of draftPicks) {
+            const teamId = pick.team?.id || pick.team_id;
+            const position = pick.player?.position;
+            if (teamId && position) {
+                if (!rosters[teamId]) rosters[teamId] = {};
+                rosters[teamId][position] = (rosters[teamId][position] || 0) + 1;
+            }
+        }
+        return rosters;
+    }, [draftPicks]);
+
+    // Cumulative roster at each pick number: pickNumber -> { G: x, F: y, ... }
+    const rosterAtPick = useMemo(() => {
+        const map: Record<number, Record<string, number>> = {};
+        const running: Record<string, Record<string, number>> = {};
+        // Sort picks by pick_number to build cumulative state
+        const sorted = [...draftPicks].sort((a, b) => (a.pick_number || 0) - (b.pick_number || 0));
+        for (const pick of sorted) {
+            const teamId = pick.team?.id || pick.team_id;
+            const position = pick.player?.position;
+            if (teamId && position && pick.pick_number != null) {
+                if (!running[teamId]) running[teamId] = {};
+                running[teamId][position] = (running[teamId][position] || 0) + 1;
+                // Snapshot the team's roster state at this pick
+                map[pick.pick_number] = { ...running[teamId] };
+            }
+        }
+        return map;
+    }, [draftPicks]);
 
     const currentOverallPick = (currentRound - 1) * totalTeams + currentPick;
 
@@ -109,6 +144,7 @@ export default function PicksCarousel({
                         const playerTeam = pick.player?.team || '';
                         const posColor = getPositionColor(position, leagueType);
                         const borderColor = getPositionBorderColor(position, leagueType);
+                        const roster = rosterAtPick[overallPick] || {};
 
                         return (
                             <div
@@ -134,11 +170,29 @@ export default function PicksCarousel({
                                 </div>
                                 {/* Team name */}
                                 <p className="text-[10px] text-muted-foreground truncate mt-1">{teamName}</p>
+                                {/* Roster breakdown */}
+                                <div className="flex gap-1 mt-1 flex-wrap">
+                                    {positions.map((pos) => {
+                                        const count = roster[pos] || 0;
+                                        if (count === 0) return null;
+                                        return (
+                                            <span
+                                                key={pos}
+                                                className={`text-[9px] font-medium px-1 rounded ${getPositionColor(pos, leagueType)} text-white`}
+                                            >
+                                                {pos}{count}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         );
                     }
 
-                    // Empty / future pick
+                    // Empty / future pick — show current team roster
+                    const currentRoster = teamRosters[teamId] || {};
+                    const hasRoster = Object.values(currentRoster).some(c => c > 0);
+
                     return (
                         <div
                             key={overallPick}
@@ -151,6 +205,22 @@ export default function PicksCarousel({
                         >
                             <p className="text-[10px] text-muted-foreground mb-0.5">{notation}</p>
                             <p className="text-sm font-medium truncate text-muted-foreground">{teamName}</p>
+                            {hasRoster && (
+                                <div className="flex gap-1 mt-1 flex-wrap">
+                                    {positions.map((pos) => {
+                                        const count = currentRoster[pos] || 0;
+                                        if (count === 0) return null;
+                                        return (
+                                            <span
+                                                key={pos}
+                                                className={`text-[9px] font-medium px-1 rounded ${getPositionColor(pos, leagueType)} text-white`}
+                                            >
+                                                {pos}{count}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     );
                 })}

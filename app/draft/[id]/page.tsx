@@ -75,11 +75,39 @@ export default async function DraftPage({
         return <div>Error loading teams</div>;
     }
 
-    const currentTeam = userTeam || { 
+    const currentTeam = userTeam || {
         id: 'commissioner',
         name: 'Commissioner View',
         league_id: draftSettings.league_id
     };
+
+    // Fetch NCAA rankings data if this is an NCAAM league
+    let userRankings: any[] = [];
+    let userTeamSettings: any[] = [];
+    let ncaaTeamInfo: any[] = [];
+
+    if (draftSettings.leagues.league === 'NCAAM') {
+        const [rankingsRes, teamSettingsRes, teamInfoRes] = await Promise.all([
+            supabase
+                .from('user_ncaa_rankings')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('season_year', 2026),
+            supabase
+                .from('user_ncaa_team_settings')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('season_year', 2026),
+            supabase
+                .from('ncaa_team_info')
+                .select('*')
+                .eq('season_year', 2026),
+        ]);
+
+        userRankings = rankingsRes.data || [];
+        userTeamSettings = teamSettingsRes.data || [];
+        ncaaTeamInfo = teamInfoRes.data || [];
+    }
 
     return (
         <div className="min-h-screen bg-background">
@@ -91,11 +119,14 @@ export default async function DraftPage({
                 </div>
 
                 <main>
-                    <DraftRoom 
-                        draftSettings={draftSettings} 
-                        currentTeam={currentTeam} 
+                    <DraftRoom
+                        draftSettings={draftSettings}
+                        currentTeam={currentTeam}
                         isCommissioner={isCommissioner}
                         leagueTeams={leagueTeams}
+                        userRankings={userRankings}
+                        userTeamSettings={userTeamSettings}
+                        ncaaTeamInfo={ncaaTeamInfo}
                     />
                 </main>
             </div>

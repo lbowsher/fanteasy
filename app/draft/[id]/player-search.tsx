@@ -16,6 +16,8 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
+type PlayerSortBy = 'rank' | 'projection' | 'name';
+
 interface PlayerSearchProps {
     availablePlayers: any[];
     searchResults: any[];
@@ -28,6 +30,9 @@ interface PlayerSearchProps {
     isDraftActive?: boolean;
     selectedPlayer: any | null;
     leagueType?: string;
+    isNcaam?: boolean;
+    sortBy?: PlayerSortBy;
+    onSortChange?: (sortBy: PlayerSortBy) => void;
 }
 
 export default function PlayerSearch({
@@ -41,7 +46,10 @@ export default function PlayerSearch({
     isCommissioner = false,
     isDraftActive = false,
     selectedPlayer,
-    leagueType = 'NFL'
+    leagueType = 'NFL',
+    isNcaam = false,
+    sortBy = 'name',
+    onSortChange,
 }: PlayerSearchProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPosition, setCurrentPosition] = useState('All');
@@ -94,6 +102,29 @@ export default function PlayerSearch({
                         ))}
                     </TabsList>
                 </Tabs>
+
+                {isNcaam && onSortChange && (
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground mr-1">Sort:</span>
+                        {(['rank', 'projection'] as const).map((key) => {
+                            const label = key === 'rank' ? 'Rank' : 'Projection';
+                            const isActive = sortBy === key;
+                            return (
+                                <button
+                                    key={key}
+                                    onClick={() => onSortChange(key)}
+                                    className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                                        isActive
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             <div className="border border-border rounded-lg overflow-hidden">
@@ -110,11 +141,18 @@ export default function PlayerSearch({
                         <Table className="table-fixed w-full">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[40%] xl:w-[25%]">Player</TableHead>
+                                    <TableHead className={isNcaam ? "w-[30%]" : "w-[40%] xl:w-[25%]"}>Player</TableHead>
                                     <TableHead className="w-[10%]">Pos</TableHead>
                                     <TableHead className="w-[15%]">Team</TableHead>
-                                    <TableHead className="hidden xl:table-cell xl:w-[25%]">Summary</TableHead>
-                                    <TableHead className="w-[35%] xl:w-[25%] text-right">Action</TableHead>
+                                    {isNcaam ? (
+                                        <>
+                                            <TableHead className="w-[10%] text-center">Rank</TableHead>
+                                            <TableHead className="w-[10%] text-center">Proj</TableHead>
+                                        </>
+                                    ) : (
+                                        <TableHead className="hidden xl:table-cell xl:w-[25%]">Summary</TableHead>
+                                    )}
+                                    <TableHead className={isNcaam ? "w-[25%] text-right" : "w-[35%] xl:w-[25%] text-right"}>Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -138,7 +176,22 @@ export default function PlayerSearch({
                                         </TableCell>
                                         <TableCell>{player.position}</TableCell>
                                         <TableCell>{player.team_name}</TableCell>
-                                        <TableCell className="hidden xl:table-cell max-w-xs truncate">{player.summary || '-'}</TableCell>
+                                        {isNcaam ? (
+                                            <>
+                                                <TableCell className="text-center">
+                                                    {player.rank != null ? (
+                                                        <span className="text-sm font-semibold text-foreground">{player.rank}</span>
+                                                    ) : (
+                                                        <span className="text-sm text-muted-foreground">-</span>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <span className="text-sm font-semibold text-primary">{player.projectedTotal ?? '-'}</span>
+                                                </TableCell>
+                                            </>
+                                        ) : (
+                                            <TableCell className="hidden xl:table-cell max-w-xs truncate">{player.summary || '-'}</TableCell>
+                                        )}
                                         <TableCell className="text-right">
                                             <div className="flex justify-end space-x-2">
                                                 <Button
