@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/app/utils/supabase/client';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { toast } from 'sonner';
 
 interface DraftQueueProps {
     teamId: string;
@@ -121,7 +122,7 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
                 stack: error?.stack,
                 details: error?.details
             });
-            alert(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
+            toast.error(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
         }
     };
     
@@ -136,7 +137,7 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
             if (error) throw error;
         } catch (error) {
             console.error('Error removing player from queue:', error);
-            alert('Failed to remove player from queue.');
+            toast.error('Failed to remove player from queue.');
         }
     };
     
@@ -170,7 +171,7 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
             }
         } catch (error) {
             console.error('Error updating queue priorities:', error);
-            alert('Failed to update queue order.');
+            toast.error('Failed to update queue order.');
         }
     };
     

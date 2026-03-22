@@ -4,9 +4,9 @@ import { createClient } from "./utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-import type { Session } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 
-export default function AuthButtonClient({ session } : { session: Session | null}) {
+export default function AuthButtonClient({ user } : { user: User | null}) {
     const supabase = createClient();
     const router = useRouter();
 
@@ -24,9 +24,9 @@ export default function AuthButtonClient({ session } : { session: Session | null
         });
     };
 
-    return session ? (
-        <Button variant="ghost" size="sm" className="text-xs text-gray-400" onClick={handleSignOut}>Logout</Button>
+    return user ? (
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={handleSignOut}>Logout</Button>
     ) : (
-        <Button variant="ghost" size="sm" className="text-xs text-gray-400" onClick={handleSignIn}>Login</Button>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={handleSignIn}>Login</Button>
     );
 }

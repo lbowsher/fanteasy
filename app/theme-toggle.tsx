@@ -80,7 +80,7 @@ export default function ThemeToggle() {
             <button
               key={t.id}
               onClick={() => selectTheme(t.id)}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors hover:bg-muted ${
+              className={`w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 theme === t.id ? 'bg-muted font-medium' : ''
               }`}
             >
