@@ -7,8 +7,8 @@ export default async function AuthButtonServer() {
     const supabase = await createClient();
 
     const {
-        data: { session },
-    } = await supabase.auth.getSession();
+        data: { user },
+    } = await supabase.auth.getUser();
 
-    return <AuthButtonClient session={session} />;
+    return <AuthButtonClient user={user} />;
 }

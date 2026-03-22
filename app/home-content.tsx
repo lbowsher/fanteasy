@@ -35,7 +35,7 @@ export default function HomeContent({ teams }: { teams: TeamWithLeague[] }) {
         <div className="border-t border-border">
           <button
             onClick={() => setShowPreviousYears(!showPreviousYears)}
-            className="w-full px-4 py-3 flex items-center justify-between text-muted-foreground hover:text-foreground hover:bg-card transition-colors cursor-pointer"
+            className="w-full px-4 py-3 flex items-center justify-between text-muted-foreground hover:text-foreground hover:bg-card transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <span className="font-medium">Previous Leagues</span>
             <span className="text-sm flex items-center gap-1">
