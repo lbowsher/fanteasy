@@ -237,8 +237,7 @@ export default function RankingsPage({
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground">NCAA Rankings</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -370,7 +369,6 @@ export default function RankingsPage({
             />
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }

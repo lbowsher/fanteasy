@@ -214,7 +214,7 @@ export default function DraftInfoPanel({
                                 checked={autoPickEnabled}
                                 onChange={onToggleAutoPick}
                                 disabled={isPending}
-                                className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
+                                className="h-4 w-4 accent-primary rounded"
                             />
                         </div>
                     </CardContent>

@@ -1,5 +1,4 @@
 "use client";
-import Link from 'next/link';
 import { useState } from 'react';
 import { addLeague } from './league-action';
 import { Button } from "@/components/ui/button";
@@ -10,14 +9,8 @@ export default function LeagueCreator() {
     const [draftEnabled, setDraftEnabled] = useState(true);
 
     return (
-        <div className="w-full max-w-xl mx-auto">
-            <div className="flex justify-between px-4 py-6 border-slate-grey border border-t-0">
-                <Link className="text-xl font-bold hover:text-liquid-lava transition-colors" href={'/'}>
-                    Home
-                </Link>
-            </div>
-            <div>
-                <form className="flex-wrap border-slate-grey border border-t-0 p-6" action={addLeague}>
+        <div className="w-full max-w-xl mx-auto px-4 py-6">
+            <form className="space-y-4" action={addLeague}>
                     <fieldset className="flex flex-col space-y-4">
                         <legend className="text-2xl font-bold mb-6">Create a New League</legend>
 
@@ -96,14 +89,14 @@ export default function LeagueCreator() {
                         </div>
 
                         {/* Draft Settings */}
-                        <div className="mt-8 border-t border-slate-grey pt-6">
+                        <div className="mt-8 border-t border-border pt-6">
                             <div className="flex items-center space-x-2 mb-4">
                                 <input
                                     type="checkbox"
                                     id="EnableDraft"
                                     checked={draftEnabled}
                                     onChange={(e) => setDraftEnabled(e.target.checked)}
-                                    className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
+                                    className="h-4 w-4 accent-primary rounded"
                                 />
                                 <Label htmlFor="EnableDraft" className="text-lg font-semibold">
                                     Enable Draft
@@ -172,7 +165,7 @@ export default function LeagueCreator() {
                                             id="AutoPickEnabled"
                                             name="AutoPickEnabled"
                                             defaultChecked={true}
-                                            className="h-4 w-4 text-liquid-lava rounded focus:ring-liquid-lava"
+                                            className="h-4 w-4 accent-primary rounded"
                                         />
                                         <Label htmlFor="AutoPickEnabled" className="text-muted-foreground">
                                             Enable Auto-Pick when time expires
@@ -190,7 +183,6 @@ export default function LeagueCreator() {
                         </Button>
                     </fieldset>
                 </form>
-            </div>
         </div>
         );
 }

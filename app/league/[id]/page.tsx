@@ -21,13 +21,13 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
     const leagueId = params.id;
     if (!leagueId) {
         return (
-            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+            <div className="flex flex-col items-center justify-center p-4">
                 <h1 className="text-2xl font-bold text-foreground mb-4">
                     Error: Invalid League
                 </h1>
-                <Link 
-                    href="/" 
-                    className="text-liquid-lava hover:opacity-80 transition-opacity font-medium"
+                <Link
+                    href="/"
+                    className="text-accent hover:opacity-80 transition-opacity font-medium"
                 >
                     Go Back to Home
                 </Link>
@@ -211,26 +211,22 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
     const isCommissioner = user.id === leagueData.commish;
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="w-full max-w-4xl mx-auto px-4">
-                <div className="py-6">
-                    <h1 className="text-xl font-bold text-foreground">
-                        {leagueData.name}
-                    </h1>
-                </div>
+        <div className="w-full max-w-4xl mx-auto px-4">
+            <div className="py-6">
+                <h1 className="text-xl font-bold text-foreground">
+                    {leagueData.name}
+                </h1>
+            </div>
 
-                <main>
-                    <div className="bg-card rounded-xl p-6 shadow-lg">
-                        <LeagueHome
-                            teams={teams}
-                            league_id={params.id}
-                            league={leagueData}
-                            draftSettings={draftSettingsData}
-                            isCommissioner={isCommissioner}
-                            weeks={sortedWeeks}
-                        />
-                    </div>
-                </main>
+            <div className="bg-card rounded-xl p-6 shadow-lg">
+                <LeagueHome
+                    teams={teams}
+                    league_id={params.id}
+                    league={leagueData}
+                    draftSettings={draftSettingsData}
+                    isCommissioner={isCommissioner}
+                    weeks={sortedWeeks}
+                />
             </div>
         </div>
     );

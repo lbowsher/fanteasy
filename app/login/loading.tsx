@@ -1,6 +1,6 @@
 export default function LoginLoading() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-card rounded-lg p-8 border border-border">
           {/* Logo skeleton */}
@@ -10,7 +10,7 @@ export default function LoginLoading() {
           <div className="space-y-4">
             <div className="h-12 bg-muted rounded animate-pulse"></div>
             <div className="h-12 bg-muted rounded animate-pulse"></div>
-            <div className="h-12 bg-liquid-lava/20 rounded animate-pulse"></div>
+            <div className="h-12 bg-primary/20 rounded animate-pulse"></div>
           </div>
 
           {/* Divider skeleton */}

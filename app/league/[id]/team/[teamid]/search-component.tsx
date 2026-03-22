@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from 'react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search } from 'lucide-react';
 
 interface SearchComponentProps {
   onSearch: (searchTerm: string) => void;
@@ -15,19 +18,18 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ onSearch }) => {
   return (
     <div className='bg-card border border-border p-3 rounded-lg my-4'>
       <div className="flex items-center gap-2">
-        <input
-          className='flex-grow bg-inherit text-foreground placeholder:text-muted-foreground focus:outline-none'
+        <Input
+          className='flex-grow bg-inherit border-0 focus-visible:ring-0'
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           placeholder="Search for players..."
         />
-        <button 
-          onClick={handleSearch}
-          className="px-4 py-1 bg-accent text-white rounded-md hover:opacity-90 transition-opacity"
-        >
+        <Button onClick={handleSearch} size="sm">
+          <Search size={16} />
           Search
-        </button>
+        </Button>
       </div>
     </div>
   );

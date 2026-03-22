@@ -29,11 +29,11 @@ const OneTapComponent = ({ redirectPath }: { redirectPath?: string }) => {
       console.log('Nonce: ', nonce, hashedNonce)
 
       // check if there's already an existing session before initializing the one-tap UI
-      const { data, error } = await supabase.auth.getSession()
+      const { data: { user }, error } = await supabase.auth.getUser()
       if (error) {
-        console.error('Error getting session', error)
+        console.error('Error getting user', error)
       }
-      if (data.session) {
+      if (user) {
         router.push(redirectPath || '/')
         return
       }
