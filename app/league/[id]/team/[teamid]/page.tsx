@@ -29,7 +29,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         return (
             <div className="min-h-screen bg-background">
                 <div className="max-w-xl mx-auto p-6">
-                    <h1 className="text-primary-text text-2xl font-bold mb-4">Error, invalid team</h1>
+                    <h1 className="text-foreground text-2xl font-bold mb-4">Error, invalid team</h1>
                     <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
                         Go Back to Home
                     </Link>
@@ -151,12 +151,12 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         <div className="min-h-screen bg-background">
             <div className="max-w-xl mx-auto">
                 <nav className="flex justify-between items-center px-6 py-4 border-b border-border">
-                    <Link href="/" className="text-lg font-bold text-primary-text hover:text-accent transition-colors">
+                    <Link href="/" className="text-lg font-bold text-foreground hover:text-accent transition-colors">
                         Home
                     </Link>
                     <Link 
                         href={`/league/${team.leagues?.id}`} 
-                        className="text-lg font-bold text-primary-text hover:text-accent transition-colors"
+                        className="text-lg font-bold text-foreground hover:text-accent transition-colors"
                     >
                         League Home
                     </Link>
@@ -174,7 +174,7 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         <div className="p-6">
             <div className="mb-6">
                 <TeamHeader team={team} isAuthorized={isAuthorized} isOwner={isOwner} isCommissioner={isCommissioner} />
-                <h2 className="text-secondary-text">{teamData.owner?.full_name || 'Unclaimed'}</h2>
+                <h2 className="text-muted-foreground">{teamData.owner?.full_name || 'Unclaimed'}</h2>
             </div>
 
             {teamData.league?.scoring_type === 'NFL Playoff Pickem' ? (

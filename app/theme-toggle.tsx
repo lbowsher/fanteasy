@@ -1,15 +1,16 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import { Moon, Sun, Stars, TreePine, Flame, Sunset, Snowflake } from 'lucide-react'
 
 const THEMES = [
-  { id: 'dark', label: 'Dark', icon: '🌑', description: 'Default dark' },
-  { id: 'light', label: 'Light', icon: '☀️', description: 'Clean light' },
-  { id: 'midnight', label: 'Midnight', icon: '🌌', description: 'Deep navy' },
-  { id: 'forest', label: 'Forest', icon: '🌲', description: 'Rich greens' },
-  { id: 'crimson', label: 'Crimson', icon: '🔴', description: 'Bold reds' },
-  { id: 'sunset', label: 'Sunset', icon: '🌅', description: 'Warm amber' },
-  { id: 'arctic', label: 'Arctic', icon: '❄️', description: 'Icy blues' },
+  { id: 'dark', label: 'Dark', icon: Moon, description: 'Default dark' },
+  { id: 'light', label: 'Light', icon: Sun, description: 'Clean light' },
+  { id: 'midnight', label: 'Midnight', icon: Stars, description: 'Deep navy' },
+  { id: 'forest', label: 'Forest', icon: TreePine, description: 'Rich greens' },
+  { id: 'crimson', label: 'Crimson', icon: Flame, description: 'Bold reds' },
+  { id: 'sunset', label: 'Sunset', icon: Sunset, description: 'Warm amber' },
+  { id: 'arctic', label: 'Arctic', icon: Snowflake, description: 'Icy blues' },
 ] as const
 
 type ThemeId = (typeof THEMES)[number]['id']
@@ -69,7 +70,7 @@ export default function ThemeToggle() {
         aria-label="Change theme"
         aria-expanded={open}
       >
-        <span>{current.icon}</span>
+        <current.icon size={14} />
         <span>{current.label}</span>
       </button>
 
@@ -83,7 +84,7 @@ export default function ThemeToggle() {
                 theme === t.id ? 'bg-muted font-medium' : ''
               }`}
             >
-              <span className="w-5 text-center">{t.icon}</span>
+              <span className="w-5 flex items-center justify-center"><t.icon size={14} /></span>
               <div className="text-left">
                 <div>{t.label}</div>
                 <div className="text-muted-foreground text-[10px]">{t.description}</div>

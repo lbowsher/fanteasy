@@ -210,7 +210,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                 {sortedTeams.map(team => (
                     <div
                         key={team.id}
-                        className="border border-border bg-card hover:bg-opacity-80 transition-colors duration-200 rounded-lg px-6 py-6"
+                        className="border border-border bg-card hover:brightness-110 transition-all duration-200 rounded-lg px-6 py-6"
                     >
                         <div className="flex justify-between items-center">
                             <div className="space-y-2">

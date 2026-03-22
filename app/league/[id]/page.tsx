@@ -22,7 +22,7 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
     if (!leagueId) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-                <h1 className="text-2xl font-bold text-primary-text mb-4">
+                <h1 className="text-2xl font-bold text-foreground mb-4">
                     Error: Invalid League
                 </h1>
                 <Link 
@@ -214,13 +214,13 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
         <div className="min-h-screen bg-background">
             <div className="w-full max-w-4xl mx-auto px-4">
                 <div className="py-6">
-                    <h1 className="text-xl font-bold text-primary-text">
+                    <h1 className="text-xl font-bold text-foreground">
                         {leagueData.name}
                     </h1>
                 </div>
 
                 <main>
-                    <div className="bg-surface rounded-xl p-6 shadow-lg">
+                    <div className="bg-card rounded-xl p-6 shadow-lg">
                         <LeagueHome
                             teams={teams}
                             league_id={params.id}

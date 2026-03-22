@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import Teams from './teams';
 
 const CURRENT_YEAR = 2026;
@@ -34,11 +35,11 @@ export default function HomeContent({ teams }: { teams: TeamWithLeague[] }) {
         <div className="border-t border-border">
           <button
             onClick={() => setShowPreviousYears(!showPreviousYears)}
-            className="w-full px-4 py-3 flex items-center justify-between text-secondary-text hover:text-primary-text hover:bg-surface transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between text-muted-foreground hover:text-foreground hover:bg-card transition-colors cursor-pointer"
           >
             <span className="font-medium">Previous Leagues</span>
-            <span className="text-sm">
-              {showPreviousYears ? '▲ Hide' : '▼ Show'} ({previousYearTeams.length})
+            <span className="text-sm flex items-center gap-1">
+              {showPreviousYears ? <><ChevronUp size={14} /> Hide</> : <><ChevronDown size={14} /> Show</>} ({previousYearTeams.length})
             </span>
           </button>
 

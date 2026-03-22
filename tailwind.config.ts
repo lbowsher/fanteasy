@@ -17,11 +17,6 @@ const config: Config = {
         'gluon-grey': '#1B1B1E',
         'slate-grey': '#262626',
 
-        // Legacy semantic aliases (use during migration, remove in Phase 4)
-        'surface': 'var(--surface)',
-        'primary-text': 'var(--primary-text)',
-        'secondary-text': 'var(--secondary-text)',
-
         // shadcn semantic colors (HSL from CSS variables)
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

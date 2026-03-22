@@ -43,12 +43,12 @@ export default function AddToTeam({user, team_name, team_id}: { user: User, team
         <div className="w-full max-w-md p-6">
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold mb-2">Join Team</h2>
-                <p className="text-secondary-text">You&apos;re about to join as: {team_name}</p>
+                <p className="text-muted-foreground">You&apos;re about to join as: {team_name}</p>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="TeamName" className="block text-sm text-secondary-text mb-1">
+                    <label htmlFor="TeamName" className="block text-sm text-muted-foreground mb-1">
                         You can customize your team name (optional):
                     </label>
                     <input 
@@ -56,7 +56,7 @@ export default function AddToTeam({user, team_name, team_id}: { user: User, team
                         name="TeamName" 
                         type="text" 
                         placeholder={team_name}
-                        className="w-full bg-surface text-primary-text border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
+                        className="w-full bg-card text-foreground border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
                     />
                 </div>
                 

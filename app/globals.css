@@ -44,10 +44,6 @@
 
     --radius: 0.5rem;
 
-    /* Legacy semantic aliases (for existing classes during migration) */
-    --surface: var(--gluon-grey);
-    --primary-text: var(--snow);
-    --secondary-text: var(--dusty-grey);
   }
 
   /* Light mode */
@@ -80,10 +76,6 @@
     --input: 0 0% 87%;
     --ring: 24 92% 51%;               /* liquid-lava */
 
-    /* Legacy aliases */
-    --surface: #f0f0f0;
-    --primary-text: var(--dark-void);
-    --secondary-text: #444444;
   }
 
   /* Midnight — deep navy blue */
@@ -116,9 +108,6 @@
     --input: 222 25% 18%;
     --ring: 210 100% 56%;
 
-    --surface: #121D33;
-    --primary-text: #EFF3FA;
-    --secondary-text: #7B8FAD;
   }
 
   /* Forest — rich dark greens */
@@ -151,9 +140,6 @@
     --input: 150 12% 18%;
     --ring: 142 70% 45%;
 
-    --surface: #162220;
-    --primary-text: #E8EDE9;
-    --secondary-text: #6E8B7B;
   }
 
   /* Crimson — deep reds, bold sports energy */
@@ -186,9 +172,6 @@
     --input: 0 10% 18%;
     --ring: 0 85% 55%;
 
-    --surface: #221818;
-    --primary-text: #F2EEEE;
-    --secondary-text: #8B6E6E;
   }
 
   /* Sunset — warm amber and purple tones */
@@ -221,9 +204,6 @@
     --input: 270 15% 19%;
     --ring: 32 95% 55%;
 
-    --surface: #1E1528;
-    --primary-text: #F5F0E6;
-    --secondary-text: #8B7A9B;
   }
 
   /* Arctic — icy light blues, clean */
@@ -256,9 +236,6 @@
     --input: 205 20% 85%;
     --ring: 200 90% 45%;
 
-    --surface: #FFFFFF;
-    --primary-text: #17232E;
-    --secondary-text: #55687A;
   }
 
   /* System preference light mode */
@@ -292,9 +269,6 @@
       --input: 0 0% 87%;
       --ring: 24 92% 51%;
 
-      --surface: #f0f0f0;
-      --primary-text: var(--dark-void);
-      --secondary-text: #444444;
     }
   }
 

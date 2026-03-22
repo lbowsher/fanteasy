@@ -28,11 +28,11 @@ export default async function Home() {
   })) ?? []
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-background text-primary-text">
+    <div className="w-full max-w-xl mx-auto bg-background text-foreground">
       <div className="px-4 py-6">
         <h1 className="text-xl font-bold">My Teams</h1>
       </div>
-      <div className="flex-1 bg-surface">
+      <div className="flex-1 bg-card">
         <div className="flex justify-end p-4">
           <Link
             href="/new-league"

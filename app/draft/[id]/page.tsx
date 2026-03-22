@@ -51,7 +51,7 @@ export default async function DraftPage({
     if (!userTeam && !isCommissioner) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-                <h1 className="text-2xl font-bold text-primary-text mb-4">
+                <h1 className="text-2xl font-bold text-foreground mb-4">
                     You don&apos;t have access to this draft
                 </h1>
                 <Link 
@@ -113,7 +113,7 @@ export default async function DraftPage({
         <div className="min-h-screen bg-background">
             <div className="w-full max-w-[1600px] mx-auto px-4">
                 <div className="py-6">
-                    <h1 className="text-xl font-bold text-primary-text">
+                    <h1 className="text-xl font-bold text-foreground">
                         {draftSettings.leagues.name} Draft
                     </h1>
                 </div>

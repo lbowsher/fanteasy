@@ -45,16 +45,16 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
         return (
             <div className='w-full max-w-xl mx-auto p-6'>
                 <div className='flex justify-between px-4 py-6 border border-border'>
-                    <Link className='text-xl font-bold text-primary-text hover:text-accent transition-colors' href={'/'}>Home</Link>
-                    <h1 className='text-xl font-bold text-primary-text'>Team Already Claimed</h1>
+                    <Link className='text-xl font-bold text-foreground hover:text-accent transition-colors' href={'/'}>Home</Link>
+                    <h1 className='text-xl font-bold text-foreground'>Team Already Claimed</h1>
                     <div className="flex items-center gap-4">
                         <ThemeToggle />
                         <AuthButtonServer />
                     </div>
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-surface rounded-lg border border-border mt-4">
-                    <h2 className="text-2xl font-bold mb-4 text-primary-text">This Team Has Already Been Claimed</h2>
-                    <p className="mb-4 text-secondary-text">
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-card rounded-lg border border-border mt-4">
+                    <h2 className="text-2xl font-bold mb-4 text-foreground">This Team Has Already Been Claimed</h2>
+                    <p className="mb-4 text-muted-foreground">
                         The team &quot;{team.name}&quot; has already been claimed by another user.
                     </p>
                     <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
@@ -68,14 +68,14 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
     return (
         <div className='w-full max-w-xl mx-auto'>
             <div className='flex justify-between px-4 py-6 border border-slate-grey'>
-                <Link className='text-xl font-bold text-primary-text hover:text-liquid-lava transition-colors' href={'/'}>Home</Link>
-                <h1 className='text-xl font-bold text-primary-text'>Team Invite</h1>
+                <Link className='text-xl font-bold text-foreground hover:text-liquid-lava transition-colors' href={'/'}>Home</Link>
+                <h1 className='text-xl font-bold text-foreground'>Team Invite</h1>
                 <div className="flex items-center gap-4">
                     <ThemeToggle />
                     <AuthButtonServer />
                 </div>
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center bg-surface p-6 rounded-lg border border-slate-grey">
+            <div className="flex-1 flex flex-col justify-center items-center bg-card p-6 rounded-lg border border-slate-grey">
                 <AddToTeam user={user} team_name={team.name} team_id={team_id} />
             </div>
         </div>
