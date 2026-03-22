@@ -10,34 +10,40 @@ export default function Teams({ teams }: { teams: TeamWithLeague[] }){
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {teams.map(team => (
-                <Link
-                    key={team.id}
-                    href={`/league/${team.league.id}/team/${team.id}`}
-                    className="block"
-                >
-                    <Card className="hover:brightness-110 transition-all cursor-pointer h-full">
-                        <CardContent className="p-4 flex items-center gap-4">
-                            <Image
-                                className="rounded-full flex-shrink-0"
-                                src={team.author.avatar_url}
-                                alt={`${team.name} avatar`}
-                                width={44}
-                                height={44}
-                            />
-                            <div className="min-w-0">
-                                <p className="font-bold truncate">{team.name}</p>
-                                <p className="text-sm text-muted-foreground truncate">
+                <Card key={team.id} className="h-full">
+                    <CardContent className="p-4 flex items-center gap-4">
+                        <Image
+                            className="rounded-full flex-shrink-0"
+                            src={team.author.avatar_url}
+                            alt={`${team.name} avatar`}
+                            width={44}
+                            height={44}
+                        />
+                        <div className="min-w-0">
+                            <p className="font-bold truncate">
+                                <Link
+                                    href={`/league/${team.league.id}/team/${team.id}`}
+                                    className="hover:text-primary transition-colors"
+                                >
+                                    {team.name}
+                                </Link>
+                            </p>
+                            <p className="text-sm truncate">
+                                <Link
+                                    href={`/league/${team.league.id}`}
+                                    className="text-muted-foreground hover:text-foreground transition-colors"
+                                >
                                     {team.league.name}
-                                    {team.league.league && (
-                                        <span className="ml-2 text-xs bg-muted px-1.5 py-0.5 rounded">
-                                            {team.league.league}
-                                        </span>
-                                    )}
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </Link>
+                                </Link>
+                                {team.league.league && (
+                                    <span className="ml-2 text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+                                        {team.league.league}
+                                    </span>
+                                )}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
             ))}
         </div>
     )
