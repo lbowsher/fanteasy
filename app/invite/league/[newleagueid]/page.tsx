@@ -22,7 +22,15 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
         );
     }
 
-    // Get league info
+    // Check auth BEFORE any DB queries so the session is resolved for RLS
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        // Middleware should redirect unauthenticated users, but fallback just in case
+        redirect(`/login?next=/invite/league/${league_id}`);
+    }
+
+    // Get league info (requires authenticated session for RLS)
     const { data: league } = await supabase
         .from('leagues')
         .select('*')
@@ -36,13 +44,6 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
                 <Link href="/">Go Back to Home</Link>
             </>
         );
-    }
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-        // Middleware should redirect unauthenticated users, but fallback just in case
-        redirect(`/login?next=/invite/league/${league_id}`);
     }
 
     // Find all unclaimed teams in the league, sorted by name
