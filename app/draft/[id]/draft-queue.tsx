@@ -185,7 +185,7 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
                 <p className="text-center py-4">Loading your queue...</p>
             ) : availableQueuedPlayers.length === 0 ? (
                 <div className="text-center py-4">
-                    <p className="text-secondary-text mb-2">Your queue is empty.</p>
+                    <p className="text-muted-foreground mb-2">Your queue is empty.</p>
                     <p className="text-sm">Add players from the available list to create your draft priorities.</p>
                 </div>
             ) : (
@@ -208,10 +208,10 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
-                                                className="flex items-center p-2 border border-slate-grey rounded-lg bg-surface hover:bg-gluon-grey transition-colors"
+                                                className="flex items-center p-2 border border-slate-grey rounded-lg bg-card hover:bg-gluon-grey transition-colors"
                                             >
                                                 <div className="flex-shrink-0 mr-3">
-                                                    <div className="w-7 h-7 flex items-center justify-center bg-slate-grey text-primary-text rounded-full font-bold text-sm">
+                                                    <div className="w-7 h-7 flex items-center justify-center bg-slate-grey text-foreground rounded-full font-bold text-sm">
                                                         {index + 1}
                                                     </div>
                                                 </div>
@@ -219,7 +219,7 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
                                                 <div className="flex justify-between items-center flex-grow">
                                                     <div>
                                                         <p className="font-medium text-sm">{queueItem.player?.name}</p>
-                                                        <p className="text-xs text-secondary-text">
+                                                        <p className="text-xs text-muted-foreground">
                                                             {queueItem.player?.position} - {queueItem.player?.team_name}
                                                         </p>
                                                     </div>

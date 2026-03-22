@@ -13,10 +13,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ onSearch }) => {
   };
 
   return (
-    <div className='bg-surface border border-border p-3 rounded-lg my-4'>
+    <div className='bg-card border border-border p-3 rounded-lg my-4'>
       <div className="flex items-center gap-2">
         <input
-          className='flex-grow bg-inherit text-primary-text placeholder:text-secondary-text focus:outline-none'
+          className='flex-grow bg-inherit text-foreground placeholder:text-muted-foreground focus:outline-none'
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

@@ -5,12 +5,12 @@ import Link from 'next/link';
 
 export default function Teams({ teams }: { teams: TeamWithLeague[] }){
     return teams.map(team => ( 
-        <div key={team.id} className="px-4 py-8 flex border-b border-border hover:bg-surface transition-colors">
+        <div key={team.id} className="px-4 py-8 flex border-b border-border hover:bg-card transition-colors cursor-pointer">
             <div className="h-12 w-12">
                 <Image 
                     className="rounded-full" 
                     src={team.author.avatar_url} 
-                    alt="team user avatar" 
+                    alt={`${team.name} avatar`} 
                     width={48} 
                     height={48}
                 />
@@ -27,7 +27,7 @@ export default function Teams({ teams }: { teams: TeamWithLeague[] }){
                 <p>
                     <Link 
                         href={`/league/${team.league.id}`} 
-                        className="text-secondary-text hover:text-accent transition-colors"
+                        className="text-muted-foreground hover:text-accent transition-colors"
                     >
                         {team.league.name}
                     </Link>

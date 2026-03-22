@@ -48,8 +48,8 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
     };
 
     return (
-        <div className="bg-surface p-4 rounded-lg border border-border">
-            <h2 className="text-xl font-bold text-primary-text mb-4">Add Players to Roster</h2>
+        <div className="bg-card p-4 rounded-lg border border-border">
+            <h2 className="text-xl font-bold text-foreground mb-4">Add Players to Roster</h2>
             <SearchComponent onSearch={handleSearch} />
             
             {searchResults.length > 0 ? (
@@ -57,11 +57,11 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
                     {searchResults.map((player) => (
                         <div 
                             key={`${player.id}`}
-                            className="flex items-center justify-between p-3 bg-background rounded-lg hover:bg-surface transition-colors"
+                            className="flex items-center justify-between p-3 bg-background rounded-lg hover:bg-card transition-colors"
                         >
                             <div>
-                                <span className="font-medium text-primary-text">{player.name}</span>
-                                <span className="ml-2 text-sm text-secondary-text">{player.team_name}</span>
+                                <span className="font-medium text-foreground">{player.name}</span>
+                                <span className="ml-2 text-sm text-muted-foreground">{player.team_name}</span>
                             </div>
                             <button 
                                 onClick={() => UpdatePlayer(player.id)}
@@ -73,7 +73,7 @@ const SearchPage: React.FC<{ sports_league: LeagueSportsLeague, team: TeamWithPl
                     ))}
                 </div>
             ) : (
-                <div className="text-secondary-text text-center py-4">
+                <div className="text-muted-foreground text-center py-4">
                     Search for players to add to your team
                 </div>
             )}
