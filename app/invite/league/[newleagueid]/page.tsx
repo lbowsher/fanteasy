@@ -2,10 +2,9 @@
 "use server";
 import { createClient } from "../../../utils/supabase/server";
 import { redirect } from "next/navigation";
-import AuthButtonServer from '../../../auth-button-server';
-import ThemeToggle from '../../../theme-toggle';
 import Link from 'next/link';
 import AddToTeam from './add-to-team';
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function LeagueInvite(props: { params: Promise<{ newleagueid: LeagueID }> }) {
     const params = await props.params;
@@ -15,10 +14,12 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
     // First validate the league ID
     if (!league_id) {
         return (
-            <>
-                <h1>Error, invalid invite link, please try again</h1>
-                <Link href="/">Go Back to Home</Link>
-            </>
+            <div className="w-full max-w-xl mx-auto px-4 py-8 text-center">
+                <h1 className="text-xl font-bold mb-4">Invalid Invite Link</h1>
+                <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
+                    Go Back to Home
+                </Link>
+            </div>
         );
     }
 
@@ -39,10 +40,12 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
 
     if (!league) {
         return (
-            <>
-                <h1>Error, invalid invite link, please try again</h1>
-                <Link href="/">Go Back to Home</Link>
-            </>
+            <div className="w-full max-w-xl mx-auto px-4 py-8 text-center">
+                <h1 className="text-xl font-bold mb-4">Invalid Invite Link</h1>
+                <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
+                    Go Back to Home
+                </Link>
+            </div>
         );
     }
 
@@ -56,45 +59,33 @@ export default async function LeagueInvite(props: { params: Promise<{ newleaguei
 
     if (!teams || teams.length === 0) {
         return (
-            <div className='w-full max-w-xl mx-auto'>
-                <div className='flex justify-between px-4 py-6 border border-border'>
-                    <Link className='text-xl font-bold text-foreground hover:text-accent transition-colors' href={'/'}>Home</Link>
-                    <h1 className='text-xl font-bold text-foreground'>League Invite</h1>
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
-                        <AuthButtonServer />
-                    </div>
-                </div>
-                <div className="flex-1 flex flex-col justify-center items-center p-8 bg-card rounded-lg border border-border mt-4">
-                    <h2 className="text-2xl font-bold mb-4 text-foreground">No Available Teams</h2>
-                    <p className="text-center mb-4 text-muted-foreground">
-                        Sorry, there are no available teams in {league.name}. All teams have been claimed.
-                    </p>
-                    <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
-                        Return to Home
-                    </Link>
-                </div>
+            <div className="w-full max-w-xl mx-auto px-4 py-8">
+                <Card>
+                    <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+                        <h2 className="text-2xl font-bold mb-4">No Available Teams</h2>
+                        <p className="text-center mb-4 text-muted-foreground">
+                            Sorry, there are no available teams in {league.name}. All teams have been claimed.
+                        </p>
+                        <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
+                            Return to Home
+                        </Link>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className='w-full max-w-xl mx-auto'>
-            <div className='flex justify-between px-4 py-6 border border-border'>
-                <Link className='text-xl font-bold text-foreground hover:text-accent transition-colors' href={'/'}>Home</Link>
-                <h1 className='text-xl font-bold text-foreground'>League Invite</h1>
-                <div className="flex items-center gap-4">
-                    <ThemeToggle />
-                    <AuthButtonServer />
-                </div>
-            </div>
-            <div className="flex-1 flex flex-col justify-center items-center p-8 bg-card rounded-lg border border-border mt-4">
-                <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold mb-2 text-foreground">Join {league.name}</h2>
-                    <p className="text-muted-foreground">Select a team to join</p>
-                </div>
-                <AddToTeam user={user} teams={teams} />
-            </div>
+        <div className="w-full max-w-xl mx-auto px-4 py-8">
+            <Card>
+                <CardContent className="flex flex-col items-center p-6">
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl font-bold mb-2">Join {league.name}</h2>
+                        <p className="text-muted-foreground">Select a team to join</p>
+                    </div>
+                    <AddToTeam user={user} teams={teams} />
+                </CardContent>
+            </Card>
         </div>
     );
 }

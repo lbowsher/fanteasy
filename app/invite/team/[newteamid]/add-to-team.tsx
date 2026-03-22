@@ -4,6 +4,9 @@ import { User } from "@supabase/supabase-js";
 import { createClient } from "../../../utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AddToTeam({user, team_name, team_id}: { user: User, team_name: string, team_id: TeamID}) {
     const router = useRouter();
@@ -14,22 +17,21 @@ export default function AddToTeam({user, team_name, team_id}: { user: User, team
         e.preventDefault();
         setIsSubmitting(true);
         setError(null);
-        
+
         const formData = new FormData(e.currentTarget);
         const new_team_name = String(formData.get('TeamName')) || team_name;
-        
+
         try {
             const supabase = createClient();
             const { error } = await supabase
                 .from('teams')
                 .update({ user_id: user.id, name: new_team_name })
                 .eq('id', team_id);
-                
+
             if (error) {
                 throw error;
             }
-            
-            console.log("Added user to team");
+
             router.push('/');
         } catch (err) {
             console.error("Error adding user to team:", err);
@@ -40,39 +42,39 @@ export default function AddToTeam({user, team_name, team_id}: { user: User, team
     };
 
     return (
-        <div className="w-full max-w-md p-6">
+        <div className="w-full max-w-md">
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold mb-2">Join Team</h2>
                 <p className="text-muted-foreground">You&apos;re about to join as: {team_name}</p>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="TeamName" className="block text-sm text-muted-foreground mb-1">
-                        You can customize your team name (optional):
-                    </label>
-                    <input 
+                    <Label htmlFor="TeamName" className="text-muted-foreground mb-1">
+                        Customize your team name (optional):
+                    </Label>
+                    <Input
                         id="TeamName"
-                        name="TeamName" 
-                        type="text" 
+                        name="TeamName"
+                        type="text"
                         placeholder={team_name}
-                        className="w-full bg-card text-foreground border border-slate-grey rounded-lg px-4 py-2 focus:border-liquid-lava focus:outline-none transition-colors"
                     />
                 </div>
-                
+
                 {error && (
                     <div className="text-red-500 text-sm p-2 bg-red-100/10 rounded">
                         {error}
                     </div>
                 )}
-                
-                <button 
-                    type="submit" 
+
+                <Button
+                    type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-liquid-lava text-snow font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                    loading={isSubmitting}
+                    className="w-full h-12 font-bold"
                 >
                     {isSubmitting ? "Joining..." : "Join Team"}
-                </button>
+                </Button>
             </form>
         </div>
     );
