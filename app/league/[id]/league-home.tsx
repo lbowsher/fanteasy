@@ -220,7 +220,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                             <div className="space-y-2">
                                 <Link
                                     href={`${league_id}/team/${team.id}`}
-                                    className="text-lg font-bold text-foreground hover:text-liquid-lava transition-colors"
+                                    className="text-lg font-bold text-foreground hover:text-primary transition-colors"
                                 >
                                     {team.name}
                                 </Link>
@@ -242,7 +242,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                                         {Number(team.weeklyScores[week] || 0).toFixed(1)}
                                     </span>
                                 ))}
-                                <span className="w-20 text-center text-liquid-lava font-bold text-lg">
+                                <span className="w-20 text-center text-primary font-bold text-lg">
                                     {Number(team.totalScore).toFixed(1)}
                                 </span>
                             </div>

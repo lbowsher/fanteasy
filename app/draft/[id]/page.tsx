@@ -50,13 +50,13 @@ export default async function DraftPage({
     
     if (!userTeam && !isCommissioner) {
         return (
-            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+            <div className="flex flex-col items-center justify-center p-4">
                 <h1 className="text-2xl font-bold text-foreground mb-4">
                     You don&apos;t have access to this draft
                 </h1>
-                <Link 
-                    href="/" 
-                    className="text-liquid-lava hover:opacity-80 transition-opacity font-medium"
+                <Link
+                    href="/"
+                    className="text-accent hover:opacity-80 transition-opacity font-medium"
                 >
                     Go Back to Home
                 </Link>
@@ -110,16 +110,14 @@ export default async function DraftPage({
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="w-full max-w-[1600px] mx-auto px-4">
-                <div className="py-6">
-                    <h1 className="text-xl font-bold text-foreground">
-                        {draftSettings.leagues.name} Draft
-                    </h1>
-                </div>
+        <div className="w-full max-w-[1600px] mx-auto px-4">
+            <div className="py-6">
+                <h1 className="text-xl font-bold text-foreground">
+                    {draftSettings.leagues.name} Draft
+                </h1>
+            </div>
 
-                <main>
-                    <DraftRoom
+            <DraftRoom
                         draftSettings={draftSettings}
                         currentTeam={currentTeam}
                         isCommissioner={isCommissioner}
@@ -127,9 +125,7 @@ export default async function DraftPage({
                         userRankings={userRankings}
                         userTeamSettings={userTeamSettings}
                         ncaaTeamInfo={ncaaTeamInfo}
-                    />
-                </main>
-            </div>
+                />
         </div>
     );
 }

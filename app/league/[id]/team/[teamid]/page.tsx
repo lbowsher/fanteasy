@@ -3,8 +3,6 @@
 // league/[id]/team/[teamid]/page.tsx
 import { createClient } from "../../../../utils/supabase/server";
 import { redirect } from 'next/navigation';
-import AuthButtonServer from '../../../../auth-button-server';
-import ThemeToggle from '../../../../theme-toggle';
 import Link from 'next/link';
 import OneTeam from './one-team';
 import SearchPage from './search-page';
@@ -27,13 +25,11 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
     const teamId = params.teamid;
     if (!teamId) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="max-w-xl mx-auto p-6">
-                    <h1 className="text-foreground text-2xl font-bold mb-4">Error, invalid team</h1>
-                    <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
-                        Go Back to Home
-                    </Link>
-                </div>
+            <div className="max-w-xl mx-auto p-6">
+                <h1 className="text-foreground text-2xl font-bold mb-4">Error, invalid team</h1>
+                <Link href="/" className="text-accent hover:opacity-80 transition-opacity">
+                    Go Back to Home
+                </Link>
             </div>
         );
     }
@@ -147,32 +143,16 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
     const isCommissioner = user.id === team.leagues?.commish;
     const isAuthorized = isOwner || isCommissioner;
 
-    const baseLayout = (content: React.ReactNode) => (
-        <div className="min-h-screen bg-background">
-            <div className="max-w-xl mx-auto">
-                <nav className="flex justify-between items-center px-6 py-4 border-b border-border">
-                    <Link href="/" className="text-lg font-bold text-foreground hover:text-accent transition-colors">
-                        Home
+    return (
+        <div className="w-full max-w-xl mx-auto px-4">
+            <div className="py-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <Link href={`/league/${team.leagues?.id}`} className="hover:text-foreground transition-colors">
+                        {team.leagues?.name || 'League'}
                     </Link>
-                    <Link 
-                        href={`/league/${team.leagues?.id}`} 
-                        className="text-lg font-bold text-foreground hover:text-accent transition-colors"
-                    >
-                        League Home
-                    </Link>
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle />
-                        <AuthButtonServer />
-                    </div>
-                </nav>
-                {content}
-            </div>
-        </div>
-    );
-
-    const mainContent = (
-        <div className="p-6">
-            <div className="mb-6">
+                    <span>/</span>
+                    <span className="text-foreground">{team.name}</span>
+                </div>
                 <TeamHeader team={team} isAuthorized={isAuthorized} isOwner={isOwner} isCommissioner={isCommissioner} />
                 <h2 className="text-muted-foreground">{teamData.owner?.full_name || 'Unclaimed'}</h2>
             </div>
@@ -201,6 +181,4 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
             )}
         </div>
     );
-
-    return baseLayout(mainContent);
 }

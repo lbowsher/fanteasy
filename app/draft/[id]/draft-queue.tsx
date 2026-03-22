@@ -227,7 +227,7 @@ export default function DraftQueue({ teamId, draftId }: DraftQueueProps) {
                                                     
                                                     <button
                                                         onClick={() => removeFromQueue(queueItem.id)}
-                                                        className="flex-shrink-0 p-1 text-dusty-grey hover:text-liquid-lava transition-colors"
+                                                        className="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors"
                                                         aria-label="Remove from queue"
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
