@@ -22,6 +22,14 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
         );
     }
 
+    // Check auth BEFORE any DB queries so the session is resolved for RLS
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        // Middleware should redirect unauthenticated users, but fallback just in case
+        redirect(`/login?next=/invite/team/${team_id}`);
+    }
+
     const { data: team } = await supabase.from('teams').select('*').eq('id', team_id).single();
     if (!team) {
         return (
@@ -31,7 +39,7 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
             </>
         );
     }
-    
+
     // Check if team is already claimed
     if (team.user_id) {
         return (
@@ -55,13 +63,6 @@ export default async function TeamInvite(props: { params: Promise<{ newteamid: T
                 </div>
             </div>
         );
-    }
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-        // Middleware should redirect unauthenticated users, but fallback just in case
-        redirect(`/login?next=/invite/team/${team_id}`);
     }
 
     return (
