@@ -10,6 +10,7 @@ import { createClient } from "../../utils/supabase/client";
 import DraftStatusPanel from './draft-status-panel';
 import { useRouter } from 'next/navigation';
 import { Plus, Settings } from 'lucide-react';
+import { toast } from 'sonner';
 import LeagueSettingsModal from './league-settings-modal';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,7 +59,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
     const copyToClipboard = async (text: string) => {
         try {
             await navigator.clipboard.writeText(text);
-            alert('Link copied to clipboard!');
+            toast.success('Link copied to clipboard!');
         } catch (err) {
             console.error('Failed to copy text: ', err);
         }
@@ -103,26 +104,29 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
             {isCommissioner && (
                 <Card className="mb-6">
                     <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                             <h3 className="text-lg font-semibold text-foreground">Commissioner Controls</h3>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center flex-wrap gap-2">
                                 <Button
                                     variant="outline"
+                                    size="sm"
                                     onClick={() => setShowSettings(true)}
                                 >
-                                    <Settings size={18} />
+                                    <Settings size={16} />
                                     Settings
                                 </Button>
                                 <Button
+                                    size="sm"
                                     onClick={() => setShowAddTeam(true)}
                                 >
-                                    <Plus size={18} />
+                                    <Plus size={16} />
                                     Add Team
                                 </Button>
                                 <Button
+                                    size="sm"
                                     onClick={() => copyToClipboard(`${window.location.origin}/invite/league/${league_id}`)}
                                 >
-                                    Copy League Invite Link
+                                    Copy Invite Link
                                 </Button>
                             </div>
                         </div>
@@ -200,7 +204,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
             {weeks.length > 0 && (
                 <div className="flex justify-end items-center gap-4 px-6 py-2 text-sm text-muted-foreground">
                     {weeks.map(week => (
-                        <span key={week} className="w-16 text-center">Wk {week}</span>
+                        <span key={week} className="hidden sm:inline-block w-16 text-center">Wk {week}</span>
                     ))}
                     <span className="w-20 text-center">Total</span>
                 </div>
@@ -234,7 +238,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                                     </Button>
                                 )}
                                 {weeks.map(week => (
-                                    <span key={week} className="w-16 text-center text-muted-foreground">
+                                    <span key={week} className="hidden sm:inline-block w-16 text-center text-muted-foreground">
                                         {Number(team.weeklyScores[week] || 0).toFixed(1)}
                                     </span>
                                 ))}

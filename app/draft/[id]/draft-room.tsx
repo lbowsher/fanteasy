@@ -8,6 +8,7 @@ import PicksCarousel from './picks-carousel';
 import DraftBoardGrid from './draft-board-grid';
 import DraftInfoPanel from './draft-info-panel';
 import { makePick, startDraft, togglePause, toggleAutoPick, triggerAutoPick } from './actions';
+import { toast } from 'sonner';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getDefaultExpectedGames, parsePlayerSummary, computeProjectedTotal } from '@/app/rankings/ncaa/utils';
@@ -287,7 +288,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
         startTransition(async () => {
             const result = await startDraft(draftSettings.id);
             if (!result.success) {
-                alert(result.error || 'Failed to start draft');
+                toast.error(result.error || 'Failed to start draft');
             }
         });
     };
@@ -296,7 +297,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
         startTransition(async () => {
             const result = await togglePause(draftSettings.id);
             if (!result.success) {
-                alert(result.error || 'Failed to toggle pause');
+                toast.error(result.error || 'Failed to toggle pause');
             }
         });
     };
@@ -307,7 +308,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
         startTransition(async () => {
             const result = await toggleAutoPick(currentTeam.id);
             if (!result.success) {
-                alert(result.error || 'Failed to update auto-pick preference');
+                toast.error(result.error || 'Failed to update auto-pick preference');
             } else {
                 setAutoPickEnabled(result.data.autoPickEnabled);
             }
@@ -446,7 +447,7 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
                                                 if (queueError) throw queueError;
 
                                                 if (currentQueue?.some(item => item.player_id === player.id)) {
-                                                    alert('This player is already in your queue.');
+                                                    toast.warning('This player is already in your queue.');
                                                     return;
                                                 }
 
@@ -464,10 +465,10 @@ export default function DraftRoom({ draftSettings, currentTeam, isCommissioner, 
 
                                                 if (error) throw error;
 
-                                                alert('Player added to your queue!');
+                                                toast.success('Player added to your queue!');
                                             } catch (error: any) {
                                                 console.error('Error adding player to queue:', error);
-                                                alert(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
+                                                toast.error(`Failed to add player to queue: ${error?.message || 'Unknown error'}`);
                                             }
                                         }}
                                         isMyTurn={isMyTurn}
