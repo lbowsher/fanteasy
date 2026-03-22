@@ -34,6 +34,8 @@ interface TeamWithOwnerAndScores {
     league_id: string;
     user_id?: string | null;
     is_commish?: boolean | null;
+    activePlayers: number;
+    totalPlayers: number;
 }
 
 interface LeagueHomeProps {
@@ -43,6 +45,11 @@ interface LeagueHomeProps {
     draftSettings: DraftSettings | null;
     isCommissioner: boolean;
     weeks: number[];
+}
+
+function weekLabel(week: number, league: League): string {
+    if (league.league === 'NFL') return `Wk ${week}`;
+    return `G${week}`;
 }
 
 export default function LeagueHome({ teams, league_id, league, draftSettings, isCommissioner, weeks }: LeagueHomeProps) {
@@ -204,7 +211,7 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
             {weeks.length > 0 && (
                 <div className="flex justify-end items-center gap-4 px-6 py-2 text-sm text-muted-foreground">
                     {weeks.map(week => (
-                        <span key={week} className="hidden sm:inline-block w-16 text-center">Wk {week}</span>
+                        <span key={week} className="hidden sm:inline-block w-16 text-center">{weekLabel(week, league)}</span>
                     ))}
                     <span className="w-20 text-center">Total</span>
                 </div>
@@ -226,6 +233,13 @@ export default function LeagueHome({ teams, league_id, league, draftSettings, is
                                 </Link>
                                 <p className="text-muted-foreground text-sm">
                                     {team.owner || 'Unclaimed'}
+                                    {league.league === 'NCAAM' && team.totalPlayers > 0 && (
+                                        <span className="ml-2">
+                                            · <span className={team.activePlayers === 0 ? 'text-destructive' : 'text-primary'}>
+                                                {team.activePlayers}/{team.totalPlayers} active
+                                            </span>
+                                        </span>
+                                    )}
                                 </p>
                             </div>
                             <div className="flex items-center gap-4">

@@ -191,20 +191,42 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
         };
     }));
 
-    // Collect all weeks that have scores across all teams
+    // Collect all weeks that have scores across all teams (filter out NaN from null week_numbers)
     const allWeeks = new Set<number>();
     teamScores.forEach(ts => {
-        Object.keys(ts.weeklyScores).forEach(week => allWeeks.add(parseInt(week)));
+        Object.keys(ts.weeklyScores).forEach(week => {
+            const parsed = parseInt(week);
+            if (!isNaN(parsed)) allWeeks.add(parsed);
+        });
     });
     const sortedWeeks = Array.from(allWeeks).sort((a, b) => a - b);
 
+    // For NCAAM Best Ball, fetch eliminated status for all rostered players
+    let playerEliminated: Record<string, boolean> = {};
+    if (leagueData.league === 'NCAAM') {
+        const allPlayerIds = teamsData.flatMap(t => t.team_players || []);
+        if (allPlayerIds.length > 0) {
+            const { data: playerStatuses } = await supabase
+                .from('players')
+                .select('id, eliminated')
+                .in('id', allPlayerIds);
+            (playerStatuses || []).forEach(p => {
+                playerEliminated[p.id] = p.eliminated ?? false;
+            });
+        }
+    }
+
     const teams = teamsData.map(team => {
         const scoreData = teamScores.find(score => score.teamId === team.id);
+        const playerIds = team.team_players || [];
+        const activePlayers = playerIds.filter((id: string) => !playerEliminated[id]).length;
         return {
             ...team,
             owner: team.profiles?.full_name,
             totalScore: scoreData?.totalScore || 0,
-            weeklyScores: scoreData?.weeklyScores || {}
+            weeklyScores: scoreData?.weeklyScores || {},
+            activePlayers,
+            totalPlayers: playerIds.length,
         };
     });
 

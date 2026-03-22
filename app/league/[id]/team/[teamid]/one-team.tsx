@@ -47,6 +47,13 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                         <h2 className="text-lg font-semibold text-foreground">Team Total Score</h2>
                         <div className="text-2xl font-bold text-accent">{totalTeamScore.toFixed(1)}</div>
                     </div>
+                    {team.leagues?.league === 'NCAAM' && team.players && team.players.length > 0 && (
+                        <div className="mt-2 text-sm text-muted-foreground">
+                            <span className="text-primary font-medium">
+                                {team.players.filter((p: Player) => !p.eliminated).length}/{team.players.length}
+                            </span> players active
+                        </div>
+                    )}
                 </CardContent>
             </Card>
             {orderedPlayers().map((player: Player) => {
@@ -57,7 +64,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                 return (
                     <div
                         key={player.id}
-                        className="flex items-center p-4 bg-background rounded-lg border border-border hover:border-accent transition-colors"
+                        className={`flex items-center p-4 bg-background rounded-lg border border-border hover:border-accent transition-colors ${player.eliminated ? 'opacity-50' : ''}`}
                     >
                         <div className="flex-shrink-0">
                             <Image
@@ -80,10 +87,15 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                                     </p>
                                 </div>
 
-                                <div className="text-right">
+                                <div className="text-right flex items-center gap-2">
                                     <span className="inline-block px-2 py-1 bg-card rounded text-xs font-medium text-accent">
                                         {player.position}
                                     </span>
+                                    {player.eliminated && (
+                                        <span className="inline-block px-2 py-1 bg-destructive/10 rounded text-xs font-medium text-destructive">
+                                            Eliminated
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 

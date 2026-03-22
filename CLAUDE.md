@@ -15,7 +15,7 @@ npm run lint     # Run ESLint
 
 Fanteasy is a fantasy sports league application supporting NFL, NBA, and NCAAM leagues with real-time drafting.
 
-**Tech Stack:** Next.js 15 (App Router) + React 19 + Supabase (auth, database, realtime) + Tailwind CSS
+**Tech Stack:** Next.js 15 (App Router) + React 19 + Supabase (auth, database, realtime) + Tailwind CSS + shadcn/ui + Lucide icons
 
 ### Key Directories
 - `app/` - Next.js App Router pages and components (colocated by feature)
@@ -40,7 +40,7 @@ Auto-generated types from Supabase are in `lib/database.types.ts`. Extended rela
 
 ## Supabase Auth - Critical Pattern
 
-**MUST use `@supabase/ssr` with `getAll`/`setAll` pattern. NEVER use deprecated `get`/`set`/`remove` methods or `@supabase/auth-helpers-nextjs`.**
+**MUST use `@supabase/ssr` with `getAll`/`setAll` pattern. NEVER use deprecated `get`/`set`/`remove` methods or `@supabase/auth-helpers-nextjs`.** Use `getUser()` (validates JWT server-side) — NEVER `getSession()` (trusts unverified JWT from cookie).
 
 See `documentation/development/auth.md` for correct implementation patterns.
 
@@ -50,11 +50,24 @@ Middleware: `middleware.ts`
 
 ## Theme System
 
-Uses CSS custom properties with `data-theme` attribute on `<html>`:
-- Dark mode (default): `--background`, `--surface`, `--primary-text` etc.
-- Light mode: `html[data-theme="light"]` overrides
-- Theme state persisted in localStorage
-- Custom Tailwind colors defined in `tailwind.config.ts`: liquid-lava, dark-void, snow, dusty-grey, gluon-grey, slate-grey
+Uses CSS custom properties with `data-theme` attribute on `<html>`. Theme state persisted in localStorage.
+
+**7 themes:** dark (default), light, midnight, forest, crimson, sunset, arctic — defined in `app/globals.css`
+
+**Color tokens — always use shadcn semantic classes, NOT raw brand colors:**
+- `text-foreground` / `text-muted-foreground` (not `text-primary-text` or `text-secondary-text` — removed)
+- `bg-background` / `bg-card` / `bg-muted` (not `bg-surface` — removed)
+- `text-primary` / `text-accent` for interactive/highlight elements (not `text-liquid-lava`)
+- `text-destructive` for errors/delete actions
+- `border-border` (not `border-slate-grey`)
+- Raw brand colors (`liquid-lava`, `dark-void`, etc.) exist in Tailwind config but should only be used for truly brand-specific needs
+
+**UI component conventions:**
+- Use shadcn/ui components (`Card`, `Button`, `Input`, `Label`, `Tabs`, etc.) — not raw HTML equivalents
+- Use Lucide React for icons — no emojis as UI elements
+- Use `sonner` toast (`toast.success/error/warning`) — not `alert()`
+- Global `NavBar` in `layout.tsx` handles navigation, theme toggle, and auth — pages should NOT render their own nav bars
+- `min-h-screen bg-background` is on `<body>` — pages should NOT add it themselves
 
 ## Environment Variables
 
