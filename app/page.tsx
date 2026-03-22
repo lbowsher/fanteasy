@@ -2,13 +2,15 @@ import { createClient } from './utils/supabase/server'
 import { redirect } from 'next/navigation';
 import HomeContent from './home-content';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
   if (authError || !user) {
       redirect('/login');
   }
@@ -17,7 +19,7 @@ export default async function Home() {
     .select(`
       *,
       profiles(id, avatar_url),
-      leagues(id, name, created_at)
+      leagues(id, name, created_at, league)
     `)
     .eq('user_id', user.id);
 
@@ -28,21 +30,17 @@ export default async function Home() {
   })) ?? []
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-background text-foreground">
-      <div className="px-4 py-6">
-        <h1 className="text-xl font-bold">My Teams</h1>
-      </div>
-      <div className="flex-1 bg-card">
-        <div className="flex justify-end p-4">
-          <Link
-            href="/new-league"
-            className="inline-block rounded-lg bg-accent hover:opacity-90 transition-opacity text-white py-2 px-4"
-          >
-            + Create a New League
+    <div className="w-full max-w-2xl mx-auto px-4 py-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">My Teams</h1>
+        <Button asChild>
+          <Link href="/new-league">
+            <Plus size={16} />
+            New League
           </Link>
-        </div>
-        <HomeContent teams={teams}/>
+        </Button>
       </div>
+      <HomeContent teams={teams}/>
     </div>
   )
 }
