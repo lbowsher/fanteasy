@@ -539,6 +539,7 @@ export type Database = {
           carries: number | null
           completions: number | null
           created_at: string
+          eliminated: boolean | null
           external_id: string | null
           fumbles: number | null
           games: number | null
@@ -570,6 +571,7 @@ export type Database = {
           carries?: number | null
           completions?: number | null
           created_at?: string
+          eliminated?: boolean | null
           external_id?: string | null
           fumbles?: number | null
           games?: number | null
@@ -601,6 +603,7 @@ export type Database = {
           carries?: number | null
           completions?: number | null
           created_at?: string
+          eliminated?: boolean | null
           external_id?: string | null
           fumbles?: number | null
           games?: number | null
