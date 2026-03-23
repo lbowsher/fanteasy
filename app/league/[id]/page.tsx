@@ -201,17 +201,26 @@ export default async function League(props: { params: Promise<{ id: LeagueID }> 
     });
     const sortedWeeks = Array.from(allWeeks).sort((a, b) => a - b);
 
-    // For NCAAM Best Ball, fetch eliminated status for all rostered players
+    // For NCAAM Best Ball, fetch eliminated status from ncaa_team_info
     let playerEliminated: Record<string, boolean> = {};
     if (leagueData.league === 'NCAAM') {
         const allPlayerIds = teamsData.flatMap(t => t.team_players || []);
         if (allPlayerIds.length > 0) {
-            const { data: playerStatuses } = await supabase
+            // Get player team_names
+            const { data: playerTeams } = await supabase
                 .from('players')
-                .select('id, eliminated')
+                .select('id, team_name')
                 .in('id', allPlayerIds);
-            (playerStatuses || []).forEach(p => {
-                playerEliminated[p.id] = p.eliminated ?? false;
+            // Get eliminated teams from ncaa_team_info
+            const teamNames = [...new Set((playerTeams || []).map(p => p.team_name))];
+            const { data: eliminatedTeams } = await supabase
+                .from('ncaa_team_info')
+                .select('team_name')
+                .in('team_name', teamNames)
+                .eq('eliminated', true);
+            const eliminatedSet = new Set((eliminatedTeams || []).map(t => t.team_name));
+            (playerTeams || []).forEach(p => {
+                playerEliminated[p.id] = eliminatedSet.has(p.team_name);
             });
         }
     }

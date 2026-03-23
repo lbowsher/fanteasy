@@ -115,7 +115,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                                                      WebkitMaskImage: 'linear-gradient(to right, black 90%, transparent 100%)'
                                                  }}>
                                                 <div className="flex whitespace-nowrap text-muted-foreground text-sm pr-4">
-                                                    {player.gameStats.map((stat : GameStats, index: number) => {
+                                                    {[...player.gameStats].sort((a: GameStats, b: GameStats) => (a.week_number || 0) - (b.week_number || 0)).map((stat : GameStats, index: number) => {
                                                         const gameScore = calculatePlayerScore([stat], team.leagues, player.position).toFixed(1);
                                                         return (
                                                             <div key={stat.id} className="mr-2 flex-shrink-0 text-center">
