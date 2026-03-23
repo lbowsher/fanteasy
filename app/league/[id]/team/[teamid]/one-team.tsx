@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { calculatePlayerScore } from '../../../../utils/scoring';
 import { Card, CardContent } from "@/components/ui/card";
+import { getPositionColor, getPositionBorderColor } from '../../../../draft/[id]/utils';
 
 export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: League } }) {
     const orderedPlayers = useCallback(() => {
@@ -65,6 +66,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                     <div
                         key={player.id}
                         className={`flex items-center p-4 bg-background rounded-lg border border-border hover:border-accent transition-colors ${player.eliminated ? 'opacity-50' : ''}`}
+                        style={{ borderLeft: `3px solid ${getPositionBorderColor(player.position, team.leagues?.league || 'NFL')}` }}
                     >
                         <div className="flex-shrink-0">
                             <Image
@@ -88,7 +90,7 @@ export default function OneTeam({ team }: { team: TeamWithPlayers & { leagues: L
                                 </div>
 
                                 <div className="text-right flex items-center gap-2">
-                                    <span className="inline-block px-2 py-1 bg-card rounded text-xs font-medium text-accent">
+                                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold text-white ${getPositionColor(player.position, team.leagues?.league || 'NFL')}`}>
                                         {player.position}
                                     </span>
                                     {player.eliminated && (
