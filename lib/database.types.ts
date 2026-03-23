@@ -16,28 +16,31 @@ export type Database = {
     Tables: {
       ncaa_team_info: {
         Row: {
+          created_at: string | null
+          eliminated: boolean | null
           id: string
-          team_name: string
-          seed: number | null
           region: string | null
           season_year: number
-          created_at: string | null
+          seed: number | null
+          team_name: string
         }
         Insert: {
+          created_at?: string | null
+          eliminated?: boolean | null
           id?: string
-          team_name: string
-          seed?: number | null
           region?: string | null
           season_year?: number
-          created_at?: string | null
+          seed?: number | null
+          team_name: string
         }
         Update: {
+          created_at?: string | null
+          eliminated?: boolean | null
           id?: string
-          team_name?: string
-          seed?: number | null
           region?: string | null
           season_year?: number
-          created_at?: string | null
+          seed?: number | null
+          team_name?: string
         }
         Relationships: []
       }

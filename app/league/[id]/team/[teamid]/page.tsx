@@ -124,11 +124,24 @@ export default async function Team(props: { params: Promise<{ teamid: TeamID }> 
         totalScore
     };
     
+    // For NCAAM leagues, fetch eliminated status from ncaa_team_info
+    let eliminatedTeams: Set<string> = new Set();
+    if (team.leagues?.league === 'NCAAM' && players && players.length > 0) {
+        const teamNames = [...new Set(players.map(p => p.team_name))];
+        const { data: teamInfos } = await supabase
+            .from('ncaa_team_info')
+            .select('team_name, eliminated')
+            .in('team_name', teamNames)
+            .eq('eliminated', true);
+        (teamInfos || []).forEach(t => eliminatedTeams.add(t.team_name));
+    }
+
     // Map game stats to respective players
     const playersWithStats = players?.map(player => {
         const playerGameStats = allPlayersGameStats?.filter(stat => stat.player_id === player.id) || [];
         return {
             ...player,
+            eliminated: team.leagues?.league === 'NCAAM' ? eliminatedTeams.has(player.team_name) : (player.eliminated ?? false),
             gameStats: playerGameStats
         };
     }) || [];
